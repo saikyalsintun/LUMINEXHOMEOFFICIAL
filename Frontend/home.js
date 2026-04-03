@@ -3,7 +3,7 @@
 // Check if we are running on localhost or a live server
 const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
     ? "http://localhost:5000" 
-    : "https://luminexhomeofficial.vercel.app/"; // Your new Backend URL // <--- Replace with your actual Vercel URL
+    : "https://luminexhomeofficial.vercel.app"; // Your new Backend URL // <--- Replace with your actual Vercel URL
 
 const firebaseConfig = {
     // These are public keys, but it's still better to use variables if your bundler supports them
