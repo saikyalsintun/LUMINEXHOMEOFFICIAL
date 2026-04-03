@@ -1,0 +1,102 @@
+/* 1. Global Refinement */
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', Arial, sans-serif; /* Clean sans-serif */
+  letter-spacing: -0.01em;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: #ffffff; /* Clean white background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 2. The Auth Box: Sharp & Structured */
+.auth-box {
+  background: #fff;
+  width: 400px;
+  padding: 50px 40px;
+  border: 1px solid #000; /* Solid black border instead of shadow */
+  /* Optional: Add a brutalist shadow for depth */
+  box-shadow: 10px 10px 0px #f0f0f0; 
+}
+
+/* 3. Typography: Bold & Uppercase */
+h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+}
+
+/* 4. Inputs: Border-bottom only for a "Boutique" feel */
+input {
+  width: 100%;
+  padding: 12px 0;
+  margin-bottom: 25px;
+  border: none;
+  border-bottom: 1px solid #e0e0e0; /* Underline only */
+  border-radius: 0; /* Remove rounded corners */
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  background: transparent;
+}
+
+input:focus {
+  outline: none;
+  border-bottom: 1px solid #000; /* Sharp focus state */
+}
+
+/* 5. Buttons: Heavy & High Contrast */
+button {
+  width: 100%;
+  padding: 15px;
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+  border-radius: 0; /* Sharp corners */
+  cursor: pointer;
+  /* font-[9px] uppercase font-black tracking-[0.2em]; */
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #fff;
+  color: #000; /* Invert colors on hover */
+}
+
+/* 6. Links: Subdued but Clean */
+.link {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.link a {
+  text-decoration: none;
+  color: #999;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+
+.link a:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+/* 7. Error Messages (if you use them) */
+.error-msg {
+  color: #ff0000;
+  font-size: 10px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  font-weight: bold;
+}

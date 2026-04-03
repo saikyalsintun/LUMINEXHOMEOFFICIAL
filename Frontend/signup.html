@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Account</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-box">
+  <h2>Create Account</h2>
+
+  <input id="suEmail" type="email" placeholder="Email">
+  <input id="suPass" type="password" placeholder="Password">
+  <input id="suConfirm" type="password" placeholder="Confirm password">
+
+  <button onclick="createAccount()">Create Account</button>
+
+  <div class="link">
+    <a href="login.html">Already have an account?</a>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+
+<script type="module" src="forgot.js"></script>
+</body>
+</html>

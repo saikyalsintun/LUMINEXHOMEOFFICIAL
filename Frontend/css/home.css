@@ -1,0 +1,88 @@
+/* 1. Subtle, softer entrance animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); } /* Smaller movement is more elegant */
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-card { 
+    animation: fadeIn 0.4s ease-out forwards; 
+}
+
+/* 2. Navigation: Clean & Spacious */
+.nav-padding { 
+    padding: 20px 40px; /* Increased breathing room */
+    border-bottom: 1px solid #f3f4f6; /* Very faint divider */
+}
+
+.flex-container { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+}
+
+/* Remove fixed widths to allow fluid, airy layouts */
+.logo-width { 
+    font-weight: 700;
+    letter-spacing: -0.5px; 
+}
+
+/* 3. Search: Ghost Input Style */
+.search-container {
+    flex: 1;
+    margin: 0 40px;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 0; /* Vertical padding only */
+    border: none;
+    border-bottom: 1px solid #e5e7eb; /* Underline only for a "boutique" look */
+    border-radius: 0;
+    transition: border-color 0.3s ease;
+    background: transparent;
+}
+
+.search-input:focus {
+    border-bottom: 1px solid #000; /* Subtle highlight */
+}
+
+/* 4. Menu: Balanced Spacing */
+.menu-container {
+    display: flex;
+    gap: 24px; /* Consistent spacing instead of "evenly" */
+    align-items: center;
+}
+
+.nav-link {
+    font-size: 0.9rem;
+    color: #666;
+    transition: color 0.2s ease;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    color: #000;
+}
+
+.fly-item {
+    position: fixed;
+    z-index: 10000;
+    pointer-events: none;
+    object-fit: contain;
+    transition: all 0.8s cubic-bezier(0.42, 0, 0.58, 1);
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.6); color: #f97316; } /* Orange-500 */
+    100% { transform: scale(1); }
+}
+
+.animate-beat {
+    display: inline-block;
+    animation: heartBeat 0.4s ease-in-out;
+}

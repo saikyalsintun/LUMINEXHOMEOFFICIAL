@@ -1,0 +1,89 @@
+/* 1. GLOBAL & TYPOGRAPHY */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
+
+:root {
+    --black: #1d1d1d;
+    --accent: #fd8c66; /* The Luminex Coral Color */
+    --gray: #999;
+    --border: #eeeeee;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { font-family: 'Inter', sans-serif; color: var(--black); line-height: 1.5; }
+
+/* REUSABLE HEADINGS */
+h1 { font-size: 3.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
+h2 { font-size: 1.8rem; font-weight: 700; }
+h3 { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; }
+h5 { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.2em; color: var(--black); }
+
+button {
+    font-size: 0.8rem; font-weight: 700; padding: 13px 30px;
+    background: var(--black); color: white; border: none;
+    text-transform: uppercase; cursor: pointer; transition: 0.3s ease;
+}
+button:hover { background: var(--accent); }
+
+hr { width: 50px; height: 2px; background: var(--accent); border: none; margin: 10px auto; }
+
+/* 2. NAVIGATION */
+.navbar { border-bottom: 1px solid var(--border); }
+.nav-link { 
+    font-size: 12px; font-weight: 700; text-transform: uppercase; 
+    letter-spacing: 0.1em; color: black !important; padding: 0 15px !important; 
+}
+.nav-link:hover, .nav-link.active { color: var(--accent) !important; }
+.navbar i { font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
+.navbar i:hover { color: var(--accent); }
+
+/* 3. HERO SECTION */
+#home {
+    background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)), url("img/back.jpg") center/cover;
+    height: 100vh; display: flex; align-items: center;
+}
+#home span { color: var(--accent); }
+
+/* 4. BRAND LOGOS */
+#brand img { filter: grayscale(100%); opacity: 0.5; transition: 0.3s; }
+#brand img:hover { filter: grayscale(0%); opacity: 1; }
+
+/* 5. CATEGORY BOXES */
+#new .one { position: relative; height: 400px; overflow: hidden; }
+#new .one img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+#new .one:hover img { transform: scale(1.1); }
+
+#new .one .details {
+    position: absolute; inset: 0; padding: 30px;
+    display: flex; flex-direction: column; justify-content: center;
+    background: rgba(0,0,0,0.2); color: white;
+}
+#new .one .details button {
+    background: transparent; border-bottom: 1px solid white; 
+    padding: 5px 0; width: fit-content; border-radius: 0;
+}
+
+/* 6. FEATURED PRODUCTS (Horizontal Image Support) */
+.product { cursor: pointer; margin-bottom: 2rem; padding: 15px; transition: 0.3s; }
+.product:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+.product img { aspect-ratio: 16/9; object-fit: contain; background: #fbfbfb; }
+
+.product .buy-btn { opacity: 0; transform: translateY(10px); width: 100%; margin-top: 10px; }
+.product:hover .buy-btn { opacity: 1; transform: translateY(0); }
+
+/* 7. PROMO BANNER */
+#banner {
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("img/banner/2.jpg") center/cover fixed;
+    height: 60vh; display: flex; flex-direction: column; justify-content: center; color: white;
+}
+#banner button { background: var(--accent); }
+
+/* 8. FOOTER */
+footer { background-color: #111; padding: 80px 0; }
+footer h5 { color: white; margin-bottom: 20px; }
+footer p, footer li a { color: var(--gray); font-size: 0.85rem; text-decoration: none; }
+footer li a:hover { color: white; }
+.social-link i { color: white; font-size: 1.2rem; margin-right: 15px; transition: 0.3s; }
+.social-link i:hover { color: var(--accent); }
+
+.copyright { border-top: 1px solid #222; margin-top: 40px; padding-top: 30px; font-size: 0.8rem; color: #555; }

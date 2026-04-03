@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luminex | Product Administration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head> 
+<body class="bg-gray-100 min-h-screen font-sans">
+
+    <header class="gradient-bg text-white py-6 px-10 shadow-lg flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight">LUMINEX <span class="text-blue-400">ADMIN</span></h1>
+            <p class="text-gray-400 text-sm">Product Inventory Management</p>
+        </div>
+        <a href="orders-admin.html" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm transition">
+    <i class="fa-solid fa-list-check mr-2"></i> View Orders
+</a>
+        <a href="home.html" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm transition">
+            <i class="fa-solid fa-eye mr-2"></i> View Storefront
+        </a>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-10 px-6 grid grid-cols-1 lg:grid-cols-2 gap-10">
+        
+        <section class="bg-white p-8 rounded-3xl shadow-xl border border-gray-200">
+            <div class="flex items-center mb-6">
+                <div class="bg-blue-100 p-3 rounded-xl mr-4">
+                    <i class="fa-solid fa-plus text-blue-600 text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Add New Product</h2>
+            </div>
+ 
+            <form id="productForm" class="space-y-5">
+                <div>
+    <label class="block text-sm font-semibold text-gray-600 mb-1">Product Name (Display Title)</label>
+    <input type="text" id="product_description" placeholder="e.g., Luxury Velvet Sofa with Gold Legs" 
+        class="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+    <p class="text-[10px] text-gray-400 mt-1">This is the main title customers will see.</p>
+</div>
+
+<div>
+    <label class="block text-sm font-semibold text-gray-600 mb-1">Item Number (System ID)</label>
+    <input type="text" id="itemNo" placeholder="e.g., 8239A" 
+        class="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+</div>
+
+<div>
+    <label class="block text-sm font-semibold text-gray-600 mb-2">Category</label>
+    <div class="grid grid-cols-2 gap-3 p-4 bg-gray-50 border border-gray-300 rounded-xl">
+        <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="radio" name="category_radio" value="sofa" class="w-4 h-4 text-blue-600" checked>
+            <span class="text-sm text-gray-700 font-bold">SOFA</span>
+        </label>
+        <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="radio" name="category_radio" value="tv cabinet" class="w-4 h-4 text-blue-600">
+            <span class="text-sm text-gray-700 font-bold">TV CABINET</span>
+        </label>
+        <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="radio" name="category_radio" value="dining table" class="w-4 h-4 text-blue-600">
+            <span class="text-sm text-gray-700 font-bold">DINING TABLE</span>
+        </label>
+        <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="radio" name="category_radio" value="coffee table" class="w-4 h-4 text-blue-600">
+            <span class="text-sm text-gray-700 font-bold">COFFEE TABLE</span>
+        </label>
+        <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="radio" name="category_radio" value="drawer cabinet" class="w-4 h-4 text-blue-600">
+            <span class="text-sm text-gray-700 font-bold">DRAWER CABINET</span>
+        </label>
+        <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="radio" name="category_radio" value="Chair" class="w-4 h-4 text-blue-600">
+            <span class="text-sm text-gray-700 font-bold">CHAIR</span>
+        </label>
+    </div>
+</div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Material Details</label>
+                    <textarea id="material" rows="3" placeholder="e.g., MDF with Veneer + Natural marble" 
+                        class="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" required></textarea>
+                </div>
+ 
+               <div class="grid grid-cols-2 gap-4">
+    <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Size (mm)</label>
+        <input type="text" id="productSize" placeholder="23 inch, 50 inch, 60 inch" 
+            class="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+        <p class="text-[10px] text-gray-400 mt-1">Separate sizes with commas</p> </div>
+    <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Product Color</label>
+        <input type="text" id="productColor" placeholder="White, Black, Gold" 
+            class="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+        <p class="text-[10px] text-gray-400 mt-1">Separate colors with commas</p> </div>
+</div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Cloudinary/Image URL</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-link absolute left-4 top-4 text-gray-400"></i>
+                        <input type="text" id="image" placeholder="https://res.cloudinary.com/..." 
+                            class="w-full p-3 pl-12 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Product Status</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-star absolute left-4 top-4 text-gray-400"></i>
+                        <input type="text" id="productStatus" placeholder="e.g., Hot Sales, Recommended, New Model" 
+                            class="w-full p-3 pl-12 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">This badge will appear on the product image</p>
+                </div>
+
+
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Availability / Remark</label>
+                    <select id="remark" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="New product">New product</option>
+                        <option value="In stock">In stock</option>
+                        <option value="Pre-Order">Pre-Order</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="submitBtn" 
+                    class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition transform active:scale-95 shadow-lg shadow-blue-200">
+                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Push to MongoDB
+                </button>
+            </form>
+        </section>
+
+        <section class="flex flex-col justify-center items-center space-y-6">
+            <h3 class="text-lg font-bold text-gray-500 uppercase tracking-widest">Live Preview</h3>
+            
+            <div id="previewCard" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col w-80">
+                <div class="w-full h-48 overflow-hidden rounded-xl mb-4 bg-gray-100 flex items-center justify-center">
+                    <img id="prevImage" src="https://placehold.co/400x400?text=Image+Preview" class="w-full h-full object-cover">
+                </div>
+                <h2 id="prevItemNo" class="font-bold text-xl mb-2 text-gray-800">ITEM_NO</h2>
+                <p id="prevMaterial" class="text-gray-500 mb-4 text-sm">Material details will appear here...</p>
+                <span id="prevColor" class="text-blue-600 font-black text-lg mb-4">Color Name</span>
+                <p id="prevSize" class="text-xs text-gray-400 mb-4">Size (mm): 0x0x0</p>
+                <button class="mt-auto bg-gray-200 text-gray-400 py-3 rounded-xl font-semibold cursor-not-allowed">
+                    🛒 Sample Button
+                </button>
+            </div>
+            <p class="text-sm text-gray-400 italic">This is how customers will see the item on the Home page.</p>
+        </section>
+    </main>
+
+
+    <script src="admin.js"></script>
+    
+</body>
+</html>

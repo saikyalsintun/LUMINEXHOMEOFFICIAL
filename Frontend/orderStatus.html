@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order | Luminex</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .animate-pulse-slow { animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+
+    <div class="max-w-2xl mx-auto px-4 py-12">
+        <div class="flex justify-between items-center mb-8">
+            <a href="index.html" class="inline-flex items-center text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-black transition">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Back to Shop
+            </a>
+            <button onclick="fetchOrderStatus()" class="text-[10px] font-black uppercase tracking-widest text-gray-300 hover:text-black transition">
+                <i class="fa-solid fa-rotate mr-1"></i> Refresh Status
+            </button>
+        </div>
+
+        <div id="statusContent">
+            <div class="flex flex-col items-center justify-center py-20 text-gray-400">
+                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-4"></i>
+                <p class="text-xs font-bold uppercase tracking-tighter italic">Syncing with Server...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // config.js
+const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://localhost:5000" 
+    : "https://your-backend-project.vercel.app";
+
+export const API_BASE = `${API_BASE_URL}/api`;
+        // 1. CONFIGURATION & PERSISTENCE
+        const urlParams = new URLSearchParams(window.location.search);
+        let orderId = urlParams.get('id'); 
+
+        // Fallback: If no ID in URL, check browser memory (LocalStorage)
+        if (!orderId) {
+            orderId = localStorage.getItem('lastOrderId');
+        } else {
+            localStorage.setItem('lastOrderId', orderId);
+        }
+
+        const API_URL = `${API_BASE_URL}/api/orders`;
+
+        /**
+         * 2. FETCH STATUS FROM DATABASE
+         */
+        async function fetchOrderStatus() {
+            if (!orderId) {
+                renderNoOrderFound();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${orderId}`);
+                if (!response.ok) throw new Error("Order not found");
+                const order = await response.json();
+
+                renderUI(order);
+            } catch (error) {
+                renderError(error.message);
+            }
+        }
+
+        /**
+         * 3. UI RENDERING LOGIC
+         */
+        function renderUI(order) {
+            const container = document.getElementById('statusContent');
+            const status = order.status || 'Pending';
+            
+            const steps = [
+                { key: 'Pending', label: 'Confirmed', icon: 'fa-clipboard-check' },
+                { key: 'Approved', label: 'Processing', icon: 'fa-gears' },
+                { key: 'Order Made', label: 'Produced', icon: 'fa-shirt' },
+                { key: 'Transporting', label: 'On Way', icon: 'fa-truck-fast' },
+                { key: 'Received', label: 'Delivered', icon: 'fa-house-chimney-check' }
+            ];
+
+            // Map 'Direct Contact' visually to 'Approved'
+            const visualStatus = (status === 'Direct Contact') ? 'Approved' : status;
+            const currentIndex = steps.findIndex(s => s.key === visualStatus);
+            const isCancelled = status === 'Cancelled';
+            const isReceived = status === 'Received';
+
+            container.innerHTML = `
+                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+                    <div class="bg-black p-8 text-white text-center">
+                        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500 mb-2 font-mono">Live Tracking</p>
+                        <h1 class="text-2xl font-black uppercase tracking-tight italic">
+                            ${isCancelled ? 'Order Cancelled' : (isReceived ? 'Package Delivered' : status)}
+                        </h1>
+                        <p class="text-[9px] text-gray-400 mt-4 font-mono uppercase tracking-widest border border-gray-800 inline-block px-3 py-1 rounded">
+                            Reference: ${order._id}
+                        </p>
+                    </div>
+
+                    <div class="p-8 md:p-12">
+                        ${!isCancelled ? `
+                            <div class="relative flex justify-between items-start mb-16">
+                                <div class="absolute top-5 left-0 w-full h-[2px] bg-gray-100 z-0"></div>
+                                <div class="absolute top-5 left-0 h-[2px] bg-black z-0 transition-all duration-1000" 
+                                     style="width: ${(currentIndex / (steps.length - 1)) * 100}%"></div>
+                                
+                                ${steps.map((step, index) => {
+                                    const isActive = index <= currentIndex;
+                                    const isCurrent = index === currentIndex;
+                                    return `
+                                    <div class="relative z-10 flex flex-col items-center">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 
+                                            ${isActive ? 'bg-black text-white shadow-xl' : 'bg-gray-100 text-gray-300'} 
+                                            ${isCurrent && !isReceived ? 'scale-125 ring-4 ring-gray-50 animate-pulse-slow' : ''}">
+                                            <i class="fa-solid ${step.icon} text-xs"></i>
+                                        </div>
+                                        <p class="mt-4 text-[8px] font-black uppercase tracking-tighter ${isActive ? 'text-black' : 'text-gray-300'}">
+                                            ${step.label}
+                                        </p>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        ` : ''}
+
+                        <div class="bg-gray-50 rounded-2xl p-6 mb-10 text-center border border-dashed border-gray-200">
+                            <p class="text-xs text-gray-600 font-bold uppercase tracking-tight italic">
+                                ${getStatusMessage(status)}
+                            </p>
+                        </div>
+
+                        <div class="space-y-4 mb-8">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b pb-2">Your Items</p>
+                            ${order.items.map(item => `
+                                <div class="flex items-center gap-4 py-3 border-b border-gray-50 last:border-0">
+                                    <img src="${item.image}" class="w-14 h-14 object-contain rounded-xl bg-gray-50 shadow-sm">
+                                    <div class="flex-grow">
+                                        <h4 class="text-[11px] font-black uppercase text-black leading-tight">${item.product_description}</h4>
+                                        <p class="text-[9px] text-gray-400 font-bold mt-1 uppercase italic">${item.size} — ${item.color}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[11px] font-black tracking-tighter">QTY: ${item.quantity}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        ${status === 'Transporting' ? `
+                            <button id="confirmBtn" onclick="confirmOrderDelivered('${order._id}')" 
+                                class="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-gray-800 transition-all active:scale-95 shadow-lg group">
+                                <i class="fa-solid fa-box-open mr-2 group-hover:bounce"></i> I Have Received My Order
+                            </button>
+                        ` : ''}
+
+                        ${isReceived ? `
+                            <div class="text-center py-4">
+                                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
+                                    <i class="fa-solid fa-circle-check mr-1"></i> Delivery Confirmed
+                                </p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>`;
+        }
+
+        /**
+         * 4. CUSTOMER ACTION: UPDATE STATUS TO RECEIVED
+         */
+        async function confirmOrderDelivered(id) {
+            const btn = document.getElementById('confirmBtn');
+            if (!confirm("Are you confirming that your package has been delivered?")) return;
+
+            try {
+                btn.disabled = true;
+                btn.innerText = "UPDATING...";
+
+                const response = await fetch(`${API_URL}/${id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'Received' })
+                });
+
+                if (response.ok) {
+                    // Refresh the UI to show the 'Delivered' state
+                    fetchOrderStatus();
+                } else {
+                    throw new Error("Could not update status");
+                }
+            } catch (err) {
+                alert("Error: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "I Have Received My Order";
+            }
+        }
+
+        function getStatusMessage(status) {
+            const messages = {
+                'Pending': 'Your order has been logged. We are reviewing your wishlist.',
+                'Approved': 'Order approved. We are currently preparing your items.',
+                'Direct Contact': 'Our support team will contact you shortly to finalize details.',
+                'Order Made': 'Production is complete! Your items are moving to shipping.',
+                'Transporting': 'Your order is on the way! Please confirm once it arrives.',
+                'Received': 'Thank you! Your delivery has been confirmed.',
+                'Cancelled': 'This order has been cancelled. Please contact support.'
+            };
+            return messages[status] || 'Synchronizing with logistics...';
+        }
+
+        function renderNoOrderFound() {
+            document.getElementById('statusContent').innerHTML = `
+                <div class="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100">
+                    <i class="fa-solid fa-magnifying-glass text-gray-200 text-4xl mb-4"></i>
+                    <h2 class="text-lg font-bold uppercase">No Active Order</h2>
+                    <p class="text-gray-500 mt-2 text-xs">We couldn't find a recent order for this session.</p>
+                    <a href="index.html" class="mt-6 inline-block bg-black text-white px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest">Shop Collection</a>
+                </div>`;
+        }
+
+        function renderError(msg) {
+            document.getElementById('statusContent').innerHTML = `
+                <div class="bg-white rounded-3xl p-12 text-center shadow-sm border border-red-50">
+                    <i class="fa-solid fa-circle-exclamation text-red-400 text-4xl mb-4"></i>
+                    <h2 class="text-lg font-bold uppercase text-red-600">Connection Error</h2>
+                    <p class="text-gray-500 mt-2 text-xs">${msg}</p>
+                </div>`;
+        }
+
+        // Initial Start
+        fetchOrderStatus();
+
+        // Auto-refresh every 10 seconds to catch Admin changes
+        setInterval(fetchOrderStatus, 10000); 
+
+    </script>
+</body>
+</html>
