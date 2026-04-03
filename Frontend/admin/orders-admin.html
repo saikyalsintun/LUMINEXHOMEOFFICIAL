@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luminex Admin | Customer Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Small custom tweak for the dropdown since Tailwind doesn't always have exact styles for selects */
+        .filter-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head> 
+<body class="bg-gray-50 min-h-screen font-sans">
+    
+    <nav class="bg-black text-white p-6 shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black tracking-widest uppercase italic">LUMINEX <span class="text-blue-500">ORDERS</span></h1>
+                <p class="text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em]">Management System v2.0</p>
+            </div>
+            
+            <div class="flex gap-4 items-center">
+                <select onchange="filterByStatus(this.value)" class="filter-select bg-gray-900 border border-white/20 text-[10px] font-bold uppercase px-4 py-2 rounded-lg outline-none focus:border-blue-500 transition-all cursor-pointer">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">New Orders</option>
+                    <option value="Approved">Payment Approved</option>
+                    <option value="Order Made">In Production</option>
+                    <option value="Transporting">In Transit</option>
+                    <option value="Received">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                
+                <a href="admin.html" class="text-[10px] font-black uppercase border border-white/30 px-4 py-2 hover:bg-white hover:text-black transition-all">
+                    <i class="fa-solid fa-boxes-stacked mr-2"></i> Inventory
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto py-10 px-6">
+        
+        <div class="flex justify-between items-end mb-8 border-b border-gray-200 pb-6">
+            <div>
+                <h2 class="text-2xl font-black uppercase italic tracking-tighter">Live Shipments</h2>
+                <p class="text-xs text-gray-400 font-medium uppercase">Syncing with MongoDB Atlas</p>
+            </div>
+            <button onclick="fetchOrders()" class="text-[10px] font-bold uppercase text-blue-600 hover:text-blue-800 transition flex items-center gap-2">
+                <i class="fa-solid fa-rotate"></i> Refresh Data
+            </button>
+        </div>
+
+        <div id="ordersContainer" class="space-y-6">
+            <div class="text-center py-40 text-gray-400">
+                <i class="fa-solid fa-spinner fa-spin text-4xl mb-4 text-black"></i>
+                <p class="text-[10px] font-black uppercase tracking-widest animate-pulse">Establishing Secure Database Connection...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script src="../firebase-config.js"></script>
+
+    <script src="orders-admin.js"></script>
+    
+</body>
+</html>
