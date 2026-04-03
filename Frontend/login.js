@@ -13,36 +13,26 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// --- 2. LOGIN FUNCTION ---
 async function login() {
-    const email = document.getElementById('loginEmail').value;
+    const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value;
-    const adminEmail = "saikyalsintun.mdy@gmail.com"; // Updated to .com
-
-    if (!email || !pass) {
-        alert("Please fill in all fields.");
-        return;
-    }
+    const adminEmail = "saikyalsintun.mdy@gmail.com"; 
 
     try {
         const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
         const user = userCredential.user;
 
-        console.log("Login successful:", user.email);
-
-        // --- 3. ADMIN REDIRECT LOGIC ---
         if (user.email.toLowerCase() === adminEmail.toLowerCase()) {
-            alert("Welcome back, Administrator.");
+            // Set a "Signal" in the browser memory
+            localStorage.setItem('isAdmin', 'true');
             window.location.href = "admin.html";
         } else {
+            localStorage.setItem('isAdmin', 'false');
             window.location.href = "home.html";
         }
-
     } catch (error) {
-        console.error("Login Error:", error);
         alert("Login failed: " + error.message);
     }
 }
-
 // Attach to window so the button can see it
 window.login = login;
