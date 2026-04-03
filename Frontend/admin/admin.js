@@ -5,11 +5,47 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
 
 const API_BASE = `${API_BASE_URL}/api`;
 
-// --- 2. UI ELEMENTS ---
-const form = document.getElementById('productForm');
+const firebaseConfig = {
+    apiKey: "AIzaSyCDJ042NuwnbGCxaTN7ZIQcaPN3ius8Bmo",
+    authDomain: "luminex-7ba90.firebaseapp.com",
+    projectId: "luminex-7ba90",
+    storageBucket: "luminex-7ba90.firebasestorage.app",
+    messagingSenderId: "977344382421",
+    appId: "1:977344382421:web:6fa2461522856b4563295c",
+    measurementId: "G-TB90F73ZGX"
+};
+
+// Initialize Firebase only if not already initialized
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+// --- 2. AUTH STATE LISTENER ---
+const authStatus = document.getElementById('authStatus');
 const submitBtn = document.getElementById('submitBtn');
 
-// --- 3. LIVE PREVIEW LOGIC ---
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        if (user.email === "saikyalsintun.mdy@gmail.com") {
+            authStatus.innerText = "✅ Logged in as Admin";
+            authStatus.className = "bg-green-100 text-green-800 text-[10px] py-1 text-center font-bold uppercase tracking-widest border-b border-green-200";
+            submitBtn.disabled = false;
+        } else {
+            authStatus.innerText = "❌ Unauthorized: Admin access only";
+            authStatus.className = "bg-red-100 text-red-800 text-[10px] py-1 text-center font-bold uppercase tracking-widest border-b border-red-200";
+            submitBtn.disabled = true;
+        }
+    } else {
+        authStatus.innerText = "⚠️ Not Logged In: Redirecting...";
+        authStatus.className = "bg-yellow-100 text-yellow-800 text-[10px] py-1 text-center font-bold uppercase tracking-widest border-b border-yellow-200";
+        submitBtn.disabled = true;
+        // Optionally redirect to login page here: window.location.href = "login.html";
+    }
+});
+
+// --- 3. UI ELEMENTS & PREVIEW LOGIC ---
+const form = document.getElementById('productForm');
+
 const inputIds = ['itemNo', 'product_description', 'material', 'productSize', 'productColor', 'image', 'productStatus'];
  
 inputIds.forEach(id => {
@@ -37,7 +73,6 @@ inputIds.forEach(id => {
     }
 });
 
-// Category Radio Preview Logic
 document.querySelectorAll('input[name="category_radio"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
         const prevCat = document.getElementById('prevCategory');
@@ -50,14 +85,12 @@ if (form) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 🛡️ AUTH CHECK: Get the current user
         const user = firebase.auth().currentUser;
         if (!user || user.email !== "saikyalsintun.mdy@gmail.com") {
-            alert("⛔ Unauthorized: You must be logged in as admin to add products.");
+            alert("⛔ Unauthorized access.");
             return;
         }
 
-        // Get the value of the selected Radio Button safely
         const checkedRadio = document.querySelector('input[name="category_radio"]:checked');
         const selectedCategory = checkedRadio ? checkedRadio.value : "sofa";
 
@@ -73,20 +106,19 @@ if (form) {
             remark: document.getElementById('remark').value
         };
 
-        // UI Feedback
         const originalBtnContent = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Syncing to MongoDB...';
         submitBtn.disabled = true;
 
         try {
-            // Get fresh token from Firebase to prove identity to the backend
-            const idToken = await user.getIdToken();
+            // Get fresh token from Firebase
+            const idToken = await user.getIdToken(true);
 
             const response = await fetch(`${API_BASE}/admin/products`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${idToken}` // Send token to backend
+                    'Authorization': `Bearer ${idToken}` 
                 },
                 body: JSON.stringify(productData)
             });
@@ -94,10 +126,8 @@ if (form) {
             if (response.ok) {
                 alert(`✨ Success! ${productData.product_description} is now live.`);
                 form.reset();
-                
-                // Reset Previews to default values
+                // Reset Preview
                 document.getElementById('prevProdDesc').innerText = 'PRODUCT NAME';
-                document.getElementById('prevCategory').innerText = 'SOFA';
                 document.getElementById('prevImage').src = 'https://placehold.co/400x400?text=Luminex+Preview';
             } else {
                 const result = await response.json();
@@ -105,7 +135,7 @@ if (form) {
             }
         } catch (error) {
             console.error("Submission Error:", error);
-            alert("❌ Connection Failed. Check if your backend server is online.");
+            alert("❌ Connection Failed. Check your internet or backend status.");
         } finally {
             submitBtn.innerHTML = originalBtnContent;
             submitBtn.disabled = false;

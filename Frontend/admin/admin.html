@@ -10,6 +10,10 @@
 </head> 
 <body class="bg-gray-100 min-h-screen font-sans">
 
+    <div id="authStatus" class="bg-yellow-100 text-yellow-800 text-[10px] py-1 text-center font-bold uppercase tracking-widest border-b border-yellow-200">
+        Checking Authentication...
+    </div>
+
     <header class="bg-black text-white py-6 px-10 shadow-lg flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-black tracking-tight italic">LUMINEX <span class="text-blue-500">ADMIN</span></h1>
@@ -120,7 +124,7 @@
                 </div>
 
                 <button type="submit" id="submitBtn" 
-                    class="w-full bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition shadow-lg">
+                    class="w-full bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition shadow-lg">
                     <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Add to MongoDB
                 </button>
             </form>
@@ -146,7 +150,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="../firebase-config.js"></script>
+  
     <script src="admin.js"></script>
     
 </body>
