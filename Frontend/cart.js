@@ -15,26 +15,22 @@ const firebaseConfig = {
     measurementId: "G-TB90F73ZGX"
 };
 
-// Initialize Firebase only if not already initialized
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
 let currentUser = null;
 
-// --- 2. AUTH LISTENER ---
 firebase.auth().onAuthStateChanged(async (user) => {
     if (!user) {
-        console.warn("No user detected, redirecting to login...");
         window.location.href = "login.html";
     } else {
         currentUser = user;
-        console.log("User authenticated:", user.email);
         await loadCart();
     }
 });
 
-// --- 3. LOAD AND DISPLAY CART ---
+// --- 3. LOAD AND DISPLAY CART (MOBILE OPTIMIZED) ---
 async function loadCart() {
     const grid = document.getElementById("cartGrid");
     const orderSummary = document.getElementById("orderSummary");
@@ -51,8 +47,7 @@ async function loadCart() {
             }
         });
 
-        if (!res.ok) throw new Error(`Server responded with ${res.status}`);
-
+        if (!res.ok) throw new Error(`Server error`);
         const cartItems = await res.json();
         
         if (!grid) return;
@@ -60,12 +55,11 @@ async function loadCart() {
 
         if (!cartItems || cartItems.length === 0) {
             grid.innerHTML = `
-                <div class="text-center py-20 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                    <p class="text-xs font-black uppercase tracking-widest text-gray-400">Your wishlist is empty</p>
-                    <a href="home.html" class="text-[10px] underline mt-4 block uppercase font-bold text-black">Start Shopping</a>
+                <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Wishlist is empty</p>
+                    <a href="home.html" class="text-[10px] underline mt-3 block uppercase font-bold text-black">Start Shopping</a>
                 </div>`;
             if (orderSummary) orderSummary.classList.add("hidden");
-            if (totalCount) totalCount.innerText = "0";
             return;
         }
 
@@ -75,55 +69,47 @@ async function loadCart() {
         cartItems.forEach(item => {
             const product = item.product || {};
             grid.innerHTML += `
-            <div class="group border border-gray-100 p-4 flex gap-6 items-center hover:border-black transition-all bg-white rounded-xl">
-                <div class="w-24 h-24 flex-shrink-0 bg-gray-50 overflow-hidden rounded-lg">
-                    <img src="${product.image || ''}" class="w-full h-full object-contain mix-blend-multiply" alt="Product">
+            <div class="bg-white border border-gray-100 p-3 flex gap-4 items-center rounded-2xl">
+                <div class="w-20 h-20 flex-shrink-0 bg-gray-50 overflow-hidden rounded-xl">
+                    <img src="${product.image || ''}" class="w-full h-full object-cover" alt="Product">
                 </div>
-                <div class="flex-grow">
-                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${product.category || 'Collection'}</span>
-                    <h2 class="font-bold text-sm uppercase mb-1 text-black">${product.product_description || 'No Description'}</h2>
-                    <div class="flex gap-4">
-                        <p class="text-[9px] uppercase text-gray-400 font-bold">Color: <span class="text-black">${item.color || 'N/A'}</span></p>
-                        <p class="text-[9px] uppercase text-gray-400 font-bold">Size: <span class="text-black">${item.size || 'N/A'}</span></p>
+                <div class="flex-grow min-w-0">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[8px] font-bold text-orange-500 uppercase tracking-widest truncate">${product.category || 'FURNITURE'}</span>
+                        <button onclick="deleteItem('${item._id || item.itemId}')" class="text-gray-300 hover:text-red-500 p-1">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
                     </div>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs font-black">x${item.quantity}</span>
-                    <button onclick="deleteItem('${item._id || item.itemId}')" class="block mt-2 text-[9px] font-black uppercase text-gray-300 hover:text-red-600 transition-colors">
-                        [ Remove ]
-                    </button>
+                    <h2 class="font-bold text-[13px] uppercase truncate text-black">${product.product_description || 'Item'}</h2>
+                    <div class="flex gap-3 mt-1">
+                        <p class="text-[9px] uppercase text-gray-400"><span class="text-black font-bold">${item.color || 'N/A'}</span></p>
+                        <p class="text-[9px] uppercase text-gray-400"><span class="text-black font-bold">${item.size || 'N/A'}</span></p>
+                        <p class="text-[9px] uppercase text-gray-400">Qty: <span class="text-black font-bold">${item.quantity}</span></p>
+                    </div>
                 </div>
             </div>`;
         });
     } catch (error) {
-        console.error("Load Error:", error);
-        if (grid) grid.innerHTML = `<p class="text-red-500 text-center text-xs">Error loading cart. Please try again later.</p>`;
+        grid.innerHTML = `<p class="text-red-500 text-center text-[10px]">Failed to load selection.</p>`;
     }
 }
 
-// --- 4. DELETE ITEM ---
 async function deleteItem(id) {
-    if (!confirm("Remove this item from your selection?")) return;
+    if (!confirm("Remove item?")) return;
     try {
         const token = await currentUser.getIdToken();
         const response = await fetch(`${API_BASE}/cart/${id}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
         });
-        if (response.ok) {
-            await loadCart();
-        } else {
-            alert("Could not remove item.");
-        }
+        if (response.ok) await loadCart();
     } catch (error) {
-        console.error("Delete Error:", error);
+        console.error(error);
     }
 }
 
-// --- 5. SUBMIT ORDER ---
 async function submitOrder() {
     const btn = document.getElementById("submitOrderBtn");
-    
     const customer = {
         name: document.getElementById('custName')?.value.trim() || "",
         phone: document.getElementById('custPhone')?.value.trim() || "",
@@ -132,7 +118,7 @@ async function submitOrder() {
     };
 
     if (!customer.name || !customer.address || !customer.phone) {
-        alert("Please provide your name, phone number, and delivery address.");
+        alert("Fill in all delivery details.");
         return;
     }
 
@@ -141,19 +127,11 @@ async function submitOrder() {
         btn.innerText = "PROCESSING...";
 
         const token = await currentUser.getIdToken();
-        
-        // 1. Get items
         const cartRes = await fetch(`${API_BASE}/cart`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         const cartItems = await cartRes.json();
 
-        if (!cartItems || cartItems.length === 0) {
-            alert("Your cart is empty.");
-            return;
-        }
-
-        // 2. Format
         const formattedItems = cartItems.map(item => ({
             productId: item.product._id,
             product_description: item.product.product_description,
@@ -163,7 +141,6 @@ async function submitOrder() {
             quantity: item.quantity
         }));
 
-        // 3. Post Order
         const orderRes = await fetch(`${API_BASE}/orders`, {
             method: "POST",
             headers: {
@@ -178,25 +155,18 @@ async function submitOrder() {
         });
 
         const orderData = await orderRes.json();
-
         if (orderRes.ok) {
-            localStorage.setItem('lastOrderId', orderData.order._id);
-            alert("THANK YOU. YOUR ORDER HAS BEEN PLACED.");
             window.location.href = `orderStatus.html?id=${orderData.order._id}`;
         } else {
-            throw new Error(orderData.message || "Failed to save order");
+            throw new Error(orderData.message);
         }
     } catch (error) {
-        console.error("Submission Error:", error);
         alert("ERROR: " + error.message);
     } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = "SUBMIT ORDER";
-        }
+        btn.disabled = false;
+        btn.innerText = "PLACE ORDER";
     }
 }
 
-// Global exposure
 window.deleteItem = deleteItem;
 window.submitOrder = submitOrder;
