@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My Account | Luminex Furniture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
+
+    <style>
+        :root {
+            --text-dark: #1a1a1a;
+            --text-muted: #777777;
+            --border-color: #eeeeee;
+        }
+
+        body {
+            padding-top: 100px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #fcfcfc;
+            color: var(--text-dark);
+        }
+
+        /* Navbar */
+        .navbar { border-bottom: 1px solid var(--border-color); }
+        .nav-link { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Sidebar Menu */
+        .account-menu .list-group-item {
+            border: none;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding: 15px 20px;
+            background: transparent;
+            transition: 0.3s;
+        }
+
+        .account-menu .list-group-item.active {
+            color: var(--text-dark) !important;
+            font-weight: 700;
+            background: transparent;
+            border-left: 3px solid #000;
+        }
+
+        /* Profile Card */
+        .info-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 40px;
+        }
+
+        .info-group { margin-bottom: 30px; }
+        
+        .info-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 0;
+            padding: 8px 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 fixed-top shadow-sm">
+        <div class="container">
+            <a href="index.html"><img src="img/logo2.png" alt="Luminex" height="35"></a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ml-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="account.html"><i class="fal fa-user"></i> Me</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-3">
+                <h4 class="font-weight-bold mb-4">MY ACCOUNT</h4>
+                <div class="list-group account-menu">
+                    <a href="account.html" class="list-group-item list-group-item-action active">Profile Information</a>
+                    <a href="orderStatus.html" class="list-group-item list-group-item-action">Order History</a>
+                    <hr>
+                    <a href="javascript:void(0)" class="list-group-item list-group-item-action text-danger" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="info-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="font-weight-bold mb-0 text-uppercase">Personal Details</h5>
+                        <button class="btn btn-outline-dark btn-edit" data-toggle="modal" data-target="#editProfileModal">
+                            Edit Profile
+                        </button>
+                    </div>
+                    <hr class="mb-5">
+
+                    <div class="row">
+                        <div class="col-md-6 info-group">
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value" id="display-name">Loading...</div>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value" id="display-email">Loading...</div>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <div class="info-label">Phone Number</div>
+                            <div class="info-value" id="display-phone">Not Provided</div>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <div class="info-label">Member Since</div>
+                            <div class="info-value" id="display-joined">-- --</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 0;">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title font-weight-bold text-uppercase" style="font-size: 14px;">Update Information</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="editProfileForm">
+                        <div class="form-group">
+                            <label class="small font-weight-bold">First Name</label>
+                            <input type="text" class="form-control" id="input-firstname" style="border-radius:0;">
+                        </div>
+                        <div class="form-group">
+                            <label class="small font-weight-bold">Last Name</label>
+                            <input type="text" class="form-control" id="input-lastname" style="border-radius:0;">
+                        </div>
+                        <div class="form-group">
+                            <label class="small font-weight-bold">Phone Number</label>
+                            <input type="text" class="form-control" id="input-phone" style="border-radius:0;">
+                        </div>
+                        <button type="submit" class="btn btn-dark btn-block mt-4" style="border-radius:0;">SAVE CHANGES</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <script type="module">
+        const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+            ? "http://localhost:5000" 
+            : "https://luminexhomeofficial.vercel.app";
+
+        // 1. FETCH DATA FROM MONGODB
+        async function fetchUserProfile() {
+            const token = localStorage.getItem('token');
+            const email = localStorage.getItem('userEmail');
+
+            // If no token, they aren't logged in
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                // Fetch user data based on email saved in login.js
+                const response = await fetch(`${API_BASE_URL}/api/users/profile?email=${email}`);
+                if (response.ok) {
+                    const user = await response.json();
+                    
+                    // Update Page
+                    document.getElementById('display-email').innerText = user.email;
+                    document.getElementById('display-name').innerText = `${user.firstName || ''} ${user.lastName || ''}`.trim() || "Luminex Member";
+                    document.getElementById('display-phone').innerText = user.phone || "Not Provided";
+                    
+                    if(user.createdAt) {
+                        const date = new Date(user.createdAt);
+                        document.getElementById('display-joined').innerText = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    }
+
+                    // Pre-fill Modal
+                    document.getElementById('input-firstname').value = user.firstName || "";
+                    document.getElementById('input-lastname').value = user.lastName || "";
+                    document.getElementById('input-phone').value = user.phone || "";
+                }
+            } catch (err) {
+                console.error("Error fetching profile:", err);
+            }
+        }
+
+        // 2. SAVE CHANGES TO MONGODB
+        document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = localStorage.getItem('userEmail');
+            
+            const updatedData = {
+                email: email,
+                firstName: document.getElementById('input-firstname').value,
+                lastName: document.getElementById('input-lastname').value,
+                phone: document.getElementById('input-phone').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (response.ok) {
+                    alert("Profile updated!");
+                    location.reload();
+                }
+            } catch (err) {
+                alert("Update failed.");
+            }
+        });
+
+        // 3. LOGOUT
+        window.handleLogout = function() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        };
+
+        document.addEventListener('DOMContentLoaded', fetchUserProfile);
+    </script>
+</body>
+</html>

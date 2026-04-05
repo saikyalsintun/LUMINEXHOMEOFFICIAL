@@ -10,19 +10,80 @@
     <link rel="stylesheet" href="home.css">
 </head>
 <style>
-/* This makes the flying image look smooth */
+/* --- NAVIGATION TEXT STYLE FIXES --- */
+.nav-link-min {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    color: #4b5563;
+    text-decoration: none !important;
+}
+.nav-link-min:hover { 
+    color: #000; 
+}
+
+/* --- DROPDOWN MENU STYLES --- */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 15px; 
+    margin-bottom: -15px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%; 
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
+    z-index: 1000;
+    border-radius: 8px;
+    padding: 10px 0;
+    border: 1px solid #f3f4f6;
+}
+
+.profile-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: #4b5563;
+    padding: 12px 20px;
+    text-decoration: none !important;
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: #fff7ed;
+    color: #fb923c;
+    padding-left: 25px;
+}
+
+/* --- EXISTING STYLES --- */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 .fly-item {
     position: fixed;
     z-index: 99999;
     pointer-events: none;
     object-fit: contain;
-    transition: all 0.8s cubic-bezier(0.42, 0, 0.58, 1); /* This creates the "flight" path */
+    transition: all 0.8s cubic-bezier(0.42, 0, 0.58, 1);
     background: white;
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
-/* This makes the heart icon "pop" when the item hits it */
 @keyframes heartBeat {
     0% { transform: scale(1); }
     50% { transform: scale(1.6); color: #f97316; }
@@ -37,10 +98,10 @@
 
 <body class="bg-gray-50">
 
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
+<nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
     <div class="container mx-auto px-8 py-6">
         <div class="grid grid-cols-3 items-center">
-            
+             
             <div class="flex gap-8 items-center">
                 <a href="index.html" class="nav-link-min">Home</a>
                 <a href="collection.html" class="nav-link-min">Collection</a>
@@ -57,15 +118,27 @@
                 <button onclick="toggleSearch()" class="hover:text-black transition-colors">
                     <i class="fa-solid fa-magnifying-glass text-sm"></i>
                 </button>
-             <a href="cart.html" id="wishlist-icon" class="hover:text-black transition-colors relative">
-    <i class="fa-regular fa-heart text-sm"></i>
-    <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">
-        0
-    </span>
-</a>
-                <a href="javascript:void(0)" onclick="handleAuthAction()" class="hover:text-black transition-colors">
-               <i class="fas fa-sign-out text-sm"></i>
+                
+                <a href="cart.html" id="wishlist-icon" class="hover:text-black transition-colors relative">
+                    <i class="fa-regular fa-heart text-sm"></i>
+                    <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
                 </a>
+
+                <div class="profile-dropdown">
+                    <button class="hover:text-black transition-colors focus:outline-none py-1">
+                        <i class="fa-regular fa-user text-sm"></i>
+                    </button>
+                    <div class="dropdown-content shadow-xl border border-gray-100">
+                        <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                        <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
+                        <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
+                        <a href="collection.html" class="font-bold text-orange-500"><i class="fa-solid fa-layer-group mr-2"></i> Collection</a>
+                        <hr class="my-1 border-gray-50">
+                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="text-orange-600 font-bold">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -80,15 +153,12 @@
 </nav>
 
 <br/>
-        <div id="filterContainer" class="flex flex-wrap gap-3 mb-8 px-2">
-            </div>
+<div id="filterContainer" class="flex flex-wrap gap-3 mb-8 px-2"></div>
+<div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
 
-        <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            </div>
-
-    <div class="container mx-auto p-10">
-        <div id="grid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
-    </div>
+<div class="container mx-auto p-10">
+    <div id="grid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+</div>
     
 <div id="zoomModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4">
     <button onclick="closeZoom()" class="absolute top-5 right-5 text-white text-4xl hover:text-gray-300 transition">&times;</button>
@@ -98,12 +168,10 @@
         <button onclick="adjustZoom(-0.2)" class="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full backdrop-blur-md">➖ Zoom Out</button>
     </div>
 </div>
-   
 
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    
-    <script src="home.js"></script>
-    <script src="auth-logic.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="home.js"></script>
+<script src="auth-logic.js"></script>
 </body>
 </html>

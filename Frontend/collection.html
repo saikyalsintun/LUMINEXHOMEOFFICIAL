@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Collections | Luminex Furniture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <style>
+        /* --- NAVIGATION STYLES (MATCHING HOME PAGE) --- */
+        .nav-link-min {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+            color: #4b5563;
+            text-decoration: none !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+        .nav-link-min:hover { color: #000; }
+
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px; 
+            margin-bottom: -15px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%; 
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
+            z-index: 1000;
+            border-radius: 8px;
+            padding: 10px 0;
+            border: 1px solid #f3f4f6;
+        }
+
+        .profile-dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: #4b5563;
+            padding: 12px 20px;
+            text-decoration: none !important;
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #fff7ed;
+            color: #fb923c;
+            padding-left: 25px;
+        }
+
+        /* --- GLOBAL RESET --- */
+        body { 
+            background-color: #f8f9fa;
+            color: #212529;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- COLLECTIONS LAYOUT --- */
+        .sidebar-sticky {
+            position: sticky;
+            top: 120px;
+            height: fit-content;
+        }
+
+        .category-sidebar a {
+            display: block;
+            padding: 8px 0;
+            font-size: 0.7rem;
+            color: #6c757d !important;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .category-sidebar a:hover {
+            color: #000 !important;
+            padding-left: 5px;
+        }
+
+        .collection-section { scroll-margin-top: 120px; }
+
+        .product-card {
+            max-width: 220px; 
+            margin: 0 auto 35px auto;
+        }
+
+        .img-wrapper {
+            width: 100%;
+            aspect-ratio: 3 / 2; 
+            overflow: hidden;
+            background-color: #f7f7f7;
+            border-radius: 2px;
+            margin-bottom: 12px;
+        }
+
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            transition: opacity 0.3s ease;
+        }
+
+        .product-card:hover img { opacity: 0.8; }
+
+        .product-title {
+            font-size: 13px;
+            font-weight: 400; 
+            line-height: 1.5;
+            color: #333;
+            height: 40px; 
+            margin-bottom: 5px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .see-more-btn {
+            font-size: 11px;
+            font-weight: 700;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1.5px solid #000;
+            padding-bottom: 2px;
+            text-decoration: none !important;
+        }
+        .see-more-btn:hover { color: #fb923c; border-color: #fb923c; }
+
+        hr { border-top: 1px solid #eee; margin: 40px 0; }
+    </style>
+</head>
+
+<body>
+
+<nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
+    <div class="container mx-auto px-8 py-6">
+        <div class="grid grid-cols-3 items-center">
+            
+            <div class="flex gap-8 items-center">
+                <a href="index.html" class="nav-link-min">Home</a>
+                <a href="collection.html" class="nav-link-min">Collection</a>
+                <a href="orderStatus.html" class="nav-link-min">Order Status</a>
+            </div>
+
+            <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+                    <img src="image/logo2.png" 
+                         alt="Luminex Furniture" 
+                         style="height: 35px; width: auto; object-fit: contain; display: block; transition: transform 0.3s ease;"
+                         onmouseover="this.style.transform='scale(1.05)'" 
+                         onmouseout="this.style.transform='scale(1)'">
+                </a>
+            </div>
+
+            <div class="flex items-center justify-end gap-6 text-gray-500">
+                <a href="home.html" class="hover:text-black transition-colors">
+                    <i class="fa-solid fa-bag-shopping text-sm"></i>
+                </a>
+
+                <a href="cart.html" id="wishlist-icon" class="hover:text-black transition-colors relative">
+                    <i class="fa-regular fa-heart text-sm"></i>
+                    <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                </a>
+
+                <div class="profile-dropdown">
+                    <button class="hover:text-black transition-colors focus:outline-none py-1">
+                        <i class="fa-regular fa-user text-sm"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                        <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
+                        <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
+                        <a href="collection.html" class="font-bold text-orange-500"><i class="fa-solid fa-layer-group mr-2"></i> Collection</a>
+                        <hr class="my-1 border-gray-50">
+                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="text-orange-600 font-bold">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="container mt-5">
+    <h2 class="font-weight-bold text-uppercase" style="letter-spacing: 4px; font-size: 22px;">Collections</h2>
+    <div style="width: 40px; height: 2px; background: #fb923c; margin-top: 8px;"></div>
+</section>
+
+<section class="container my-5">
+    <div class="row">
+        <div class="col-lg-2 d-none d-lg-block">
+            <div class="sidebar-sticky">
+                <h6 class="font-weight-bold mb-3 text-uppercase" style="font-size: 11px; letter-spacing: 1px;">Category</h6>
+                <ul class="list-unstyled category-sidebar">
+                    <li><a href="#chair-section">Chair</a></li>
+                    <li><a href="#coffee-section">Coffee Table</a></li>
+                    <li><a href="#dining-section">Dining Table</a></li>
+                    <li><a href="#drawer-section">Drawer Cabinet</a></li>
+                    <li><a href="#tv-section">TV Cabinet</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-10" id="collection-container">
+            <div class="text-center py-5">
+                <div class="spinner-border spinner-border-sm text-dark" role="status"></div>
+                <p class="small mt-3 text-muted text-uppercase" style="letter-spacing: 1px;">Loading Furniture...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+        ? "http://localhost:5000" 
+        : "https://luminexhomeofficial.vercel.app";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCDJ042NuwnbGCxaTN7ZIQcaPN3ius8Bmo",
+        authDomain: "luminex-7ba90.firebaseapp.com",
+        projectId: "luminex-7ba90",
+        storageBucket: "luminex-7ba90.firebasestorage.app",
+        messagingSenderId: "977344382421",
+        appId: "1:977344382421:web:6fa2461522856b4563295c",
+        measurementId: "G-TB90F73ZGX"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const categories = [
+        { name: "Chair", key: "chair" },
+        { name: "Coffee Table", key: "coffee" },
+        { name: "Dining Table", key: "dining" },
+        { name: "Drawer Cabinet", key: "drawer" },
+        { name: "TV Cabinet", key: "tv" }
+    ];
+
+    async function loadCollections() {
+        const container = document.getElementById("collection-container");
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/products`);
+            if (!response.ok) throw new Error("API Offline");
+            const products = await response.json();
+
+            container.innerHTML = ""; 
+
+            categories.forEach(cat => {
+                const filtered = products.filter(p => 
+                    p.category.toLowerCase().includes(cat.key.toLowerCase())
+                );
+
+                if (filtered.length === 0) return;
+                const previewItems = filtered.slice(0, 3);
+
+                let sectionHtml = `
+                    <div id="${cat.key}-section" class="collection-section d-flex justify-content-between align-items-end mb-4">
+                        <div>
+                            <h6 class="font-weight-bold mb-0 text-uppercase" style="letter-spacing:1.5px;">${cat.name}</h6>
+                            <p class="text-muted small mb-0">${filtered.length} Items Available</p>
+                        </div>
+                        <a href="home.html?keyword=${cat.key}" class="see-more-btn">Explore All</a>
+                    </div>
+                    <div class="row">
+                `;
+
+                previewItems.forEach(p => {
+                    sectionHtml += `
+                        <div class="col-6 col-md-4">
+                            <div class="product-card">
+                                <div class="img-wrapper">
+                                    <img src="${p.image}" alt="Luminex Furniture">
+                                </div>
+                                <div class="product-title">
+                                    ${p.product_description || 'Luminex Design Piece'}
+                                </div>
+                                <p class="small text-muted mb-0" style="font-size: 10px; font-weight: bold; letter-spacing: 0.5px;">
+                                    ${p.productStatus || ''}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                sectionHtml += `</div><hr>`;
+                container.innerHTML += sectionHtml;
+            });
+        } catch (error) {
+            container.innerHTML = `<div class="py-5 text-center"><p class="text-danger small">Offline: Unable to load collections</p></div>`;
+        }
+    }
+
+    function handleAuthAction() {
+        // Logic should match your firebase sign out logic
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            firebase.auth().signOut().then(() => {
+                window.location.href = 'login.html';
+            });
+        } else {
+            window.location.href = 'login.html';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCollections);
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+</body>
+</html>
