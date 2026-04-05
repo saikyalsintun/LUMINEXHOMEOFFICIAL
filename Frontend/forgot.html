@@ -4,29 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password | Luminex</title>
-    <link rel="stylesheet" href="forgot.css">
+    <link rel="stylesheet" href="css/forgot.css">
 </head>
 <body>
 
     <div class="card">
-        <h2>Forgot Password</h2>
+    <h2>Forgot Password</h2>
 
-        <input 
-            type="email" 
-            id="resetEmail" 
-            placeholder="Enter your email"
-        />
+    <input 
+        type="email" 
+        id="resetEmail" 
+        placeholder="Enter your email"
+    />
 
-        <button onclick="sendReset()">Send Reset Link</button>
-        
-        <p style="margin-top: 20px;">
-            <a href="login.html" style="color: #000; text-decoration: none; font-size: 14px;">← Back to Login</a>
-        </p>
-    </div>
+    <button onclick="forgotPassword()">Send Reset Link</button>
+    
+    <p style="margin-top: 20px;">
+        <a href="login.html" style="color: #000; text-decoration: none; font-size: 14px;">← Back to Login</a>
+    </p>
+</div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     
-   <script type="module" src="forgot.js"></script>
+   <script type="module" src="js/forgot.js"></script>
 </body>
-</html>
+</html> 

@@ -142,3 +142,52 @@ if (form) {
         }
     });
 }
+// --- CLOUDINARY UPLOAD LOGIC ---
+const cloudName = "dq8rbpfis"; // Replace with yours
+const uploadPreset = "ml_default"; // Replace with yours
+
+const myWidget = cloudinary.createUploadWidget(
+    {
+        cloudName: cloudName,
+        uploadPreset: uploadPreset,
+        sources: ["local", "url", "camera"], // Allow files, URLs, or camera
+        multiple: false, // Only one image per product
+        cropping: true, // Optional: allows admin to crop to square
+        styles: {
+            palette: {
+                window: "#FFFFFF",
+                sourceBg: "#F4F4F5",
+                windowBorder: "#90A0B3",
+                tabIcon: "#000000",
+                inactiveTabIcon: "#6E7075",
+                menuIcons: "#000000",
+                link: "#2563EB",
+                action: "#000000",
+                inProgress: "#2563EB",
+                complete: "#22C55E",
+                error: "#EF4444",
+                textDark: "#000000",
+                textLight: "#FFFFFF"
+            }
+        }
+    },
+    (error, result) => {
+        if (!error && result && result.event === "success") {
+            console.log("Done! Here is the image info: ", result.info);
+            const imageUrl = result.info.secure_url;
+            
+            // 1. Update the input field
+            document.getElementById("image").value = imageUrl;
+            
+            // 2. Update the preview card
+            const imgPrev = document.getElementById('prevImage');
+            if (imgPrev) imgPrev.src = imageUrl;
+            
+            alert("✅ Image uploaded successfully!");
+        }
+    }
+);
+
+document.getElementById("upload_widget").addEventListener("click", () => {
+    myWidget.open();
+}, false);

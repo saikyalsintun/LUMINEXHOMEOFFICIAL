@@ -33,7 +33,10 @@
 }
 
 .dropdown-content {
-    display: none;
+    /* Change display:none to this combo for transitions to work */
+    opacity: 0;
+    visibility: hidden;
+    
     position: absolute;
     right: 0;
     top: 100%; 
@@ -44,10 +47,16 @@
     border-radius: 8px;
     padding: 10px 0;
     border: 1px solid #f3f4f6;
+
+    /* This adds the magic delay and smoothness */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition-delay: 0.1s; /* Keeps it open for 0.1s after mouse leaves */
 }
 
 .profile-dropdown:hover .dropdown-content {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s; /* Appears instantly on hover */
 }
 
 .dropdown-content a {
@@ -145,6 +154,13 @@ body {
                         <i class="fa-regular fa-user text-sm"></i>
                     </button>
                     <div class="dropdown-content shadow-xl border border-gray-100">
+                        <a href="admin/admin.html" id="admin-link" style="display: none;">
+    <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
+</a>
+
+<a href="admin/orders-admin.html" id="admin-orders-link" style="display: none;">
+    <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
+</a>
                         <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
                         <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
                         <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
@@ -199,6 +215,54 @@ body {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
+
+ // Hamburger Menu Logic //Admin check
+       document.addEventListener('DOMContentLoaded', () => {
+    const isAdmin = localStorage.getItem('isAdmin');
+    const adminLink = document.getElementById('admin-link');
+    // NEW: Get the Check Orders link
+    const ordersLink = document.getElementById('admin-orders-link');
+
+    // If the logged in user is an admin, show both links
+    if (isAdmin === 'true') {
+        if (adminLink) {
+            adminLink.style.display = 'block';
+            adminLink.style.color = '#fb923c'; 
+            adminLink.style.fontWeight = 'bold';
+        }
+        
+        // NEW: Show the Check Orders link
+        if (ordersLink) {
+            ordersLink.style.display = 'block';
+            ordersLink.style.color = '#3b82f6'; // Giving it a blue tint to distinguish from Dashboard
+            ordersLink.style.fontWeight = 'bold';
+        }
+    }
+    
+    // Sign Out logic remains the same (clears everything)
+    window.handleAuthAction = function() {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('isAdmin');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('token');
+
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            firebase.auth().signOut().then(() => { 
+                window.location.href = 'login.html'; 
+            }).catch(() => {
+                window.location.href = 'login.html';
+            });
+        } else {
+            window.location.href = 'login.html';
+        }
+    };
+});
+
+
+
+
+
+
     // Mobile Menu Toggle
     const menuToggle = document.getElementById('menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -218,7 +282,7 @@ body {
         }
     }
 </script>
-<script src="home.js"></script>
-<script src="auth-logic.js"></script>
+<script src="js/home.js"></script>
+<script src="js/auth-logic.js"></script>
 </body>
 </html>
