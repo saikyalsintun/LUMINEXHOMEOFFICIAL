@@ -228,6 +228,8 @@ body {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
+
+    
     // --- 1. ADMIN & AUTH LOGIC ---
     document.addEventListener('DOMContentLoaded', () => {
         const isAdmin = localStorage.getItem('isAdmin');
@@ -267,6 +269,10 @@ body {
             }
         }
         
+
+
+
+
         // Global Sign Out logic
         window.handleAuthAction = function() {
             localStorage.removeItem('isLoggedIn');
