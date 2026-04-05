@@ -70,22 +70,42 @@ function renderOrders(ordersToDisplay) {
         const isCompleted = order.status === 'Received';
         const isCancelled = order.status === 'Cancelled';
         
+        // Clean Line ID for the link (removes @ if present)
+        const lineLink = order.customer?.lineId ? order.customer.lineId.replace('@', '') : '';
+
         return `
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8 transition-all ${isCompleted ? 'opacity-60 grayscale-[0.5]' : 'hover:border-black hover:shadow-md'}">
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-black text-white">
                 <div>
-                    <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Customer</p>
+                    <div class="flex items-center gap-2 mb-1">
+                        <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Customer Profile</p>
+                        <span class="text-[7px] px-2 py-0.5 rounded border border-blue-500 text-blue-500 font-black uppercase tracking-tighter">Verified Order</span>
+                    </div>
                     <h3 class="text-lg font-bold uppercase tracking-tight italic">${order.customer?.name || 'Anonymous'}</h3>
-                    <div class="flex flex-col gap-1 mt-2">
-                        <p class="text-[10px] text-gray-400"><i class="fa-solid fa-phone mr-2 text-gray-600"></i>${order.customer?.phone || 'N/A'}</p>
-                        <p class="text-[10px] text-gray-400"><i class="fa-solid fa-envelope mr-2 text-gray-600"></i>${order.customer?.email || 'N/A'}</p>
+                    
+                    <div class="flex flex-wrap gap-4 mt-3">
+                        <p class="text-[10px] text-gray-400 font-bold"><i class="fa-solid fa-phone mr-1 text-blue-500"></i>${order.customer?.phone || 'N/A'}</p>
+                        
+                        ${order.customer?.lineId ? `
+                        <a href="https://line.me/ti/p/~${lineLink}" target="_blank" class="text-[10px] text-emerald-400 font-bold hover:underline">
+                            <i class="fa-brands fa-line mr-1"></i>${order.customer.lineId}
+                        </a>` : ''}
+                        
+                        <p class="text-[10px] text-gray-400 font-bold"><i class="fa-solid fa-envelope mr-1"></i>${order.customer?.email || 'N/A'}</p>
                     </div>
                 </div>
+
                 <div class="md:text-right flex flex-col justify-between items-end">
-                    <div>
-                        <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Shipping Destination</p>
-                        <p class="text-xs text-gray-200 mt-1 max-w-[250px] leading-relaxed">${order.customer?.address || 'Address missing'}</p>
+                    <div class="w-full">
+                        <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Delivery Address</p>
+                        <p class="text-xs text-gray-200 mt-1 leading-relaxed">${order.customer?.address || 'Address missing'}</p>
+                        
+                        ${order.customer?.deliveryInstructions ? `
+                        <div class="mt-2 bg-yellow-400/10 border border-yellow-400/20 p-2 rounded-lg inline-block text-left">
+                            <p class="text-[8px] text-yellow-400 font-black uppercase tracking-widest">Note for Driver:</p>
+                            <p class="text-[10px] text-yellow-200 italic">"${order.customer.deliveryInstructions}"</p>
+                        </div>` : ''}
                     </div>
                     <div class="mt-4">
                         <span class="px-3 py-1 ${colorClass} rounded-full text-[9px] font-black uppercase tracking-widest">
@@ -99,13 +119,13 @@ function renderOrders(ordersToDisplay) {
                 <div class="space-y-4">
                     ${order.items.map(item => `
                         <div class="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
-                            <img src="${item.image}" class="w-14 h-14 object-contain rounded-lg bg-gray-50 border border-gray-100" onerror="this.src='../image/logo.png'">
+                            <img src="${item.image}" class="w-14 h-14 object-cover rounded-lg bg-gray-50 border border-gray-100" onerror="this.src='../image/logo.png'">
                             <div class="flex-grow">
                                 <h4 class="text-[11px] font-black uppercase text-black leading-tight">${item.product_description || 'Product'}</h4>
                                 <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Size: <span class="text-black">${item.size || 'N/A'}</span> | Color: <span class="text-black">${item.color || 'N/A'}</span></p>
                             </div>
                             <div class="text-right">
-                                <p class="text-xs font-black italic tracking-tighter">x${item.quantity}</p>
+                                <p class="text-xs font-black italic tracking-tighter text-blue-600">x${item.quantity}</p>
                             </div>
                         </div>
                     `).join('')}
@@ -114,7 +134,7 @@ function renderOrders(ordersToDisplay) {
 
             <div class="bg-gray-50 px-6 py-4 flex flex-wrap justify-between items-center gap-4 border-t border-gray-100">
                 <div class="flex flex-col">
-                    <span class="text-[8px] text-gray-400 font-mono uppercase tracking-widest">Database ID</span>
+                    <span class="text-[8px] text-gray-400 font-mono uppercase tracking-widest">Internal Order Ref</span>
                     <span class="text-[9px] text-gray-400 font-mono">${order._id}</span>
                 </div>
 
@@ -125,18 +145,19 @@ function renderOrders(ordersToDisplay) {
                             onchange="updateStatus('${order._id}', this.value)" 
                             class="bg-white border border-gray-200 text-[10px] font-bold uppercase px-3 py-2 rounded-lg cursor-pointer hover:border-black transition-all"
                         >
-                            <option value="" disabled selected>Update...</option>
-                            <option value="Pending">1. Order Received</option>
+                            <option value="" disabled selected>Update Step...</option>
+                            <option value="Pending">1. New Order</option>
                             <option value="Approved">2. Payment Approved</option>
-                            <option value="Order Made">3. Production Finished</option>
-                            <option value="Transporting">4. Out for Delivery</option>
-                            <option value="Received">5. Received by Customer</option>
-                            <option value="Cancelled">X. Cancel Order</option>
+                            <option value="Direct Contact">3. Contacting via Line</option>
+                            <option value="Order Made">4. Production/Stock Ready</option>
+                            <option value="Transporting">5. In Transit</option>
+                            <option value="Received">6. Delivered</option>
+                            <option value="Cancelled">X. Void Order</option>
                         </select>
                     ` : `
                         <p class="text-[10px] font-black uppercase ${isCancelled ? 'text-red-500' : 'text-emerald-600'} tracking-widest italic">
                             <i class="fa-solid ${isCancelled ? 'fa-ban' : 'fa-circle-check'} mr-1"></i> 
-                            ${isCancelled ? 'Order Voided' : 'Transaction Complete'}
+                            ${isCancelled ? 'Order Cancelled' : 'Order Completed'}
                         </p>
                     `}
                 </div>
@@ -144,7 +165,6 @@ function renderOrders(ordersToDisplay) {
         </div>`;
     }).join('');
 }
-
 /**
  * 4. FILTER & UPDATE LOGIC
  */
@@ -156,31 +176,29 @@ function filterByStatus(status) {
         renderOrders(filtered);
     }
 }
-
+//change
 async function updateStatus(orderId, newStatus) {
     if (!newStatus) return;
-    
-    if (newStatus === 'Cancelled' && !confirm("⚠️ Are you sure you want to CANCEL this order?")) {
-        fetchOrders(); 
-        return;
-    }
 
     try {
         const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'PATCH', // Matches the backend router.patch
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
             body: JSON.stringify({ status: newStatus })
         });
 
         if (response.ok) {
-            fetchOrders(); 
+            console.log("Update successful");
+            fetchOrders(); // Refresh the UI
         } else {
-            const err = await response.json();
-            alert("Update failed: " + err.message);
+            const errorData = await response.json();
+            alert("Error: " + errorData.message);
         }
     } catch (error) {
         console.error("Network Error:", error);
-        alert("Failed to connect to backend server.");
+        alert("Failed to connect. Is the backend server running?");
     }
 }
 

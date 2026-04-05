@@ -42,12 +42,13 @@ if (!admin.apps.length) {
 
 const app = express();
 
-// 6. Middleware
-// Replace the "*" with your actual Vercel frontend URL once you have it for better security
+//change
 app.use(cors({
   origin: "*", 
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  // ADDED "PATCH" HERE
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
 

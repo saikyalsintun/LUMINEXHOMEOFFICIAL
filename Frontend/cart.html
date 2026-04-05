@@ -9,10 +9,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; letter-spacing: -0.01em; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 0px; } /* Hide scrollbar for mobile feel */
+        ::-webkit-scrollbar { width: 0px; } 
         #cartGrid { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        input, textarea { font-size: 16px !important; } /* Prevents iOS zoom on focus */
+        input, textarea, select { font-size: 16px !important; } 
     </style>
 </head>
 
@@ -20,11 +20,12 @@
 
     <div class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 py-4">
         <div class="container mx-auto max-w-2xl flex items-center justify-between">
-            <button onclick="window.location.href='home.html'" class="text-black p-2">
+            <button onclick="window.location.href='home.html'" class="text-black p-2 hover:bg-gray-100 rounded-full transition-all">
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
             <h1 class="text-sm font-black uppercase tracking-widest text-black">Your Wishlist</h1>
-            <div class="w-8"></div> </div>
+            <div class="w-8"></div> 
+        </div>
     </div>
 
     <div class="container mx-auto px-4 py-6 max-w-2xl">
@@ -35,50 +36,75 @@
             </div>
         </div>
 
-        <div class="mt-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <div class="mb-6">
-                <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-black">Delivery Details</h3>
-                <p class="text-[9px] text-gray-400 uppercase mt-1 italic">Required for courier contact</p>
+        <div class="mt-10 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+            <div class="mb-8">
+                <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-black">Checkout Information</h3>
+                <p class="text-[9px] text-gray-400 uppercase mt-1 italic">Please provide valid contact details</p>
             </div>
             
-            <div class="space-y-6">
+            <div class="space-y-8">
                 <div class="flex flex-col gap-1">
                     <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Full Name</label>
-                    <input type="text" id="custName" placeholder="JOHN DOE" 
+                    <input type="text" id="custName" placeholder="EX: JOHN DOE" 
                            class="bg-transparent border-b border-gray-200 py-2 text-sm outline-none focus:border-black transition-all uppercase placeholder:text-gray-300">
                 </div>
                 
-                <div class="flex flex-col gap-1">
-                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Phone Number</label>
-                    <input type="tel" id="custPhone" placeholder="081 234 5678" 
-                           class="bg-transparent border-b border-gray-200 py-2 text-sm outline-none focus:border-black transition-all placeholder:text-gray-300">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Phone Number</label>
+                        <input type="tel" id="custPhone" placeholder="081 234 5678" 
+                               class="bg-transparent border-b border-gray-200 py-2 text-sm outline-none focus:border-black transition-all placeholder:text-gray-300">
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Line Account ID</label>
+                        <input type="text" id="custLine" placeholder="@LUMINEX_USER" 
+                               class="bg-transparent border-b border-gray-200 py-2 text-sm outline-none focus:border-black transition-all placeholder:text-gray-300">
+                    </div>
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Shipping Address</label>
-                    <textarea id="custAddress" placeholder="SOI, STREET, PROVINCE, ZIP" rows="2"
+                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Email Address (Optional)</label>
+                    <input type="email" id="custEmail" placeholder="JOIN@EXAMPLE.COM" 
+                           class="bg-transparent border-b border-gray-200 py-2 text-sm outline-none focus:border-black transition-all uppercase placeholder:text-gray-300">
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Full Shipping Address</label>
+                    <textarea id="custAddress" placeholder="BUILDING, STREET, DISTRICT, PROVINCE, ZIP CODE" rows="2"
                               class="bg-transparent border-b border-gray-200 py-2 text-sm outline-none focus:border-black transition-all resize-none placeholder:text-gray-300 uppercase"></textarea>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Delivery Instructions</label>
+                    <input type="text" id="orderNotes" placeholder="E.G. LEAVE WITH SECURITY, CALL BEFORE ARRIVAL" 
+                           class="bg-transparent border-b border-gray-200 py-2 text-sm outline-none focus:border-black transition-all uppercase placeholder:text-gray-300">
                 </div>
             </div>
         </div>
 
         <div class="mt-8 px-2">
-            <div id="orderSummary" class="flex justify-between items-end mb-6 hidden">
+            <div id="orderSummary" class="flex justify-between items-end mb-6">
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Items</p>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Items</p>
                     <p id="totalCount" class="text-xl font-black">0</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-[9px] text-gray-400 uppercase tracking-widest mb-1">Payment Method</p>
-                    <span class="text-[10px] font-bold bg-gray-100 px-2 py-1 rounded">CASH ON DELIVERY</span>
+                    <p class="text-[9px] text-gray-400 uppercase tracking-widest mb-1">Payment Type</p>
+                    <span class="text-[10px] font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100">CASH ON DELIVERY</span>
                 </div>
             </div>
             
             <button id="submitOrderBtn" onclick="submitOrder()" 
                 class="w-full bg-black text-white py-5 rounded-full text-[11px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all disabled:bg-gray-200 shadow-xl shadow-black/10">
-                Place Order
+                Confirm Order
             </button>
-            <p class="mt-4 text-center text-[9px] text-gray-400 uppercase tracking-widest">Secure checkout via Luminex Dashboard</p>
+            
+          
+            <p class="mt-4 text-center text-[9px] text-gray-400 uppercase tracking-widest leading-relaxed">
+                By placing this order, you agree to our<br>
+                <span class="text-black font-bold">Terms of Service</span> & <span class="text-black font-bold">Privacy Policy</span>
+            </p>
         </div>
     </div>
 

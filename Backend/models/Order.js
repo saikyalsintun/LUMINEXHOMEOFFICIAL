@@ -1,28 +1,30 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-    userId: String,
+    userId: String, // Firebase/Auth UID
     customer: {
         name: String,
         email: String,
         phone: String,
-        address: String
+        lineId: String, // Added to match your new form
+        address: String,
+        deliveryInstructions: String // Added for better logistics
     },
     items: [{
-        productId: mongoose.Schema.Types.ObjectId,
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
         product_description: String,
         image: String,
         color: String,
         size: String,
-        quantity: Number
+        quantity: { type: Number, default: 1 }
     }],
-    // Updated: Added enum to ensure status follows our specific workflow
     status: { 
         type: String, 
         default: "Pending",
         enum: ['Pending', 'Approved', 'Direct Contact', 'Order Made', 'Transporting', 'Received', 'Cancelled']
     },
+    totalAmount: Number,
     createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = mongoose.model("Order", orderSchema, "orders");
