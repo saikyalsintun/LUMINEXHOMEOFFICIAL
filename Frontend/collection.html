@@ -14,7 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
-        /* --- NAVIGATION STYLES (MATCHING HOME PAGE) --- */
+        /* --- NAVIGATION STYLES --- */
         .nav-link-min {
             font-size: 0.75rem;
             font-weight: 500;
@@ -69,6 +69,17 @@
             padding-left: 25px;
         }
 
+        /* --- MOBILE MENU ANIMATION --- */
+        #mobile-menu {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.active {
+            max-height: 500px; /* Adjust based on content */
+            border-top: 1px solid #f3f4f6;
+        }
+
         /* --- GLOBAL RESET --- */
         body { 
             background-color: #f8f9fa;
@@ -85,7 +96,7 @@
             height: fit-content;
         }
 
-        .category-sidebar a {
+        .category-sidebar a, .mobile-cat-link {
             display: block;
             padding: 8px 0;
             font-size: 0.7rem;
@@ -158,26 +169,30 @@
 <body>
 
 <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
-    <div class="container mx-auto px-8 py-6">
-        <div class="grid grid-cols-3 items-center">
+    <div class="container mx-auto px-4 md:px-8 py-4 md:py-6">
+        <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
             
-            <div class="flex gap-8 items-center">
+            <div class="lg:hidden flex items-center">
+                <button id="menu-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <div class="hidden lg:flex gap-8 items-center">
                 <a href="index.html" class="nav-link-min">Home</a>
                 <a href="collection.html" class="nav-link-min">Collection</a>
                 <a href="orderStatus.html" class="nav-link-min">Order Status</a>
             </div>
 
-            <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
-                <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+            <div class="flex justify-center items-center">
+                <a href="index.html" class="flex items-center">
                     <img src="image/logo2.png" 
                          alt="Luminex Furniture" 
-                         style="height: 35px; width: auto; object-fit: contain; display: block; transition: transform 0.3s ease;"
-                         onmouseover="this.style.transform='scale(1.05)'" 
-                         onmouseout="this.style.transform='scale(1)'">
+                         class="h-7 md:h-9 w-auto object-contain transition-transform duration-300 hover:scale-105">
                 </a>
             </div>
 
-            <div class="flex items-center justify-end gap-6 text-gray-500">
+            <div class="flex items-center justify-end gap-4 md:gap-6 text-gray-500">
                 <a href="home.html" class="hover:text-black transition-colors">
                     <i class="fa-solid fa-bag-shopping text-sm"></i>
                 </a>
@@ -187,7 +202,7 @@
                     <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
                 </a>
 
-                <div class="profile-dropdown">
+                <div class="profile-dropdown hidden lg:block">
                     <button class="hover:text-black transition-colors focus:outline-none py-1">
                         <i class="fa-regular fa-user text-sm"></i>
                     </button>
@@ -204,12 +219,38 @@
                 </div>
             </div>
         </div>
+
+        <div id="mobile-menu" class="lg:hidden bg-white">
+            <div class="flex flex-col py-4 space-y-4">
+                <a href="index.html" class="nav-link-min px-2">Home</a>
+                <a href="collection.html" class="nav-link-min px-2 text-orange-500 font-bold">Collection</a>
+                <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
+                <hr class="border-gray-50">
+                <a href="profile.html" class="nav-link-min px-2">My Profile</a>
+                <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min px-2 text-red-500">Sign Out</a>
+            </div>
+        </div>
     </div>
 </nav>
 
 <section class="container mt-5">
-    <h2 class="font-weight-bold text-uppercase" style="letter-spacing: 4px; font-size: 22px;">Collections</h2>
-    <div style="width: 40px; height: 2px; background: #fb923c; margin-top: 8px;"></div>
+    <div class="flex flex-wrap justify-between items-center">
+        <div>
+            <h2 class="font-weight-bold text-uppercase" style="letter-spacing: 4px; font-size: 22px;">Collections</h2>
+            <div style="width: 40px; height: 2px; background: #fb923c; margin-top: 8px;"></div>
+        </div>
+        
+        <div class="lg:hidden mt-4 w-100">
+            <select class="form-control form-control-sm border-gray-200 text-uppercase" style="font-size: 10px; letter-spacing: 1px;" onchange="location.hash = this.value;">
+                <option value="">Jump to Category</option>
+                <option value="#chair-section">Chair</option>
+                <option value="#coffee-section">Coffee Table</option>
+                <option value="#dining-section">Dining Table</option>
+                <option value="#drawer-section">Drawer Cabinet</option>
+                <option value="#tv-section">TV Cabinet</option>
+            </select>
+        </div>
+    </div>
 </section>
 
 <section class="container my-5">
@@ -237,6 +278,15 @@
 </section>
 
 <script>
+    // --- Mobile Menu Toggle Logic ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    menuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('active');
+    });
+
+    // --- API & Firebase Config ---
     const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
         ? "http://localhost:5000" 
         : "https://luminexhomeofficial.vercel.app";
@@ -316,7 +366,6 @@
     }
 
     function handleAuthAction() {
-        // Logic should match your firebase sign out logic
         if (typeof firebase !== 'undefined' && firebase.auth) {
             firebase.auth().signOut().then(() => {
                 window.location.href = 'login.html';

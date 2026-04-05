@@ -65,7 +65,80 @@
             padding-left: 25px;
         }
 
-        /* --- HERO SECTION (LEFT ALIGNMENT FIXED) --- */
+        /* --- MOBILE MENU ANIMATION --- */
+        #mobile-menu {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.active {
+            max-height: 600px;
+        }
+
+        /* --- FLOATING CONTACT BUTTON STYLES --- */
+        .floating-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; 
+        }
+
+        .floating-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            align-items: flex-end; 
+        }
+
+        .floating-container:hover .floating-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .menu-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: white;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        .menu-item img { width: 28px; height: 28px; }
+
+        .main-button {
+            background-color: #000;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+            white-space: nowrap; 
+        }
+
+        .menu-item.line:hover { background-color: #06C755; }
+        .menu-item.facebook:hover { background-color: #1877F2; }
+        .menu-item.instagram:hover { background-color: #E4405F; }
+        .menu-item:hover img { filter: brightness(0) invert(1); }
+
+        /* --- HERO SECTION --- */
         #home {
             background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('image/back.jpg');
             background-size: cover;
@@ -73,16 +146,13 @@
             height: 90vh;
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* Changed from center to left */
-            text-align: left;           /* Changed from center to left */
+            justify-content: flex-start;
+            text-align: left;
             color: white;
-            padding: 0 10%;            /* Added horizontal padding for layout */
+            padding: 0 10%;
         }
 
-        .hero-content { 
-            max-width: 850px; 
-            margin-left: 0;            /* Ensure no auto-centering */
-        }
+        .hero-content { max-width: 850px; }
 
         .hero-content h5 {
             font-size: 0.9rem;
@@ -106,7 +176,7 @@
         }
         .hero-content p {
             font-size: 1.2rem;
-            margin: 0 0 2.5rem 0;      /* Removed 'auto' margins */
+            margin: 0 0 2.5rem 0;
             line-height: 1.6;
             font-weight: 300;
             max-width: 650px;
@@ -142,400 +212,290 @@
             object-fit: cover;
             transition: 0.5s all ease;
         }
-        .product:hover img {
-            transform: scale(1.08);
+        .product:hover img { transform: scale(1.08); }
+
+        /* --- FOOTER STYLES --- */
+        .bg-dark { background-color: #1d1d1d !important; }
+        .footer-heading { color: #D8D8D8 !important; font-weight: 700; font-size: 1.1rem; margin-bottom: 1.5rem; }
+        .footer-link-orig { font-size: 0.8rem; color: #999 !important; transition: 0.3s; display: inline-block; margin-bottom: 8px; text-decoration: none !important; }
+        .footer-link-orig:hover { color: #fb923c !important; transform: translateX(5px); }
+
+        .social-icon {
+            width: 35px; height: 35px; background: #333; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white !important; transition: 0.3s; font-size: 0.9rem;
         }
+        .social-icon:hover { background: #fb923c; transform: translateY(-3px); }
 
-   /* --- ORIGINAL FOOTER STYLES --- */
-.bg-dark { background-color: #1d1d1d !important; }
-.footer-heading { 
-    color: #D8D8D8 !important; 
-    font-weight: 700; 
-    font-size: 1.1rem; 
-    margin-bottom: 1.5rem;
-    text-transform: none;
-}
-.footer-link-orig { 
-    font-size: 0.8rem; 
-    color: #999 !important; 
-    text-decoration: none !important; 
-    transition: 0.3s; 
-    display: inline-block;
-    margin-bottom: 8px;
-}
-.footer-link-orig:hover { color: #fb923c !important; transform: translateX(5px); }
-
-.social-icon {
-    width: 35px;
-    height: 35px;
-    background: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    color: white !important;
-    transition: 0.3s;
-    font-size: 0.9rem;
-}
-.social-icon:hover {
-    background: #fb923c;
-    transform: translateY(-3px);
-}
         body {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        @media (max-width: 480px) {
+            .floating-container { right: 20px; bottom: 20px; }
         }
     </style>
 </head>
 
 <body class="bg-gray-50">
 
-    <!-- Floating Button -->
-<div class="floating-container">
-  <div class="floating-menu">
-    <a href="https://www.instagram.com/luminexthailand/" class="menu-item instagram" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram">
-    </a>
-    <a href="https://web.facebook.com/profile.php?id=61573633021131" class="menu-item facebook" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook">
-    </a>
-    <a href="https://line.me/ti/p/FaELFfYJp6" class="menu-item line" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg" alt="LINE">
-    </a>
-  </div>
-  
-  <div class="main-button">
-    <span>Contact Us</span>
-  </div>
-</div>
+    <div class="floating-container">
+        <div class="floating-menu">
+            <a href="https://www.instagram.com/luminexthailand/" class="menu-item instagram" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram">
+            </a>
+            <a href="https://web.facebook.com/profile.php?id=61573633021131" class="menu-item facebook" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook">
+            </a>
+            <a href="https://line.me/ti/p/FaELFfYJp6" class="menu-item line" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg" alt="LINE">
+            </a>
+        </div>
+        <div class="main-button">
+            <span>Contact Us</span>
+        </div>
+    </div>
 
-<style>
-  .floating-container {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    /* Aligns icons to the right edge of the container */
-    align-items: flex-end; 
-  }
-
-  .floating-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 15px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(20px);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    /* Ensures icons align to the right side of the stack */
-    align-items: flex-end; 
-  }
-
-  .floating-container:hover .floating-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  .menu-item {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    background: white;
-    transition: transform 0.2s, background-color 0.3s;
-  }
-
-  .menu-item img {
-    width: 28px;
-    height: 28px;
-  }
-
-  .main-button {
-    background-color: #000;
-    color: white;
-    padding: 14px 28px;
-    border-radius: 50px;
-    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 14px;
-    /* Ensures the button doesn't shrink weirdly */
-    white-space: nowrap; 
-  }
-
-  /* Hover Colors */
-  .menu-item.line:hover { background-color: #06C755; }
-  .menu-item.facebook:hover { background-color: #1877F2; }
-  .menu-item.instagram:hover { background-color: #E4405F; }
-
-  /* Turn icons white on hover */
-  .menu-item:hover img {
-    filter: brightness(0) invert(1);
-  }
-
-  @media (max-width: 480px) {
-    .floating-container {
-      right: 20px;
-      bottom: 20px;
-    }
-  }
-</style>
-
-
-
-
-<nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
-    <div class="container mx-auto px-8 py-6">
-        <div class="grid grid-cols-3 items-center">
-            
-            <div class="flex gap-8 items-center">
-                <a href="index.html" class="nav-link-min">Home</a>
-                <a href="collection.html" class="nav-link-min">Collection</a>
-                <a href="orderStatus.html" class="nav-link-min">Order Status</a>
-            </div>
-
-            <div class="flex justify-center items-center">
-                <a href="index.html" class="flex items-center no-underline">
-                    <img src="image/logo2.png" alt="Luminex Furniture" style="height: 35px; width: auto;">
-                </a>
-            </div>
-
-            <div class="flex items-center justify-end gap-6 text-gray-500">
-                <a href="home.html" class="hover:text-black transition-colors">
-                    <i class="fa-solid fa-bag-shopping text-sm"></i>
-                </a>
-                <a href="cart.html" id="wishlist-icon" class="hover:text-black transition-colors relative">
-                    <i class="fa-regular fa-heart text-sm"></i>
-                    <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
-                </a>
-                <div class="profile-dropdown">
-                    <button class="hover:text-black transition-colors focus:outline-none py-1">
-                        <i class="fa-regular fa-user text-sm"></i>
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 md:px-8 py-4 md:py-6">
+            <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
+                
+                <div class="lg:hidden flex items-center">
+                    <button id="menu-toggle" class="text-gray-600 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
                     </button>
-                    <div class="dropdown-content">
-                        <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
-                        <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
-                        <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
-                        <a href="collection.html" class="font-bold text-orange-500"><i class="fa-solid fa-layer-group mr-2"></i> Collection</a>
-                        <hr class="my-1 border-gray-50">
-                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="text-orange-600 font-bold">
-                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
-                        </a>
+                </div>
+
+                <div class="hidden lg:flex gap-8 items-center">
+                    <a href="index.html" class="nav-link-min">Home</a>
+                    <a href="collection.html" class="nav-link-min">Collection</a>
+                    <a href="orderStatus.html" class="nav-link-min">Order Status</a>
+                </div>
+
+                <div class="flex justify-center items-center">
+                    <a href="index.html" class="flex items-center no-underline">
+                        <img src="image/logo2.png" alt="Luminex Furniture" class="h-8 md:h-9 w-auto">
+                    </a>
+                </div>
+
+                <div class="flex items-center justify-end gap-4 md:gap-6 text-gray-500">
+                    <a href="home.html" class="hover:text-black transition-colors">
+                        <i class="fa-solid fa-bag-shopping text-sm"></i>
+                    </a>
+                    <a href="cart.html" id="wishlist-icon" class="hover:text-black transition-colors relative">
+                        <i class="fa-regular fa-heart text-sm"></i>
+                        <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    </a>
+                    <div class="profile-dropdown hidden lg:block">
+                        <button class="hover:text-black transition-colors focus:outline-none py-1">
+                            <i class="fa-regular fa-user text-sm"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                            <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
+                            <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
+                            <a href="collection.html" class="font-bold text-orange-500"><i class="fa-solid fa-layer-group mr-2"></i> Collection</a>
+                            <hr class="my-1 border-gray-50">
+                            <a href="javascript:void(0)" onclick="handleAuthAction()" class="text-orange-600 font-bold">
+                                <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</nav>
 
-<section id="home">
-    <div class="hero-content">
-        <h5>NEW COLLECTION</h5>
-        <h1>Modern Furniture <span>For Every Space</span></h1>
-        <p>Discover quality furniture designed for comfort, style, and everyday living. Elevate your home with our curated modern designs.</p>
-        <button class="hero-btn" onclick="window.location.href='home.html'">Shop Now</button>
-    </div>
-</section>
+            <div id="mobile-menu" class="lg:hidden bg-white overflow-hidden">
+                <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
+                    <a href="index.html" class="nav-link-min px-2">Home</a>
+                    <a href="collection.html" class="nav-link-min px-2">Collection</a>
+                    <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
+                    <hr class="border-gray-50">
+                    <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                    <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min px-2 text-red-500 font-bold">
+                        <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-<section id="brand" class="container py-5">
-    <div class="row m-0 justify-content-center items-center">
-        <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/1.jpg" alt="brand">
-        <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/2.jpg" alt="brand">
-        <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/3.jpg" alt="brand">
-        <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/4.jpg" alt="brand">
-        <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/5.jpg" alt="brand">
-    </div>
-</section>
+    <section id="home">
+        <div class="hero-content">
+            <h5>NEW COLLECTION</h5>
+            <h1>Modern Furniture <span>For Every Space</span></h1>
+            <p>Discover quality furniture designed for comfort, style, and everyday living. Elevate your home with our curated modern designs.</p>
+            <button class="hero-btn" onclick="window.location.href='home.html'">Shop Now</button>
+        </div>
+    </section>
 
-<section id="new" class="w-100">
-    <div class="row p-0 m-0 text-white">
-        <div class="one col-lg-4 p-0 position-relative overflow-hidden group">
-            <img class="img-fluid w-100 transition duration-700 group-hover:scale-110" src="image/new/sofa.jpg" alt="sofas">
-            <div class="details position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-start px-5" style="top:0; left:0; background: rgba(0,0,0,0.4);">
-                <h2 class="font-weight-bold uppercase tracking-widest text-2xl">Sofas & Seating</h2>
-                <button class="btn btn-light btn-sm mt-3 rounded-0 px-4 font-bold" onclick="window.location.href='home.html?keyword=sofa'">EXPLORE</button>
-            </div>
+    <section id="brand" class="container py-5">
+        <div class="row m-0 justify-content-center align-items-center">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/1.jpg" alt="brand">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/2.jpg" alt="brand">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/3.jpg" alt="brand">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/4.jpg" alt="brand">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/5.jpg" alt="brand">
         </div>
-        <div class="one col-lg-4 p-0 position-relative overflow-hidden group">
-            <img class="img-fluid w-100 transition duration-700 group-hover:scale-110" src="image/new/dining.jpg" alt="dining">
-            <div class="details position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-start px-5" style="top:0; left:0; background: rgba(0,0,0,0.4);">
-                <h2 class="font-weight-bold uppercase tracking-widest text-2xl">Dining Sets</h2>
-                <button class="btn btn-light btn-sm mt-3 rounded-0 px-4 font-bold" onclick="window.location.href='home.html?keyword=dining'">EXPLORE</button>
-            </div>
-        </div>
-        <div class="one col-lg-4 p-0 position-relative overflow-hidden group">
-            <img class="img-fluid w-100 transition duration-700 group-hover:scale-110" src="image/new/livingroom.jpg" alt="livingroom">
-            <div class="details position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-start px-5" style="top:0; left:0; background: rgba(0,0,0,0.4);">
-                <h2 class="font-weight-bold uppercase tracking-widest text-2xl">Storage Units</h2>
-                <button class="btn btn-light btn-sm mt-3 rounded-0 px-4 font-bold" onclick="window.location.href='home.html?keyword=cabinet'">EXPLORE</button>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
-<section id="featured" class="container my-5 py-5">
-    <div class="text-left mb-5"> <h3 class="font-weight-bold text-3xl uppercase tracking-tighter">Featured Furniture</h3>
-        <hr class="ml-0" style="width: 50px; height: 3px; background: #fb923c; border: none; margin-top: 15px;">
-        <p class="text-muted mt-3">Handpicked designs combining quality and comfort.</p>
-    </div>
+    <section id="new" class="w-100">
+        <div class="row p-0 m-0 text-white">
+            <div class="one col-lg-4 p-0 position-relative overflow-hidden group">
+                <img class="img-fluid w-100 transition duration-700 group-hover:scale-110" src="image/new/sofa.jpg" alt="sofas">
+                <div class="details position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-start px-5" style="top:0; left:0; background: rgba(0,0,0,0.4);">
+                    <h2 class="font-weight-bold uppercase tracking-widest text-2xl">Sofas & Seating</h2>
+                    <button class="btn btn-light btn-sm mt-3 rounded-0 px-4 font-bold" onclick="window.location.href='home.html?keyword=sofa'">EXPLORE</button>
+                </div>
+            </div>
+            <div class="one col-lg-4 p-0 position-relative overflow-hidden group">
+                <img class="img-fluid w-100 transition duration-700 group-hover:scale-110" src="image/new/dining.jpg" alt="dining">
+                <div class="details position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-start px-5" style="top:0; left:0; background: rgba(0,0,0,0.4);">
+                    <h2 class="font-weight-bold uppercase tracking-widest text-2xl">Dining Sets</h2>
+                    <button class="btn btn-light btn-sm mt-3 rounded-0 px-4 font-bold" onclick="window.location.href='home.html?keyword=dining'">EXPLORE</button>
+                </div>
+            </div>
+            <div class="one col-lg-4 p-0 position-relative overflow-hidden group">
+                <img class="img-fluid w-100 transition duration-700 group-hover:scale-110" src="image/new/livingroom.jpg" alt="livingroom">
+                <div class="details position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-start px-5" style="top:0; left:0; background: rgba(0,0,0,0.4);">
+                    <h2 class="font-weight-bold uppercase tracking-widest text-2xl">Storage Units</h2>
+                    <button class="btn btn-light btn-sm mt-3 rounded-0 px-4 font-bold" onclick="window.location.href='home.html?keyword=cabinet'">EXPLORE</button>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div class="row">
-        <div class="product text-left col-lg-3 col-md-6 col-12 mb-5"> <div class="product-img-wrapper mb-3">
-                <img src="image/featured/chair.jpg" alt="product">
-            </div>
-            <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Chair</h6>
-            <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Sarai Accent Chair</h5>
-            <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
+    <section id="featured" class="container my-5 py-5">
+        <div class="text-left mb-5">
+            <h3 class="font-weight-bold text-3xl uppercase tracking-tighter">Featured Furniture</h3>
+            <hr class="ml-0" style="width: 50px; height: 3px; background: #fb923c; border: none; margin-top: 15px;">
+            <p class="text-muted mt-3">Handpicked designs combining quality and comfort.</p>
         </div>
-        <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
-            <div class="product-img-wrapper mb-3">
-                <img src="image/featured/sofa.jpg" alt="product">
-            </div>
-            <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Sofa</h6>
-            <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Modern Velvet Sofa</h5>
-            <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
-        </div>
-        <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
-            <div class="product-img-wrapper mb-3">
-                <img src="image/featured/table.jpg" alt="product">
-            </div>
-            <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Table</h6>
-            <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Oak Coffee Table</h5>
-            <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
-        </div>
-        <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
-            <div class="product-img-wrapper mb-3">
-                <img src="image/featured/lamp.jpg" alt="product">
-            </div>
-            <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Lighting</h6>
-            <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Minimalist Floor Lamp</h5>
-            <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
-        </div>
-    </div>
-</section>
 
-<section class="bg-white py-20 border-y border-gray-100">
-    <div class="container">
-        <div class="row text-left"> <div class="col-md-4 mb-8 md:mb-0">
-                <i class="fa-solid fa-truck-fast text-orange-500 mb-4" style="font-size: 2.5rem;"></i>
-                <h6 class="font-bold text-uppercase tracking-widest mb-2">Fast Delivery</h6>
-                <p class="text-gray-500 text-sm">Carefully handled and insured shipping directly to your doorstep.</p>
-            </div>
-            <div class="col-md-4 mb-8 md:mb-0">
-                <i class="fa-solid fa-shield-halved text-orange-500 mb-4" style="font-size: 2.5rem;"></i>
-                <h6 class="font-bold text-uppercase tracking-widest mb-2">Quality Warranty</h6>
-                <p class="text-gray-500 text-sm">We use only premium, long-lasting materials and solid craftsmanship.</p>
-            </div>
-            <div class="col-md-4">
-                <i class="fa-solid fa-headset text-orange-500 mb-4" style="font-size: 2.5rem;"></i>
-                <h6 class="font-bold text-uppercase tracking-widest mb-2">24/7 Support</h6>
-                <p class="text-gray-500 text-sm">Our dedicated team is always here to assist with your home needs.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<footer class="mt-5 pt-5 bg-dark text-white">
-    <div class="container">
         <div class="row">
-
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <img src="image/logo4.png" style="width:120px;" alt="Luminex Furniture">
-                <p class="mt-3 text-muted" style="font-size: 0.8rem;">
-                    Luminex Furniture delivers modern, durable, and elegant furniture
-                    crafted for everyday living.
-                </p>
-            </div>
-
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <h5 class="footer-heading">Categories</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#" class="footer-link-orig">Chair</a></li>
-                    <li><a href="#" class="footer-link-orig">Coffee Table</a></li>
-                    <li><a href="#" class="footer-link-orig">Drawer Cabinet</a></li>
-                    <li><a href="#" class="footer-link-orig">Dining Table</a></li>
-                    <li><a href="#" class="footer-link-orig">TV Cabinet</a></li>
-                </ul>
-            </div>
-
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <h5 class="footer-heading">Contact</h5>
-                <p class="text-muted mb-1" style="font-size: 0.8rem;">
-                    27/90 Liap Khlong 4, Soi 6<br>
-                    Lat Sawai, Lam Luk Ka<br>
-                    Pathum Thani, Thailand
-                </p>
-                <p class="text-muted mb-1" style="font-size: 0.8rem;">+66 622 761 072</p>
-                <p class="text-muted" style="font-size: 0.8rem;">luminexofficial.th@gmail.com</p>
-            </div>
-
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <h5 class="footer-heading">Follow Us</h5>
-
-                <div class="d-flex gap-3 mb-3">
-                    <a href="https://www.facebook.com/61573633021131/" target="_blank" class="social-icon">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="https://www.instagram.com/luminexthailand?igsh=M3c1cXhwbXRqN3Y4" target="_blank" class="social-icon">
-                        <i class="fab fa-instagram"></i>
-                    </a>
+            <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
+                <div class="product-img-wrapper mb-3">
+                    <img src="image/featured/chair.jpg" alt="product">
                 </div>
-
-                <div class="row no-gutters">
-                    <div class="col-4 p-1"><img class="img-fluid" src="image/insta/11.jpg" alt=""></div>
-                    <div class="col-4 p-1"><img class="img-fluid" src="image/insta/12.jpg" alt=""></div>
-                    <div class="col-4 p-1"><img class="img-fluid" src="image/insta/13.jpg" alt=""></div>
-                    <div class="col-4 p-1"><img class="img-fluid" src="image/insta/14.jpg" alt=""></div>
-                    <div class="col-4 p-1"><img class="img-fluid" src="image/insta/15.jpg" alt=""></div>
-                </div>
+                <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Chair</h6>
+                <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Sarai Accent Chair</h5>
+                <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
             </div>
-
+            <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
+                <div class="product-img-wrapper mb-3">
+                    <img src="image/featured/sofa.jpg" alt="product">
+                </div>
+                <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Sofa</h6>
+                <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Modern Velvet Sofa</h5>
+                <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
+            </div>
+            <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
+                <div class="product-img-wrapper mb-3">
+                    <img src="image/featured/table.jpg" alt="product">
+                </div>
+                <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Table</h6>
+                <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Oak Coffee Table</h5>
+                <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
+            </div>
+            <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
+                <div class="product-img-wrapper mb-3">
+                    <img src="image/featured/lamp.jpg" alt="product">
+                </div>
+                <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Lighting</h6>
+                <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Minimalist Floor Lamp</h5>
+                <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
+            </div>
         </div>
+    </section>
 
-        <div class="footer-bottom border-top border-secondary mt-4 pt-3 pb-4">
-            <div class="text-center">
+    <section class="bg-white py-20 border-y border-gray-100">
+        <div class="container">
+            <div class="row text-left">
+                <div class="col-md-4 mb-8 md:mb-0">
+                    <i class="fa-solid fa-truck-fast text-orange-500 mb-4" style="font-size: 2.5rem;"></i>
+                    <h6 class="font-bold text-uppercase tracking-widest mb-2">Fast Delivery</h6>
+                    <p class="text-gray-500 text-sm">Carefully handled and insured shipping directly to your doorstep.</p>
+                </div>
+                <div class="col-md-4 mb-8 md:mb-0">
+                    <i class="fa-solid fa-shield-halved text-orange-500 mb-4" style="font-size: 2.5rem;"></i>
+                    <h6 class="font-bold text-uppercase tracking-widest mb-2">Quality Warranty</h6>
+                    <p class="text-gray-500 text-sm">We use only premium, long-lasting materials and solid craftsmanship.</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="fa-solid fa-headset text-orange-500 mb-4" style="font-size: 2.5rem;"></i>
+                    <h6 class="font-bold text-uppercase tracking-widest mb-2">24/7 Support</h6>
+                    <p class="text-gray-500 text-sm">Our dedicated team is always here to assist with your home needs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="mt-5 pt-5 bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <img src="image/logo4.png" style="width:120px;" alt="Luminex Furniture">
+                    <p class="mt-3 text-muted" style="font-size: 0.8rem;">
+                        Luminex Furniture delivers modern, durable, and elegant furniture crafted for everyday living.
+                    </p>
+                </div>
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <h5 class="footer-heading">Categories</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="footer-link-orig">Chair</a></li>
+                        <li><a href="#" class="footer-link-orig">Coffee Table</a></li>
+                        <li><a href="#" class="footer-link-orig">Drawer Cabinet</a></li>
+                        <li><a href="#" class="footer-link-orig">Dining Table</a></li>
+                        <li><a href="#" class="footer-link-orig">TV Cabinet</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <h5 class="footer-heading">Contact</h5>
+                    <p class="text-muted mb-1" style="font-size: 0.8rem;">
+                        27/90 Liap Khlong 4, Soi 6<br> Pathum Thani, Thailand
+                    </p>
+                    <p class="text-muted mb-1" style="font-size: 0.8rem;">+66 622 761 072</p>
+                    <p class="text-muted" style="font-size: 0.8rem;">luminexofficial.th@gmail.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <h5 class="footer-heading">Follow Us</h5>
+                    <div class="d-flex gap-3 mb-3">
+                        <a href="https://www.facebook.com/61573633021131/" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/luminexthailand" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom border-top border-secondary mt-4 pt-3 pb-4 text-center">
                 <p class="mb-0 text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">
                     © 2026 LUMINEX FURNITURE. ALL RIGHTS RESERVED.
                 </p>
             </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
+    <script>
+        // Hamburger Menu Logic
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
 
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+        });
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-<script>
-    // Firebase Handle Auth
-    function handleAuthAction() {
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-            const auth = firebase.auth();
-            auth.signOut().then(() => { 
-                window.location.href = 'login.html'; 
-            }).catch((error) => {
-                console.error("Sign out error", error);
+        // Firebase Auth Logic
+        function handleAuthAction() {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().signOut().then(() => { 
+                    window.location.href = 'login.html'; 
+                }).catch(() => {
+                    window.location.href = 'login.html';
+                });
+            } else {
                 window.location.href = 'login.html';
-            });
-        } else {
-            window.location.href = 'login.html';
+            }
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>

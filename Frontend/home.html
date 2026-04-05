@@ -67,6 +67,16 @@
     padding-left: 25px;
 }
 
+/* --- MOBILE MENU ANIMATION --- */
+#mobile-menu {
+    transition: all 0.3s ease-in-out;
+    max-height: 0;
+    overflow: hidden;
+}
+#mobile-menu.active {
+    max-height: 500px;
+}
+
 /* --- EXISTING STYLES --- */
 body {
     -webkit-font-smoothing: antialiased;
@@ -99,22 +109,28 @@ body {
 <body class="bg-gray-50">
 
 <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
-    <div class="container mx-auto px-8 py-6">
-        <div class="grid grid-cols-3 items-center">
+    <div class="container mx-auto px-4 md:px-8 py-4 md:py-6">
+        <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
              
-            <div class="flex gap-8 items-center">
+            <div class="lg:hidden flex items-center">
+                <button id="menu-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <div class="hidden lg:flex gap-8 items-center">
                 <a href="index.html" class="nav-link-min">Home</a>
                 <a href="collection.html" class="nav-link-min">Collection</a>
                 <a href="orderStatus.html" class="nav-link-min">Order Status</a>
             </div>
 
-            <div class="text-center">
-                <a href="index.html" class="text-2xl font-black tracking-tighter uppercase leading-none">
+            <div class="flex justify-center items-center">
+                <a href="index.html" class="text-xl md:text-2xl font-black tracking-tighter uppercase leading-none text-black hover:text-gray-700 transition-colors">
                     Luminex
                 </a>
             </div>
 
-            <div class="flex items-center justify-end gap-6 text-gray-500">
+            <div class="flex items-center justify-end gap-4 md:gap-6 text-gray-500">
                 <button onclick="toggleSearch()" class="hover:text-black transition-colors">
                     <i class="fa-solid fa-magnifying-glass text-sm"></i>
                 </button>
@@ -124,7 +140,7 @@ body {
                     <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
                 </a>
 
-                <div class="profile-dropdown">
+                <div class="profile-dropdown hidden lg:block">
                     <button class="hover:text-black transition-colors focus:outline-none py-1">
                         <i class="fa-regular fa-user text-sm"></i>
                     </button>
@@ -141,6 +157,19 @@ body {
                 </div>
             </div>
         </div>
+
+        <div id="mobile-menu" class="lg:hidden bg-white">
+            <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
+                <a href="index.html" class="nav-link-min px-2">Home</a>
+                <a href="collection.html" class="nav-link-min px-2">Collection</a>
+                <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
+                <hr class="border-gray-50">
+                <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min px-2 text-red-500 font-bold">
+                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
+                </a>
+            </div>
+        </div>
     </div>
 
     <div id="search-bar" class="hidden bg-white border-t border-gray-100 px-8 py-10 animate-fade-in">
@@ -153,11 +182,9 @@ body {
 </nav>
 
 <br/>
-<div id="filterContainer" class="flex flex-wrap gap-3 mb-8 px-2"></div>
-<div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-
-<div class="container mx-auto p-10">
-    <div id="grid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+<div class="container mx-auto px-4 md:px-8">
+    <div id="filterContainer" class="flex flex-wrap gap-3 mb-8"></div>
+    <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
 </div>
     
 <div id="zoomModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4">
@@ -171,6 +198,26 @@ body {
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+    // Mobile Menu Toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    menuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('active');
+    });
+
+    // Handle Search Bar Toggle
+    function toggleSearch() {
+        const searchBar = document.getElementById('search-bar');
+        searchBar.classList.toggle('hidden');
+        if (!searchBar.classList.contains('hidden')) {
+            document.getElementById('searchBox').focus();
+            // Close mobile menu if open when search starts
+            mobileMenu.classList.remove('active');
+        }
+    }
+</script>
 <script src="home.js"></script>
 <script src="auth-logic.js"></script>
 </body>
