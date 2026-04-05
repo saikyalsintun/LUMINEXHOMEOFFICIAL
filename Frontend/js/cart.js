@@ -180,10 +180,28 @@ async function submitOrder() {
 }
 
 // Global exposure
+// Global exposure
 window.deleteItem = async (id) => {
     if (!confirm("Remove item?")) return;
-    const token = await currentUser.getIdToken();
-    await fetch(`${API_BASE}/cart/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } });
-    loadCart();
+
+    try {
+        const token = await currentUser.getIdToken();
+        
+        // 1. You MUST 'await' the fetch so the database finishes deleting first
+        const response = await fetch(`${API_BASE}/cart/${id}`, { 
+            method: "DELETE", 
+            headers: { "Authorization": `Bearer ${token}` } 
+        });
+
+        if (response.ok) {
+            // 2. Only reload the list AFTER the server confirms it's gone
+            await loadCart(); 
+        } else {
+            alert("Server error: Could not remove item.");
+        }
+    } catch (error) {
+        console.error("Delete Error:", error);
+        alert("Check your connection.");
+    }
 };
-window.submitOrder = submitOrder;
+window.submitOrder = submitOrder; 
