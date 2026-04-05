@@ -43,13 +43,16 @@ if (!admin.apps.length) {
 const app = express();
 
 //change
+
+//change v2
+// 6. Middleware
 app.use(cors({
   origin: "*", 
-  // ADDED "PATCH" HERE
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // MUST include PATCH and DELETE
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
+
 app.use(express.json());
 
 // 7. API Routes

@@ -116,32 +116,41 @@
 
         /* --- FLOATING CONTACT BUTTON STYLES --- */
         .floating-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end; 
-        }
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    /* 1. Tell the container to ignore mouse clicks/hovers on its empty space */
+    pointer-events: none; 
+}
 
-        .floating-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 15px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(20px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            align-items: flex-end; 
-        }
+.floating-menu, 
+.main-button {
+    /* 2. Tell the actual buttons to "wake up" and accept mouse events */
+    pointer-events: auto; 
+}
 
-        .floating-container:hover .floating-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
+.floating-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 15px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    align-items: flex-end;
+}
+
+/* 3. This stays the same, but now only triggers when mouse is on a child element */
+.floating-container:hover .floating-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
 
         .menu-item {
             width: 50px;

@@ -52,6 +52,7 @@ function setupPhoneLookup() {
 }
 
 // --- 4. LOAD CART ---
+// --- 4. LOAD CART ---
 async function loadCart() {
     const grid = document.getElementById("cartGrid");
     const orderSummary = document.getElementById("orderSummary");
@@ -59,18 +60,24 @@ async function loadCart() {
 
     try {
         if (!currentUser) return;
+        
+        // Show a spinner while loading
+        if (grid) grid.innerHTML = `<div class="text-center py-20 text-gray-400"><i class="fas fa-spinner fa-spin text-xl"></i></div>`;
+
         const token = await currentUser.getIdToken();
         const res = await fetch(`${API_BASE}/cart`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
 
         const cartItems = await res.json();
+        
         if (!grid) return;
-        grid.innerHTML = "";
+        grid.innerHTML = ""; // Clear spinner
 
         if (!cartItems || cartItems.length === 0) {
-            grid.innerHTML = `<div class="text-center py-16 uppercase font-bold text-gray-400">Wishlist is empty</div>`;
+            grid.innerHTML = `<div class="text-center py-16 uppercase font-bold text-gray-400 tracking-widest">Wishlist is empty</div>`;
             if (orderSummary) orderSummary.classList.add("hidden");
+            if (totalCount) totalCount.innerText = "0";
             return;
         }
 
@@ -78,25 +85,36 @@ async function loadCart() {
         if (totalCount) totalCount.innerText = cartItems.length;
 
         cartItems.forEach(item => {
-            const product = item.product || {};
-            grid.innerHTML += `
-            <div class="bg-white border border-gray-100 p-3 flex gap-4 items-center rounded-2xl shadow-sm">
-                <div class="w-20 h-20 flex-shrink-0 bg-gray-50 overflow-hidden rounded-xl">
-                    <img src="${product.image || ''}" class="w-full h-full object-cover">
-                </div>
-                <div class="flex-grow min-w-0">
-                    <div class="flex justify-between">
-                        <span class="text-[8px] font-black text-blue-500 uppercase tracking-widest">${product.category || 'ITEM'}</span>
-                        <button onclick="deleteItem('${item._id}')" class="text-gray-300 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                    <h2 class="font-bold text-[13px] uppercase truncate">${product.product_description || 'Product'}</h2>
-                    <p class="text-[9px] text-gray-400 uppercase font-bold">${item.color} / ${item.size} / Qty: ${item.quantity}</p>
-                </div>
-            </div>`;
-        });
-    } catch (error) { console.error(error); }
-}
+    const product = item.product || {};
+    
+    // THE FIX: Your backend sends it as 'itemId'
+    const cartId = item.itemId || item._id; 
 
+    console.log("Rendering item with ID:", cartId); 
+
+    grid.innerHTML += `
+    <div class="bg-white border border-gray-100 p-3 flex gap-4 items-center rounded-2xl shadow-sm">
+        <div class="w-20 h-20 flex-shrink-0 bg-gray-50 overflow-hidden rounded-xl">
+            <img src="${product.image || ''}" class="w-full h-full object-cover">
+        </div>
+        <div class="flex-grow min-w-0">
+            <div class="flex justify-between">
+                <span class="text-[8px] font-black text-blue-500 uppercase tracking-widest">${product.category || 'ITEM'}</span>
+                
+                <button onclick="window.deleteItem('${cartId}')" class="text-red-400 hover:text-red-600 p-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <h2 class="font-bold text-[13px] uppercase truncate">${product.product_description || 'Product'}</h2>
+            <p class="text-[9px] text-gray-400 uppercase font-bold">${item.color} / ${item.size} / Qty: ${item.quantity}</p>
+        </div>
+    </div>`;
+});
+    } catch (error) { 
+        console.error("Cart Load Error:", error);
+        if (grid) grid.innerHTML = `<div class="text-center py-16 text-red-500 text-[10px] uppercase font-bold">Failed to load items</div>`;
+    }
+}
 // --- 5. SUBMIT ORDER (UPDATED FLOW) ---
 async function submitOrder() {
     const btn = document.getElementById("submitOrderBtn");
@@ -181,27 +199,33 @@ async function submitOrder() {
 
 // Global exposure
 // Global exposure
+// At the very bottom of cart.js
 window.deleteItem = async (id) => {
-    if (!confirm("Remove item?")) return;
+    console.log("Delete triggered for:", id);
+
+    if (!id || id === "undefined" || id === "null") {
+        alert("Error: Item ID is missing. Please refresh the page.");
+        return;
+    }
+
+    if (!confirm("Remove this item from your wishlist?")) return;
 
     try {
-        const token = await currentUser.getIdToken();
-        
-        // 1. You MUST 'await' the fetch so the database finishes deleting first
-        const response = await fetch(`${API_BASE}/cart/${id}`, { 
+        const token = await firebase.auth().currentUser.getIdToken();
+        const res = await fetch(`${API_BASE}/cart/${id}`, { 
             method: "DELETE", 
             headers: { "Authorization": `Bearer ${token}` } 
         });
 
-        if (response.ok) {
-            // 2. Only reload the list AFTER the server confirms it's gone
-            await loadCart(); 
+        if (res.ok) {
+            console.log("Delete successful");
+            await loadCart(); // Refresh the list
         } else {
-            alert("Server error: Could not remove item.");
+            const errData = await res.json();
+            alert("Server error: " + errData.message);
         }
     } catch (error) {
-        console.error("Delete Error:", error);
-        alert("Check your connection.");
+        console.error("Network Error:", error);
     }
 };
 window.submitOrder = submitOrder; 

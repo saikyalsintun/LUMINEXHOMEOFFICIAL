@@ -1,123 +1,3 @@
-// const express = require("express");
-// const router = express.Router();
-// const verifyToken = require("../middleware/verifyToken");
-// const Cart = require("../models/Cart");
-// const Product = require("../models/Product");
-
-// /**
-//  * GET CART
-//  */
-// router.get("/", verifyToken, async (req, res) => {
-//   try {
-//     const userId = req.user.uid;
-
-//     const cart = await Cart.findOne({ userId });
-
-//     if (!cart || cart.items.length === 0) {
-//       return res.json([]);
-//     }
-
-//     // Join product data
-//    const detailedItems = await Promise.all(
-//   cart.items.map(async item => {
-//     const product = await Product.findById(item.productId);
-//     return {
-//       itemId: item._id,     // ⭐ IMPORTANT
-//       product,
-//       quantity: item.quantity || 1
-//     };
-//   })
-// );
-
-//     res.json(detailedItems);
-
-//   } catch (err) {
-//     console.error("Load cart error:", err.message);
-//     res.status(500).json({ message: "Failed to load cart" });
-//   }
-// });
-
-// /**
-//  * ADD TO CART
-//  */
-// router.post("/add", verifyToken, async (req, res) => {
-//   try {
-//     const userId = req.user.uid;
-//     const { productId } = req.body;
-
-//     let cart = await Cart.findOne({ userId });
-
-//     if (!cart) {
-//       cart = new Cart({
-//         userId,
-//         items: [{ productId, quantity: 1 }]
-//       });
-//     } else {
-//       const item = cart.items.find(
-//         i => i.productId.toString() === productId
-//       );
-
-//       if (item) {
-//         item.quantity += 1;
-//       } else {
-//         cart.items.push({ productId, quantity: 1 });
-//       }
-//     }
-
-//     await cart.save();
-//     res.json({ message: "Added to cart" });
-
-//   } catch (err) {
-//     console.error("Add to cart error:", err.message);
-//     res.status(500).json({ message: "Add to cart failed" });
-//   }
-// });
-
-// // UPDATE quantity (+ / -)
-// router.put("/:itemId", verifyToken, async (req, res) => {
-//   const { action } = req.body; // "inc" or "dec"
-
-//   const cart = await Cart.findOne({ userId: req.user.uid });
-//   if (!cart) return res.status(404).json({ message: "Cart not found" });
-
-//   const item = cart.items.id(req.params.itemId);
-//   if (!item) return res.status(404).json({ message: "Item not found" });
-
-//   if (action === "inc") item.quantity += 1;
-//   if (action === "dec" && item.quantity > 1) item.quantity -= 1;
-
-//   await cart.save();
-//   res.json(cart.items);
-// });
-
-
-// // DELETE route
-// router.delete("/:cartItemId", verifyToken, async (req, res) => {
-//     const itemId = req.params.cartItemId;
-//     const userUid = req.user.uid;
-
-//     try {
-//         const result = await Cart.updateOne(
-//             { userId: userUid },
-//             // Ensure this matches the field in your Mongoose schema
-//             // If using Mongoose sub-documents, it is usually _id
-//             { $pull: { items: { _id: itemId } } } 
-//         );
-
-//         if (result.modifiedCount > 0) {
-//             res.status(200).json({ message: "Item deleted" });
-//         } else {
-//             // If you reach here, the ID was sent but didn't match anything in DB
-//             res.status(404).json({ message: "Item not found in cart" });
-//         }
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: "Server error during deletion" });
-//     }
-// });
-// module.exports = router;
-
-
 
 const express = require("express");
 const router = express.Router();
@@ -233,24 +113,32 @@ router.put("/:itemId", verifyToken, async (req, res) => {
  * 4. DELETE ITEM
  * Removes a specific variation from the cart.
  */
-router.delete("/:cartItemId", verifyToken, async (req, res) => {
-    const itemId = req.params.cartItemId;
-    const userUid = req.user.uid;
-
+// In routes/cart.js
+router.delete("/:itemId", verifyToken, async (req, res) => {
     try {
-        const result = await Cart.updateOne(
-            { userId: userUid },
-            { $pull: { items: { _id: itemId } } } 
+        const userId = req.user.uid;
+        const { itemId } = req.params;
+
+        console.log(`Removing item ${itemId} from cart for user ${userId}`);
+
+        // We find the cart belonging to the user AND remove the specific item from the array
+        const updatedCart = await Cart.findOneAndUpdate(
+            { userId: userId },
+            { $pull: { items: { _id: itemId } } }, // This is the magic line
+            { new: true } // Returns the updated cart
         );
 
-        if (result.modifiedCount > 0) {
-            res.status(200).json({ message: "Item removed from cart" });
-        } else {
-            res.status(404).json({ message: "Item not found in cart" });
+        if (!updatedCart) {
+            return res.status(404).json({ message: "Cart not found" });
         }
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error during deletion" });
+
+        res.status(200).json({ 
+            message: "Item removed successfully", 
+            cartCount: updatedCart.items.length 
+        });
+    } catch (error) {
+        console.error("Backend Delete Error:", error);
+        res.status(500).json({ error: error.message });
     }
 });
 
