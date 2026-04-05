@@ -237,16 +237,30 @@
             </div>
         </div>
 
-        <div id="mobile-menu" class="lg:hidden bg-white">
-            <div class="flex flex-col py-4 space-y-4">
-                <a href="index.html" class="nav-link-min px-2">Home</a>
-                <a href="collection.html" class="nav-link-min px-2 text-orange-500 font-bold">Collection</a>
-                <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
-                <hr class="border-gray-50">
-                <a href="profile.html" class="nav-link-min px-2">My Profile</a>
-                <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min px-2 text-red-500">Sign Out</a>
-            </div>
-        </div>
+        <div id="mobile-menu" class="lg:hidden bg-white overflow-hidden">
+    <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
+        
+        <a href="admin/admin.html" id="mobile-admin-link" style="display: none;" class="nav-link-min px-2 text-orange-500 font-bold">
+            <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
+        </a>
+
+        <a href="admin/orders-admin.html" id="mobile-admin-orders-link" style="display: none;" class="nav-link-min px-2 text-blue-600 font-bold">
+            <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
+        </a>
+
+        <hr id="mobile-admin-separator" style="display: none;" class="border-gray-50">
+
+        <a href="index.html" class="nav-link-min px-2">Home</a>
+        <a href="collection.html" class="nav-link-min px-2">Collection</a>
+        <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
+        <hr class="border-gray-50">
+        <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+        
+        <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min px-2 text-red-500 font-bold">
+            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
+        </a>
+    </div>
+</div>
     </div>
 </nav>
 
@@ -296,30 +310,44 @@
 
 <script>
 
-
- // Hamburger Menu Logic //Admin check
-       document.addEventListener('DOMContentLoaded', () => {
-    const isAdmin = localStorage.getItem('isAdmin');
-    const adminLink = document.getElementById('admin-link');
-    // NEW: Get the Check Orders link
-    const ordersLink = document.getElementById('admin-orders-link');
-
-    // If the logged in user is an admin, show both links
-    if (isAdmin === 'true') {
-        if (adminLink) {
-            adminLink.style.display = 'block';
-            adminLink.style.color = '#fb923c'; 
-            adminLink.style.fontWeight = 'bold';
-        }
+// --- 1. ADMIN & AUTH LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const isAdmin = localStorage.getItem('isAdmin');
         
-        // NEW: Show the Check Orders link
-        if (ordersLink) {
-            ordersLink.style.display = 'block';
-            ordersLink.style.color = '#3b82f6'; // Giving it a blue tint to distinguish from Dashboard
-            ordersLink.style.fontWeight = 'bold';
+        // Desktop elements
+        const adminLink = document.getElementById('admin-link');
+        const ordersLink = document.getElementById('admin-orders-link');
+
+        // Mobile elements
+        const mobileAdminLink = document.getElementById('mobile-admin-link');
+        const mobileOrdersLink = document.getElementById('mobile-admin-orders-link');
+        const mobileSeparator = document.getElementById('mobile-admin-separator');
+
+        // If the logged in user is an admin, show all admin links
+        if (isAdmin === 'true') {
+            // Desktop Links
+            if (adminLink) {
+                adminLink.style.display = 'block';
+                adminLink.style.color = '#fb923c'; 
+                adminLink.style.fontWeight = 'bold';
+            }
+            if (ordersLink) {
+                ordersLink.style.display = 'block';
+                ordersLink.style.color = '#3b82f6';
+                ordersLink.style.fontWeight = 'bold';
+            }
+
+            // Mobile Links
+            if (mobileAdminLink) {
+                mobileAdminLink.style.display = 'block';
+            }
+            if (mobileOrdersLink) {
+                mobileOrdersLink.style.display = 'block';
+            }
+            if (mobileSeparator) {
+                mobileSeparator.style.display = 'block';
+            }
         }
-    }
-    
     // Sign Out logic remains the same (clears everything)
     window.handleAuthAction = function() {
         localStorage.removeItem('isLoggedIn');

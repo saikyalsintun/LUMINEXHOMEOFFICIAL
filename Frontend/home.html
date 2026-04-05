@@ -174,25 +174,31 @@ body {
             </div>
         </div>
 
-        <div id="mobile-menu" class="lg:hidden bg-white">
-            <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
-                <a href="admin/admin.html" id="admin-link" style="display: none;">
-    <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
-</a>
+       <div id="mobile-menu" class="lg:hidden bg-white">
+    <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
+        
+        <a href="admin/admin.html" id="mobile-admin-link" class="nav-link-min px-2 text-orange-500 font-bold" style="display: none;">
+            <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
+        </a>
+        <a href="admin/orders-admin.html" id="mobile-admin-orders-link" class="nav-link-min px-2 text-blue-600 font-bold" style="display: none;">
+            <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
+        </a>
 
-<a href="admin/orders-admin.html" id="admin-orders-link" style="display: none;">
-    <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
-</a>
-                <a href="index.html" class="nav-link-min px-2">Home</a>
-                <a href="collection.html" class="nav-link-min px-2">Collection</a>
-                <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
-                <hr class="border-gray-50">
-                <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
-                <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min px-2 text-red-500 font-bold">
-                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
-                </a>
-            </div>
-        </div>
+        <hr id="mobile-admin-separator" class="border-gray-50" style="display: none;">
+        
+        <a href="index.html" class="nav-link-min px-2">Home</a>
+        <a href="collection.html" class="nav-link-min px-2">Collection</a>
+        <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
+        <hr class="border-gray-50">
+        <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+        <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min px-2 text-red-500 font-bold">
+            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
+        </a>
+    </div>
+</div>
+
+
+
     </div>
 
     <div id="search-bar" class="hidden bg-white border-t border-gray-100 px-8 py-10 animate-fade-in">
@@ -222,70 +228,86 @@ body {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
+    // --- 1. ADMIN & AUTH LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const isAdmin = localStorage.getItem('isAdmin');
+        
+        // Desktop elements
+        const adminLink = document.getElementById('admin-link');
+        const ordersLink = document.getElementById('admin-orders-link');
 
- // Hamburger Menu Logic //Admin check
-       document.addEventListener('DOMContentLoaded', () => {
-    const isAdmin = localStorage.getItem('isAdmin');
-    const adminLink = document.getElementById('admin-link');
-    // NEW: Get the Check Orders link
-    const ordersLink = document.getElementById('admin-orders-link');
+        // Mobile elements
+        const mobileAdminLink = document.getElementById('mobile-admin-link');
+        const mobileOrdersLink = document.getElementById('mobile-admin-orders-link');
+        const mobileSeparator = document.getElementById('mobile-admin-separator');
 
-    // If the logged in user is an admin, show both links
-    if (isAdmin === 'true') {
-        if (adminLink) {
-            adminLink.style.display = 'block';
-            adminLink.style.color = '#fb923c'; 
-            adminLink.style.fontWeight = 'bold';
+        // If the logged in user is an admin, show all admin links
+        if (isAdmin === 'true') {
+            // Desktop Links
+            if (adminLink) {
+                adminLink.style.display = 'block';
+                adminLink.style.color = '#fb923c'; 
+                adminLink.style.fontWeight = 'bold';
+            }
+            if (ordersLink) {
+                ordersLink.style.display = 'block';
+                ordersLink.style.color = '#3b82f6';
+                ordersLink.style.fontWeight = 'bold';
+            }
+
+            // Mobile Links
+            if (mobileAdminLink) {
+                mobileAdminLink.style.display = 'block';
+            }
+            if (mobileOrdersLink) {
+                mobileOrdersLink.style.display = 'block';
+            }
+            if (mobileSeparator) {
+                mobileSeparator.style.display = 'block';
+            }
         }
         
-        // NEW: Show the Check Orders link
-        if (ordersLink) {
-            ordersLink.style.display = 'block';
-            ordersLink.style.color = '#3b82f6'; // Giving it a blue tint to distinguish from Dashboard
-            ordersLink.style.fontWeight = 'bold';
-        }
-    }
-    
-    // Sign Out logic remains the same (clears everything)
-    window.handleAuthAction = function() {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('isAdmin');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('token');
+        // Global Sign Out logic
+        window.handleAuthAction = function() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('isAdmin');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('token');
 
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-            firebase.auth().signOut().then(() => { 
-                window.location.href = 'login.html'; 
-            }).catch(() => {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().signOut().then(() => { 
+                    window.location.href = 'login.html'; 
+                }).catch(() => {
+                    window.location.href = 'login.html';
+                });
+            } else {
                 window.location.href = 'login.html';
-            });
-        } else {
-            window.location.href = 'login.html';
-        }
-    };
-});
+            }
+        };
+    });
 
-
-
-
-
-
-    // Mobile Menu Toggle
+    // --- 2. MOBILE MENU TOGGLE ---
     const menuToggle = document.getElementById('menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
 
-    menuToggle.addEventListener('click', () => {
-        mobileMenu.classList.toggle('active');
-    });
+    if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+        });
+    }
 
-    // Handle Search Bar Toggle
+    // --- 3. SEARCH BAR TOGGLE ---
     function toggleSearch() {
         const searchBar = document.getElementById('search-bar');
-        searchBar.classList.toggle('hidden');
-        if (!searchBar.classList.contains('hidden')) {
-            document.getElementById('searchBox').focus();
-            // Close mobile menu if open when search starts
-            mobileMenu.classList.remove('active');
+        if (searchBar) {
+            searchBar.classList.toggle('hidden');
+            if (!searchBar.classList.contains('hidden')) {
+                const searchBox = document.getElementById('searchBox');
+                if (searchBox) searchBox.focus();
+                
+                // Close mobile menu if open when search starts
+                if (mobileMenu) mobileMenu.classList.remove('active');
+            }
         }
     }
 </script>
