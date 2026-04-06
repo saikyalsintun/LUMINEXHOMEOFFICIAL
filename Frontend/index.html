@@ -221,34 +221,50 @@
                         <button class="hover:text-black py-1 focus:outline-none"><i class="fa-regular fa-user text-sm"></i></button>
                         <div class="dropdown-content">
                             <div id="admin-section" style="display: none;">
-                                <a href="admin/admin.html"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
-                                <a href="admin/orders-admin.html"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
-                                <hr class="my-1 border-gray-50">
-                            </div>
+    <a href="admin/admin.html" style="color: #fb923c; font-weight: 700;">
+        <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
+    </a>
+    
+    <a href="admin/orders-admin.html" style="color: #2563eb; font-weight: 700;">
+        <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
+    </a>
+    
+    <hr class="my-1 border-gray-50">
+</div>
                             <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
                             <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
                             <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
                             <hr class="my-1 border-gray-50">
-                            <a href="javascript:void(0)" onclick="handleAuthAction()" class="text-orange-600 font-bold"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT</a>
-                        </div>
+                            <a id="auth-link-desktop" href="javascript:void(0)" onclick="handleAuthAction()" class="font-bold">
+    <i id="auth-icon-desktop" class="fa-solid fa-right-to-bracket mr-2"></i> 
+    <span id="auth-text-desktop">LOGIN</span>
+</a></div>
                     </div>
                 </div>
             </div>
 
             <div id="mobile-menu" class="lg:hidden bg-white">
                 <div class="flex flex-col py-6 space-y-4 px-2">
-                    <div id="mobile-admin-section" style="display: none;">
-                        <a href="admin/admin.html" class="nav-link-min text-orange-500 font-bold block py-2"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
-                        <a href="admin/orders-admin.html" class="nav-link-min text-blue-600 font-bold block py-2"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
-                        <hr class="border-gray-100 my-2">
-                    </div>
+                   <div id="mobile-admin-section" style="display: none;">
+    <a href="admin/admin.html" class="nav-link-min" style="color: #fb923c; font-weight: 700; display: block; padding: 0.5rem 0;">
+        <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
+    </a>
+    
+    <a href="admin/orders-admin.html" class="nav-link-min" style="color: #2563eb; font-weight: 700; display: block; padding: 0.5rem 0;">
+        <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
+    </a>
+    
+    <hr style="border: 0; border-top: 1px solid #f3f4f6; margin: 0.5rem 0;">
+</div>
                     <a href="index.html" class="nav-link-min">Home</a>
                     <a href="collection.html" class="nav-link-min">Collection</a>
                     <a href="orderStatus.html" class="nav-link-min">Order Status</a>
                     <hr class="border-gray-100">
                     <a href="profile.html" class="nav-link-min"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
-                    <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min text-red-500 font-bold"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT</a>
-                </div>
+                    <a id="auth-link-mobile" href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min font-bold">
+    <i id="auth-icon-mobile" class="fa-solid fa-right-to-bracket mr-2"></i> 
+    <span id="auth-text-mobile">LOGIN</span>
+</a></div>
             </div>
         </div>
     </nav>
@@ -391,30 +407,62 @@
     </footer>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const menuToggle = document.getElementById('menu-toggle');
-            const mobileMenu = document.getElementById('mobile-menu');
+    // 1. Existing Mobile Menu Toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('active'));
+    }
 
-            if (menuToggle && mobileMenu) {
-                menuToggle.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Hamburger clicked'); // Helpful for debugging
-                    mobileMenu.classList.toggle('active');
-                });
-            }
+    // 2. AUTH UI CHECK (The Fix)
+    // We check if the user is logged in by looking for their email or token
+    const userToken = localStorage.getItem('userEmail') || localStorage.getItem('userToken');
+    const isAdmin = localStorage.getItem('isAdmin');
 
-            // Admin display check
-            const isAdmin = localStorage.getItem('isAdmin');
-            if (isAdmin === 'true') {
-                document.getElementById('admin-section').style.display = 'block';
-                document.getElementById('mobile-admin-section').style.display = 'block';
-            }
-        });
+    const dText = document.getElementById('auth-text-desktop');
+    const dIcon = document.getElementById('auth-icon-desktop');
+    const mText = document.getElementById('auth-text-mobile');
+    const mIcon = document.getElementById('auth-icon-mobile');
+    const mLink = document.getElementById('auth-link-mobile');
 
-        window.handleAuthAction = function() {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        };
+    if (userToken) {
+        // User is LOGGED IN -> Show "SIGN OUT"
+        dText.innerText = "SIGN OUT";
+        dIcon.className = "fa-solid fa-arrow-right-from-bracket mr-2";
+        
+        mText.innerText = "SIGN OUT";
+        mIcon.className = "fa-solid fa-arrow-right-from-bracket mr-2";
+        mLink.classList.add('text-red-500'); // Make it red for logout
+
+        // Show Admin sections if they are an admin
+        if (isAdmin === 'true') {
+            document.getElementById('admin-section').style.display = 'block';
+            document.getElementById('mobile-admin-section').style.display = 'block';
+        }
+    } else {
+        // User is LOGGED OUT -> Show "LOGIN"
+        dText.innerText = "LOGIN";
+        dIcon.className = "fa-solid fa-right-to-bracket mr-2";
+        
+        mText.innerText = "LOGIN";
+        mIcon.className = "fa-solid fa-right-to-bracket mr-2";
+        mLink.classList.add('text-emerald-600'); // Make it green for login
+    }
+});
+
+// 3. HANDLE THE CLICK ACTION
+window.handleAuthAction = function() {
+    const isLoggedIn = localStorage.getItem('userEmail') || localStorage.getItem('userToken');
+    
+    if (isLoggedIn) {
+        // If they were logged in, log them out
+        localStorage.clear();
+        window.location.href = 'login.html';
+    } else {
+        // If they weren't logged in, take them to login page
+        window.location.href = 'login.html';
+    }
+};
     </script>
 </body>
 </html>
