@@ -20,16 +20,55 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
 let currentUser = null;
 
+/**
+ * UPDATED: SECURITY GUARD & FORM VISIBILITY
+ */
 firebase.auth().onAuthStateChanged(async (user) => {
+    const grid = document.getElementById("cartGrid");
+    const checkoutForm = document.getElementById("checkoutForm");
+    const actionButtons = document.getElementById("actionButtons");
+
     if (!user) {
-        window.location.href = "login.html";
+        // --- LOGGED OUT STATE ---
+        currentUser = null;
+        
+        // Hide the input form and checkout button
+        if (checkoutForm) checkoutForm.classList.add("hidden");
+        if (actionButtons) actionButtons.classList.add("hidden");
+        
+        renderLoginRequired();
     } else {
+        // --- LOGGED IN STATE ---
         currentUser = user;
+        localStorage.setItem("isLoggedIn", "true");
+        
+        // Show the form and buttons
+        if (checkoutForm) checkoutForm.classList.remove("hidden");
+        if (actionButtons) actionButtons.classList.remove("hidden");
+        
         await loadCart();
-        setupPhoneLookup(); // New: Auto-fill for returning customers
+        setupPhoneLookup(); 
     }
 });
 
+function renderLoginRequired() {
+    const grid = document.getElementById("cartGrid");
+    if (!grid) return;
+
+    grid.innerHTML = `
+        <div class="col-span-full py-20 text-center animate-fade-in">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-lock text-gray-300 text-3xl"></i>
+            </div>
+            <h2 class="text-sm font-black uppercase tracking-widest mb-2">Access Restricted</h2>
+            <p class="text-gray-400 mb-8 text-[10px] uppercase tracking-wider leading-relaxed">
+                You must be logged in to view items in your wishlist <br> and provide shipping information.
+            </p>
+            <a href="signup.html" class="inline-block bg-black text-white px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:bg-orange-600 transition-all shadow-lg active:scale-95">
+                Sign In to Continue
+            </a>
+        </div>`;
+}
 // --- 3. AUTO-FILL RETURNING CUSTOMERS ---
 function setupPhoneLookup() {
     const phoneInput = document.getElementById('custPhone');
@@ -41,7 +80,6 @@ function setupPhoneLookup() {
             const res = await fetch(`${API_BASE}/user_data/${phone}`);
             if (res.ok) {
                 const data = await res.json();
-                // Auto-fill form if customer exists
                 if(document.getElementById('custName')) document.getElementById('custName').value = data.fullName;
                 if(document.getElementById('custLine')) document.getElementById('custLine').value = data.lineId;
                 if(document.getElementById('custAddress')) document.getElementById('custAddress').value = data.address;
@@ -52,7 +90,6 @@ function setupPhoneLookup() {
 }
 
 // --- 4. LOAD CART ---
-// --- 4. LOAD CART ---
 async function loadCart() {
     const grid = document.getElementById("cartGrid");
     const orderSummary = document.getElementById("orderSummary");
@@ -61,8 +98,7 @@ async function loadCart() {
     try {
         if (!currentUser) return;
         
-        // Show a spinner while loading
-        if (grid) grid.innerHTML = `<div class="text-center py-20 text-gray-400"><i class="fas fa-spinner fa-spin text-xl"></i></div>`;
+        if (grid) grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-400"><i class="fas fa-spinner fa-spin text-xl"></i></div>`;
 
         const token = await currentUser.getIdToken();
         const res = await fetch(`${API_BASE}/cart`, {
@@ -72,10 +108,10 @@ async function loadCart() {
         const cartItems = await res.json();
         
         if (!grid) return;
-        grid.innerHTML = ""; // Clear spinner
+        grid.innerHTML = ""; 
 
         if (!cartItems || cartItems.length === 0) {
-            grid.innerHTML = `<div class="text-center py-16 uppercase font-bold text-gray-400 tracking-widest">Wishlist is empty</div>`;
+            grid.innerHTML = `<div class="col-span-full text-center py-16 uppercase font-bold text-gray-400 tracking-widest">Wishlist is empty</div>`;
             if (orderSummary) orderSummary.classList.add("hidden");
             if (totalCount) totalCount.innerText = "0";
             return;
@@ -85,51 +121,45 @@ async function loadCart() {
         if (totalCount) totalCount.innerText = cartItems.length;
 
         cartItems.forEach(item => {
-    const product = item.product || {};
-    
-    // THE FIX: Your backend sends it as 'itemId'
-    const cartId = item.itemId || item._id; 
+            const product = item.product || {};
+            const cartId = item.itemId || item._id; 
 
-    console.log("Rendering item with ID:", cartId); 
-
-    grid.innerHTML += `
-    <div class="bg-white border border-gray-100 p-3 flex gap-4 items-center rounded-2xl shadow-sm">
-        <div class="w-20 h-20 flex-shrink-0 bg-gray-50 overflow-hidden rounded-xl">
-            <img src="${product.image || ''}" class="w-full h-full object-cover">
-        </div>
-        <div class="flex-grow min-w-0">
-            <div class="flex justify-between">
-                <span class="text-[8px] font-black text-blue-500 uppercase tracking-widest">${product.category || 'ITEM'}</span>
-                
-                <button onclick="window.deleteItem('${cartId}')" class="text-red-400 hover:text-red-600 p-2">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <h2 class="font-bold text-[13px] uppercase truncate">${product.product_description || 'Product'}</h2>
-            <p class="text-[9px] text-gray-400 uppercase font-bold">${item.color} / ${item.size} / Qty: ${item.quantity}</p>
-        </div>
-    </div>`;
-});
+            grid.innerHTML += `
+            <div class="bg-white border border-gray-100 p-3 flex gap-4 items-center rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <div class="w-20 h-20 flex-shrink-0 bg-gray-50 overflow-hidden rounded-xl">
+                    <img src="${product.image || ''}" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-grow min-w-0">
+                    <div class="flex justify-between">
+                        <span class="text-[8px] font-black text-blue-500 uppercase tracking-widest">${product.category || 'ITEM'}</span>
+                        <button onclick="window.deleteItem('${cartId}')" class="text-red-300 hover:text-red-600 transition-colors p-1">
+                            <i class="fa-solid fa-trash-can text-[10px]"></i>
+                        </button>
+                    </div>
+                    <h2 class="font-bold text-[13px] uppercase truncate text-gray-800">${product.product_description || 'Product'}</h2>
+                    <p class="text-[9px] text-gray-400 uppercase font-bold mt-1">${item.color} / ${item.size} / Qty: ${item.quantity}</p>
+                </div>
+            </div>`;
+        });
     } catch (error) { 
         console.error("Cart Load Error:", error);
-        if (grid) grid.innerHTML = `<div class="text-center py-16 text-red-500 text-[10px] uppercase font-bold">Failed to load items</div>`;
+        if (grid) grid.innerHTML = `<div class="col-span-full text-center py-16 text-red-500 text-[10px] uppercase font-bold">Failed to load items</div>`;
     }
 }
-// --- 5. SUBMIT ORDER (UPDATED FLOW) ---
+
+// --- 5. SUBMIT ORDER ---
 async function submitOrder() {
     const btn = document.getElementById("submitOrderBtn");
     
-    // 1. Collect Data from UI
     const customerData = {
         name: document.getElementById('custName')?.value.trim(),
         phone: document.getElementById('custPhone')?.value.trim(),
         lineId: document.getElementById('custLine')?.value.trim(),
         address: document.getElementById('custAddress')?.value.trim(),
-        email: document.getElementById('custEmail')?.value.trim() || currentUser.email,
+        email: document.getElementById('custEmail')?.value.trim() || currentUser?.email,
         deliveryInstructions: document.getElementById('orderNotes')?.value.trim() || "None"
     };
 
-    // Validation
     if (!customerData.name || !customerData.phone || !customerData.lineId || !customerData.address) {
         alert("Please fill in all required fields (Name, Phone, Line ID, Address).");
         return;
@@ -141,7 +171,6 @@ async function submitOrder() {
 
         const token = await currentUser.getIdToken();
 
-        // STEP 1: Sync User Data first (upsert)
         await fetch(`${API_BASE}/user_data/sync`, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -156,7 +185,6 @@ async function submitOrder() {
 
         btn.innerText = "PLACING ORDER...";
 
-        // STEP 2: Get Cart Items
         const cartRes = await fetch(`${API_BASE}/cart`, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -171,12 +199,11 @@ async function submitOrder() {
             quantity: item.quantity
         }));
 
-        // STEP 3: Create Order
         const orderRes = await fetch(`${API_BASE}/orders`, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify({
-                customer: customerData, // Includes lineId and instructions
+                customer: customerData,
                 items: formattedItems,
                 status: "Pending"
             })
@@ -197,14 +224,10 @@ async function submitOrder() {
     }
 }
 
-// Global exposure
-// Global exposure
-// At the very bottom of cart.js
+// --- 6. DELETE ITEM ---
 window.deleteItem = async (id) => {
-    console.log("Delete triggered for:", id);
-
     if (!id || id === "undefined" || id === "null") {
-        alert("Error: Item ID is missing. Please refresh the page.");
+        alert("Error: Item ID is missing. Please refresh.");
         return;
     }
 
@@ -218,14 +241,14 @@ window.deleteItem = async (id) => {
         });
 
         if (res.ok) {
-            console.log("Delete successful");
-            await loadCart(); // Refresh the list
+            await loadCart();
         } else {
             const errData = await res.json();
-            alert("Server error: " + errData.message);
+            alert("Error: " + errData.message);
         }
     } catch (error) {
         console.error("Network Error:", error);
     }
 };
-window.submitOrder = submitOrder; 
+
+window.submitOrder = submitOrder;

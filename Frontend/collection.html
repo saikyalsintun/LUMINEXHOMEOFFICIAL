@@ -177,7 +177,6 @@
 </head>
 
 <body>
-
 <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
     <div class="container mx-auto px-4 md:px-8 py-4 md:py-6">
         <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
@@ -196,9 +195,7 @@
 
             <div class="flex justify-center items-center">
                 <a href="index.html" class="flex items-center">
-                    <img src="image/logo2.png" 
-                         alt="Luminex Furniture" 
-                         class="h-7 md:h-9 w-auto object-contain transition-transform duration-300 hover:scale-105">
+                    <img src="image/logo2.png" alt="Luminex Furniture" class="h-7 md:h-9 w-auto object-contain transition-transform duration-300 hover:scale-105">
                 </a>
             </div>
 
@@ -217,50 +214,46 @@
                         <i class="fa-regular fa-user text-sm"></i>
                     </button>
                     <div class="dropdown-content">
-                       <a href="admin/admin.html" id="admin-link" style="display: none;">
-    <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
-</a>
+                        <div id="admin-section" style="display: none;">
+                            <a href="admin/admin.html"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
+                            <a href="admin/orders-admin.html"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
+                            <hr class="my-1 border-gray-50">
+                        </div>
 
-<a href="admin/orders-admin.html" id="admin-orders-link" style="display: none;">
-    <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
-</a>
                         <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
                         <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
                         <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
                         <a href="collection.html" class="font-bold text-orange-500"><i class="fa-solid fa-layer-group mr-2"></i> Collection</a>
+                        
                         <hr class="my-1 border-gray-50">
-                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="text-orange-600 font-bold">
-                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
+                        
+                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link text-orange-600 font-bold">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="mobile-menu" class="lg:hidden bg-white overflow-hidden">
-    <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
-        
-        <a href="admin/admin.html" id="mobile-admin-link" style="display: none;" class="nav-link-min px-2 text-orange-500 font-bold">
-            <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
-        </a>
+        <div id="mobile-menu" class="hidden lg:hidden bg-white overflow-hidden">
+            <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
+                <div id="mobile-admin-section" style="display: none;">
+                    <a href="admin/admin.html" class="nav-link-min px-2 text-orange-500 font-bold"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
+                    <a href="admin/orders-admin.html" class="nav-link-min px-2 text-blue-600 font-bold"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
+                    <hr class="border-gray-50 my-2">
+                </div>
 
-        <a href="admin/orders-admin.html" id="mobile-admin-orders-link" style="display: none;" class="nav-link-min px-2 text-blue-600 font-bold">
-            <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
-        </a>
-
-        <hr id="mobile-admin-separator" style="display: none;" class="border-gray-50">
-
-        <a href="index.html" class="nav-link-min px-2">Home</a>
-        <a href="collection.html" class="nav-link-min px-2">Collection</a>
-        <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
-        <hr class="border-gray-50">
-        <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
-        
-        <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min px-2 text-red-500 font-bold">
-            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
-        </a>
-    </div>
-</div>
+                <a href="index.html" class="nav-link-min px-2">Home</a>
+                <a href="collection.html" class="nav-link-min px-2">Collection</a>
+                <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
+                <hr class="border-gray-50">
+                <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                
+                <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link nav-link-min px-2 text-red-500 font-bold">
+                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT
+                </a>
+            </div>
+        </div>
     </div>
 </nav>
 
@@ -308,89 +301,14 @@
     </div>
 </section>
 
-<script>
-
-// --- 1. ADMIN & AUTH LOGIC ---
-    document.addEventListener('DOMContentLoaded', () => {
-        const isAdmin = localStorage.getItem('isAdmin');
-        
-        // Desktop elements
-        const adminLink = document.getElementById('admin-link');
-        const ordersLink = document.getElementById('admin-orders-link');
-
-        // Mobile elements
-        const mobileAdminLink = document.getElementById('mobile-admin-link');
-        const mobileOrdersLink = document.getElementById('mobile-admin-orders-link');
-        const mobileSeparator = document.getElementById('mobile-admin-separator');
-
-        // If the logged in user is an admin, show all admin links
-        if (isAdmin === 'true') {
-            // Desktop Links
-            if (adminLink) {
-                adminLink.style.display = 'block';
-                adminLink.style.color = '#fb923c'; 
-                adminLink.style.fontWeight = 'bold';
-            }
-            if (ordersLink) {
-                ordersLink.style.display = 'block';
-                ordersLink.style.color = '#3b82f6';
-                ordersLink.style.fontWeight = 'bold';
-            }
-
-            // Mobile Links
-            if (mobileAdminLink) {
-                mobileAdminLink.style.display = 'block';
-            }
-            if (mobileOrdersLink) {
-                mobileOrdersLink.style.display = 'block';
-            }
-            if (mobileSeparator) {
-                mobileSeparator.style.display = 'block';
-            }
-        }
-    // Sign Out logic remains the same (clears everything)
-    window.handleAuthAction = function() {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('isAdmin');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('token');
-
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-            firebase.auth().signOut().then(() => { 
-                window.location.href = 'login.html'; 
-            }).catch(() => {
-                window.location.href = 'login.html';
-            });
-        } else {
-            window.location.href = 'login.html';
-        }
-    };
-});
-
-    // --- Mobile Menu Toggle Logic ---
-    const menuToggle = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-
-    menuToggle.addEventListener('click', () => {
-        mobileMenu.classList.toggle('active');
-    });
-
-    // --- API & Firebase Config ---
+<script>/**
+     * COLLECTION PAGE SPECIFIC LOGIC
+     * This handles fetching products from your API.
+     * All Auth/Admin logic is now handled by auth-logic.js
+     */
     const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
         ? "http://localhost:5000" 
         : "https://luminexhomeofficial.vercel.app";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyCDJ042NuwnbGCxaTN7ZIQcaPN3ius8Bmo",
-        authDomain: "luminex-7ba90.firebaseapp.com",
-        projectId: "luminex-7ba90",
-        storageBucket: "luminex-7ba90.firebasestorage.app",
-        messagingSenderId: "977344382421",
-        appId: "1:977344382421:web:6fa2461522856b4563295c",
-        measurementId: "G-TB90F73ZGX"
-    };
-
-    firebase.initializeApp(firebaseConfig);
 
     const categories = [
         { name: "Chair", key: "chair" },
@@ -402,6 +320,8 @@
 
     async function loadCollections() {
         const container = document.getElementById("collection-container");
+        if (!container) return;
+
         try {
             const response = await fetch(`${API_BASE_URL}/api/products`);
             if (!response.ok) throw new Error("API Offline");
@@ -450,20 +370,12 @@
                 container.innerHTML += sectionHtml;
             });
         } catch (error) {
+            console.error("Collection Load Error:", error);
             container.innerHTML = `<div class="py-5 text-center"><p class="text-danger small">Offline: Unable to load collections</p></div>`;
         }
     }
 
-    function handleAuthAction() {
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-            firebase.auth().signOut().then(() => {
-                window.location.href = 'login.html';
-            });
-        } else {
-            window.location.href = 'login.html';
-        }
-    }
-
+    // Initialize the product feed
     document.addEventListener('DOMContentLoaded', loadCollections);
 </script>
 

@@ -9,6 +9,8 @@
     <style>
         @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .animate-pulse-slow { animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-gray-50 font-sans antialiased">
@@ -32,38 +34,62 @@
     </div>
 
     <script>
-       // --- 1. CONFIGURATION & URL RESOLUTION ---
+/**
+ * 1. SECURITY & ACCESS GUARD
+ * Shows a lock screen instead of redirecting if not logged in.
+ */
+function checkAccess() {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    if (!isLoggedIn) {
+        renderLoginRequired("You must log in to see your order status.");
+        return false;
+    }
+    return true;
+}
+
+function renderLoginRequired(message) {
+    const container = document.getElementById('statusContent');
+    container.innerHTML = `
+        <div class="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100 fade-in">
+            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-lock text-gray-300 text-2xl"></i>
+            </div>
+            <h2 class="text-sm font-black uppercase tracking-widest mb-2">Access Restricted</h2>
+            <p class="text-gray-500 mb-8 text-[10px] uppercase tracking-wider">${message}</p>
+            <a href="signup.html" class="inline-block bg-black text-white px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:bg-orange-600 transition-all shadow-lg active:scale-95">
+                Sign In to Continue
+            </a>
+        </div>`;
+}
+
+// --- 2. CONFIGURATION & URL RESOLUTION ---
 const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
     ? "http://localhost:5000" 
     : "https://luminexhomeofficial.vercel.app";
 
 const API_URL = `${API_BASE_URL}/api/orders`;
 
-// Get Order ID from URL or LocalStorage
 const urlParams = new URLSearchParams(window.location.search);
-let orderId = urlParams.get('id'); 
+let orderId = urlParams.get('id') || localStorage.getItem('lastOrderId');
 
-if (!orderId) {
-    orderId = localStorage.getItem('lastOrderId');
-} else {
-    localStorage.setItem('lastOrderId', orderId);
-}
+if (orderId) localStorage.setItem('lastOrderId', orderId);
 
 /**
- * 2. FETCH STATUS FROM DATABASE
+ * 3. FETCH STATUS FROM DATABASE
  */
 async function fetchOrderStatus() {
+    // Perform Security Check first
+    if (!checkAccess()) return;
+
     if (!orderId) {
         renderNoOrderFound();
         return;
     }
 
     try {
-        // We add a timestamp to prevent browser caching
         const response = await fetch(`${API_URL}/${orderId}?t=${Date.now()}`);
         if (!response.ok) throw new Error("Order not found");
         const order = await response.json();
-
         renderUI(order);
     } catch (error) {
         console.error("Fetch Error:", error);
@@ -72,14 +98,13 @@ async function fetchOrderStatus() {
 }
 
 /**
- * 3. UI RENDERING LOGIC
+ * 4. UI RENDERING LOGIC
  */
 function renderUI(order) {
     const container = document.getElementById('statusContent');
     if (!container) return;
 
     const status = order.status || 'Pending';
-    
     const steps = [
         { key: 'Pending', label: 'Confirmed', icon: 'fa-clipboard-check' },
         { key: 'Approved', label: 'Processing', icon: 'fa-gears' },
@@ -88,14 +113,13 @@ function renderUI(order) {
         { key: 'Received', label: 'Delivered', icon: 'fa-house-chimney-check' }
     ];
 
-    // Map 'Direct Contact' visually to 'Approved'
     const visualStatus = (status === 'Direct Contact') ? 'Approved' : status;
     const currentIndex = steps.findIndex(s => s.key === visualStatus);
     const isCancelled = status === 'Cancelled';
     const isReceived = status === 'Received';
 
     container.innerHTML = `
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 fade-in">
             <div class="bg-black p-8 text-white text-center">
                 <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500 mb-2 font-mono">Live Tracking</p>
                 <h1 class="text-2xl font-black uppercase tracking-tight italic">
@@ -155,7 +179,7 @@ function renderUI(order) {
 
                 ${status === 'Transporting' ? `
                     <button id="confirmBtn" onclick="confirmOrderDelivered('${order._id}')" 
-                        class="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-gray-800 transition-all active:scale-95 shadow-lg group">
+                        class="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-orange-600 transition-all active:scale-95 shadow-lg group">
                         <i class="fa-solid fa-box-open mr-2"></i> I Have Received My Order
                     </button>
                 ` : ''}
@@ -172,7 +196,7 @@ function renderUI(order) {
 }
 
 /**
- * 4. CUSTOMER ACTION: UPDATE STATUS TO RECEIVED
+ * 5. HELPER FUNCTIONS
  */
 async function confirmOrderDelivered(id) {
     const btn = document.getElementById('confirmBtn');
@@ -181,13 +205,11 @@ async function confirmOrderDelivered(id) {
     try {
         btn.disabled = true;
         btn.innerText = "UPDATING...";
-
         const response = await fetch(`${API_URL}/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'Received' })
         });
-
         if (response.ok) {
             fetchOrderStatus();
         } else {
@@ -219,7 +241,7 @@ function renderNoOrderFound() {
             <i class="fa-solid fa-magnifying-glass text-gray-200 text-4xl mb-4"></i>
             <h2 class="text-lg font-bold uppercase">No Active Order</h2>
             <p class="text-gray-500 mt-2 text-xs">We couldn't find a recent order for this session.</p>
-            <a href="home.html" class="mt-6 inline-block bg-black text-white px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest">Shop Collection</a>
+            <a href="index.html" class="mt-6 inline-block bg-black text-white px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest">Shop Collection</a>
         </div>`;
 }
 
@@ -232,16 +254,15 @@ function renderError(msg) {
         </div>`;
 }
 
-// Initial Start
+// Start
 fetchOrderStatus();
 
-// Auto-refresh every 15 seconds to catch Admin updates
-setInterval(fetchOrderStatus, 15000);
+// Refresh loop
+setInterval(() => {
+    if (localStorage.getItem("isLoggedIn") === "true") fetchOrderStatus();
+}, 15000);
 
-// Global Exposure for button clicks
 window.confirmOrderDelivered = confirmOrderDelivered;
     </script>
-
-    
 </body>
 </html>

@@ -1,7 +1,9 @@
-// 1. Protection Logic (Immediate Execution)
-// --- AUTHENTICATION CONFIGURATION ---
+/**
+ * LUMINEX FURNITURE - GLOBAL AUTH & UI LOGIC
+ * This file handles Firebase Auth, Admin checks, and UI toggles.
+ */
 
-// 1. Initialize Firebase (Ensure this matches your config)
+// --- 1. FIREBASE CONFIGURATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyCDJ042NuwnbGCxaTN7ZIQcaPN3ius8Bmo",
     authDomain: "luminex-7ba90.firebaseapp.com",
@@ -12,103 +14,127 @@ const firebaseConfig = {
     measurementId: "G-TB90F73ZGX"
 };
 
-// Initialize Firebase only if it hasn't been initialized yet
+// Initialize Firebase only once
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// 2. Global Auth State Tracker
-let currentUser = null;
-firebase.auth().onAuthStateChanged(user => {
-    currentUser = user || null;
-});
+// --- 2. GLOBAL SECURITY & ACCESS ---
 
-// 3. Page Access Guard (Immediate Execution)
-(function checkAccess() {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const isAuthPage = window.location.pathname.includes("signup.html");
+(function checkPageAccess() {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const path = window.location.pathname;
 
-    if (isLoggedIn !== "true" && !isAuthPage) {
-        alert("Please log in to view this page.");
-        window.location.href = "signup.html";
-    }
-})();
+    // List of pages that GUESTS cannot see
+    const protectedPages = ["orderHistory.html", "profile.html", "admin.html", "orders-admin.html"];
+    const isProtected = protectedPages.some(page => path.includes(page));
 
-// 4. Shared Auth Action (Login/Logout toggle)
-window.handleAuthAction = function() {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-    if (isLoggedIn === "true") {
-        if (confirm("Are you sure you want to sign out?")) {
-            // Sign out from Firebase
-            firebase.auth().signOut().then(() => {
-                // Clear Local Storage
-                localStorage.removeItem("isLoggedIn");
-                // Redirect to Login
-                window.location.href = "signup.html";
-            }).catch((error) => {
-                console.error("Logout Error:", error);
-            });
-        }
-    } else {
-        window.location.href = "signup.html";
-    }
-};
-
-
-(function() {
-    if (localStorage.getItem("isLoggedIn") !== "true") {
+    if (isProtected && !isLoggedIn) {
+        alert("Please log in to access this page.");
         window.location.href = "login.html";
     }
 })();
 
+// Helper function for wishlist/cart buttons
+window.requireAuth = function(actionCallback) {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    if (!isLoggedIn) {
+        alert("Please log in to continue.");
+        window.location.href = "login.html";
+        return false;
+    }
+    if (actionCallback) actionCallback();
+    return true;
+};
+
+// --- 3. THE SHARED AUTH ACTION (LOGIN/LOGOUT TOGGLE) ---
+
+window.handleAuthAction = function() {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+    if (isLoggedIn) {
+        // LOGOUT LOGIC
+        if (confirm("Are you sure you want to sign out?")) {
+            firebase.auth().signOut().then(() => {
+                localStorage.clear(); // Wipe everything
+                window.location.href = "index.html"; // Go home
+            }).catch(err => {
+                console.error("Logout Error:", err);
+                window.location.href = "index.html";
+            });
+        }
+    } else {
+        // LOGIN LOGIC
+        window.location.href = "login.html";
+    }
+};
+
+// --- 4. UI SYNCHRONIZATION ---
+// --- 4. UI SYNCHRONIZATION ---
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 2. Element Selectors
-    const searchBtn = document.getElementById('searchBtn');
-    const searchBar = document.getElementById('search-bar');
-    const searchBox = document.getElementById('searchBox');
-    const authBtn = document.getElementById('authBtn');
-    const zoomModal = document.getElementById('zoomModal');
-    
-    // 3. Search Toggle Logic
-    if(searchBtn) {
-        searchBtn.addEventListener('click', () => {
-            searchBar.classList.toggle('hidden');
-            if(!searchBar.classList.contains('hidden')) {
-                searchBox.focus();
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+
+    // A. Update Login/Logout Buttons Automatically
+    const authLinks = document.querySelectorAll('.auth-toggle-link');
+    authLinks.forEach(link => {
+        if (isLoggedIn) {
+            link.innerHTML = `<i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT`;
+            link.classList.add('text-orange-600');
+        } else {
+            link.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket mr-2"></i> LOGIN`;
+            link.classList.remove('text-orange-600');
+        }
+    });
+
+    // B. Handle Admin Section Visibility & Styling
+    const adminSection = document.getElementById('admin-section');
+    const mobileAdminSection = document.getElementById('mobile-admin-section');
+
+    if (isAdmin) {
+        // Show sections
+        if (adminSection) adminSection.style.display = 'block';
+        if (mobileAdminSection) mobileAdminSection.style.display = 'block';
+
+        // Apply specific colors to Admin Links (Desktop & Mobile)
+        [adminSection, mobileAdminSection].forEach(section => {
+            if (!section) return;
+            const links = section.querySelectorAll('a');
+            
+            // First Link: Admin Dashboard (Orange)
+            if (links[0]) {
+                links[0].style.color = '#fb923c'; 
+                links[0].style.fontWeight = '700';
+            }
+            // Second Link: Check Orders (Blue)
+            if (links[1]) {
+                links[1].style.color = '#3b82f6';
+                links[1].style.fontWeight = '700';
             }
         });
+    } else {
+        // Hide if not admin
+        if (adminSection) adminSection.style.display = 'none';
+        if (mobileAdminSection) mobileAdminSection.style.display = 'none';
     }
 
-    // 4. Logout Logic
-    if(authBtn) {
-        authBtn.addEventListener('click', () => {
-            if (confirm("Are you sure you want to sign out?")) {
-                localStorage.removeItem("isLoggedIn");
-                window.location.href = "login.html";
-            }
-        });
-    }
-    
-    // 5. Search Execution (Debounce/Input)
-    if(searchBox) {
-        searchBox.addEventListener('input', (e) => {
-            // Your existing doSearch() logic here
-            console.log("Searching for:", e.target.value);
+    // C. Mobile Menu Toggle Logic
+    const menuBtn = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (menuBtn && mobileMenu) {
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('active');
         });
     }
 });
 
-// Zoom functions (Keep global if called from dynamically generated HTML)
-window.closeZoom = function() {
-    document.getElementById('zoomModal').classList.add('hidden');
-}
-
-window.adjustZoom = function(amount) {
-    const img = document.getElementById('zoomedImg');
-    // Simple scaling logic
-    let currentScale = parseFloat(img.getAttribute('data-scale') || 1);
-    currentScale += amount;
-    img.style.transform = `scale(${currentScale})`;
-    img.setAttribute('data-scale', currentScale);
-}
+// --- 5. FIREBASE AUTH OBSERVER ---
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        localStorage.setItem("isLoggedIn", "true");
+    } else {
+        localStorage.setItem("isLoggedIn", "false");
+    }
+});
