@@ -147,15 +147,21 @@ function renderProducts(products) {
 // 6. VARIANT SELECTION
 window.selectVariant = function(btn, type, productId) {
     const rowContainer = btn.parentElement;
+    
+    // Reset all buttons in this row
     rowContainer.querySelectorAll('button').forEach(b => {
-        b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
-        b.classList.add('border-gray-300', 'bg-white', 'text-gray-700');
+        b.classList.remove('bg-black', 'text-white', 'border-black');
+        b.classList.add('border-gray-200', 'bg-white', 'text-gray-500');
     });
-    btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+
+    // Highlight selected button
+    btn.classList.remove('border-gray-200', 'text-gray-500');
+    btn.classList.add('bg-black', 'text-white', 'border-black');
+
+    // Store selection
     if (!userSelections[productId]) userSelections[productId] = {};
     userSelections[productId][type] = btn.innerText.trim();
 };
-
 // 7. WISHLIST / CART LOGIC
 async function handleAddToCart(productId) {
     const selection = userSelections[productId];

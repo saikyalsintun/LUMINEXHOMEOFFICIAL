@@ -23,134 +23,102 @@
             text-decoration: none !important;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
         }
+
         .nav-link-min:hover { color: #000; }
-        
+
         /* --- DROPDOWN MENU STYLES --- */
-.profile-dropdown {
-    position: relative;
-    display: inline-block;
-    padding-bottom: 15px; 
-    margin-bottom: -15px;
-}
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-.dropdown-content {
-    /* Change display:none to this combo for transitions to work */
-    opacity: 0;
-    visibility: hidden;
-    
-    position: absolute;
-    right: 0;
-    top: 100%; 
-    background-color: white;
-    min-width: 200px;
-    box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
-    z-index: 1000;
-    border-radius: 8px;
-    padding: 10px 0;
-    border: 1px solid #f3f4f6;
+        .dropdown-content {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            min-width: 220px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            border-radius: 8px;
+            padding: 10px 0;
+            border: 1px solid #f3f4f6;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition-delay: 0.1s;
+        }
 
-    /* This adds the magic delay and smoothness */
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    transition-delay: 0.1s; /* Keeps it open for 0.1s after mouse leaves */
-}
-/* --- DROPDOWN MENU STYLES --- */
-.profile-dropdown {
-    position: relative;
-    display: inline-block;
-    padding-bottom: 15px; 
-    margin-bottom: -15px;
-}
+        .profile-dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0s;
+        }
 
-.dropdown-content {
-    /* Change display:none to this combo for transitions to work */
-    opacity: 0;
-    visibility: hidden;
-    
-    position: absolute;
-    right: 0;
-    top: 100%; 
-    background-color: white;
-    min-width: 200px;
-    box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
-    z-index: 1000;
-    border-radius: 8px;
-    padding: 10px 0;
-    border: 1px solid #f3f4f6;
+        .dropdown-content a {
+            color: #4b5563;
+            padding: 12px 20px;
+            text-decoration: none !important;
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
 
-    /* This adds the magic delay and smoothness */
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    transition-delay: 0.1s; /* Keeps it open for 0.1s after mouse leaves */
-}
+        .dropdown-content a:hover {
+            background-color: #fff7ed;
+            color: #fb923c;
+            padding-left: 25px;
+        }
 
-.profile-dropdown:hover .dropdown-content {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s; /* Appears instantly on hover */
-}
-
-.dropdown-content a {
-    color: #4b5563;
-    padding: 12px 20px;
-    text-decoration: none !important;
-    display: block;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    transition: all 0.2s;
-}
-
-.dropdown-content a:hover {
-    background-color: #fff7ed;
-    color: #fb923c;
-    padding-left: 25px;
-}
         /* --- MOBILE MENU ANIMATION --- */
         #mobile-menu {
-            transition: all 0.3s ease-in-out;
+            transition: all 0.4s ease-in-out;
             max-height: 0;
             overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
         }
+
         #mobile-menu.active {
-            max-height: 600px;
+            max-height: 100vh;
+            opacity: 1;
+            visibility: visible;
+            border-top: 1px solid #f3f4f6;
+            padding-bottom: 20px;
         }
 
         /* --- FLOATING CONTACT BUTTON STYLES --- */
         .floating-container {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    /* 1. Tell the container to ignore mouse clicks/hovers on its empty space */
-    pointer-events: none; 
-}
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            pointer-events: none;
+        }
 
-.floating-menu, 
-.main-button {
-    /* 2. Tell the actual buttons to "wake up" and accept mouse events */
-    pointer-events: auto; 
-}
+        .floating-menu, .main-button { pointer-events: auto; }
 
-.floating-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 15px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(20px);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    align-items: flex-end;
-}
+        .floating-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-/* 3. This stays the same, but now only triggers when mouse is on a child element */
-.floating-container:hover .floating-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
+        .floating-container:hover .floating-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
 
         .menu-item {
             width: 50px;
@@ -159,7 +127,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             background: white;
             transition: transform 0.2s, background-color 0.3s;
         }
@@ -174,11 +142,10 @@
             font-family: 'Segoe UI', Roboto, Arial, sans-serif;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
             text-transform: uppercase;
             letter-spacing: 1px;
             font-size: 14px;
-            white-space: nowrap; 
         }
 
         .menu-item.line:hover { background-color: #06C755; }
@@ -194,72 +161,18 @@
             height: 90vh;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            text-align: left;
-            color: white;
             padding: 0 10%;
+            color: white;
         }
 
-        .hero-content { max-width: 850px; }
-
-        .hero-content h5 {
-            font-size: 0.9rem;
-            letter-spacing: 5px;
-            font-weight: 400;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            color: #fb923c;
-        }
-        .hero-content h1 {
-            font-size: clamp(2.5rem, 7vw, 4.5rem);
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-        }
-        .hero-content h1 span {
-            color: white;
-            display: block;
-            font-weight: 300;
-            font-size: 0.8em;
-        }
-        .hero-content p {
-            font-size: 1.2rem;
-            margin: 0 0 2.5rem 0;
-            line-height: 1.6;
-            font-weight: 300;
-            max-width: 650px;
-            opacity: 0.9;
-        }
-        .hero-btn {
-            background-color: #fb923c;
-            color: white;
-            padding: 18px 45px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            border: none;
-            transition: 0.3s ease;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(251, 146, 60, 0.3);
-        }
-        .hero-btn:hover {
-            background-color: white;
-            color: black;
-            transform: translateY(-5px);
-        }
+        .hero-content h5 { color: #fb923c; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .hero-content h1 { font-size: clamp(2.5rem, 7vw, 4.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 1.5rem; }
+        .hero-btn { background-color: #fb923c; color: white; padding: 18px 45px; font-weight: 700; text-transform: uppercase; border: none; cursor: pointer; transition: 0.3s; }
+        .hero-btn:hover { background-color: white; color: black; transform: translateY(-5px); }
 
         /* --- PRODUCT STYLES --- */
-        .product-img-wrapper {
-            overflow: hidden;
-            background: #f9fafb;
-        }
-        .product img {
-            width: 100%;
-            height: 320px;
-            object-fit: cover;
-            transition: 0.5s all ease;
-        }
+        .product-img-wrapper { overflow: hidden; background: #f9fafb; }
+        .product img { width: 100%; height: 320px; object-fit: cover; transition: 0.5s; }
         .product:hover img { transform: scale(1.08); }
 
         /* --- FOOTER STYLES --- */
@@ -267,124 +180,79 @@
         .footer-heading { color: #D8D8D8 !important; font-weight: 700; font-size: 1.1rem; margin-bottom: 1.5rem; }
         .footer-link-orig { font-size: 0.8rem; color: #999 !important; transition: 0.3s; display: inline-block; margin-bottom: 8px; text-decoration: none !important; }
         .footer-link-orig:hover { color: #fb923c !important; transform: translateX(5px); }
-
-        .social-icon {
-            width: 35px; height: 35px; background: #333; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white !important; transition: 0.3s; font-size: 0.9rem;
-        }
+        .social-icon { width: 35px; height: 35px; background: #333; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white !important; transition: 0.3s; }
         .social-icon:hover { background: #fb923c; transform: translateY(-3px); }
 
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-        }
-
-        @media (max-width: 480px) {
-            .floating-container { right: 20px; bottom: 20px; }
-        }
+        body { -webkit-font-smoothing: antialiased; font-family: -apple-system, sans-serif; }
     </style>
 </head>
 
 <body class="bg-gray-50">
 
-    <div class="floating-container">
-        <div class="floating-menu">
-            <a href="https://www.instagram.com/luminexthailand/" class="menu-item instagram" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram">
-            </a>
-            <a href="https://web.facebook.com/profile.php?id=61573633021131" class="menu-item facebook" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook">
-            </a>
-            <a href="https://line.me/ti/p/FaELFfYJp6" class="menu-item line" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg" alt="LINE">
-            </a>
-        </div>
-        <div class="main-button">
-            <span>Contact Us</span>
-        </div>
-    </div>
-
-   <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
-    <div class="container mx-auto px-4 md:px-8 py-4 md:py-6">
-        <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
-            
-            <div class="lg:hidden flex items-center">
-                <button id="menu-toggle" class="text-gray-600 focus:outline-none">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
-            </div>
-
-            <div class="hidden lg:flex gap-8 items-center">
-                <a href="index.html" class="nav-link-min">Home</a>
-                <a href="collection.html" class="nav-link-min">Collection</a>
-                <a href="orderStatus.html" class="nav-link-min">Order Status</a>
-            </div>
-
-            <div class="flex justify-center items-center">
-                <a href="index.html" class="flex items-center">
-                    <img src="image/logo2.png" alt="Luminex Furniture" class="h-7 md:h-9 w-auto object-contain transition-transform duration-300 hover:scale-105">
-                </a>
-            </div>
-
-            <div class="flex items-center justify-end gap-4 md:gap-6 text-gray-500">
-                <a href="home.html" class="hover:text-black transition-colors">
-                    <i class="fa-solid fa-bag-shopping text-sm"></i>
-                </a>
-
-                <a href="cart.html" id="wishlist-icon" class="hover:text-black transition-colors relative">
-                    <i class="fa-regular fa-heart text-sm"></i>
-                    <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
-                </a>
-
-                <div class="profile-dropdown hidden lg:block">
-                    <button class="hover:text-black transition-colors focus:outline-none py-1">
-                        <i class="fa-regular fa-user text-sm"></i>
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-[500]">
+        <div class="container mx-auto px-4 md:px-8 py-4">
+            <div class="flex items-center justify-between lg:grid lg:grid-cols-3 relative pointer-events-none">
+                
+                <div class="flex items-center pointer-events-auto z-[600]">
+                    <button id="menu-toggle" class="lg:hidden text-gray-600 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                        <i class="fa-solid fa-bars text-xl"></i>
                     </button>
-                    <div class="dropdown-content">
-                        <div id="admin-section" style="display: none;">
-                            <a href="admin/admin.html"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
-                            <a href="admin/orders-admin.html"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
-                            <hr class="my-1 border-gray-50">
-                        </div>
+                    <div class="hidden lg:flex gap-8 items-center">
+                        <a href="index.html" class="nav-link-min">Home</a>
+                        <a href="collection.html" class="nav-link-min">Collection</a>
+                        <a href="orderStatus.html" class="nav-link-min">Order Status</a>
+                    </div>
+                </div>
 
-                        <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
-                        <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
-                        <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
-                        <a href="collection.html" class="font-bold text-orange-500"><i class="fa-solid fa-layer-group mr-2"></i> Collection</a>
-                        
-                        <hr class="my-1 border-gray-50">
-                        
-                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link text-orange-600 font-bold">
-                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT
-                        </a>
+                <div class="flex justify-center items-center pointer-events-auto">
+                    <a href="index.html">
+                        <img src="image/logo2.png" alt="Luminex Furniture" class="h-7 md:h-9 w-auto object-contain">
+                    </a>
+                </div>
+
+                <div class="flex items-center justify-end gap-4 md:gap-6 text-gray-500 pointer-events-auto">
+                    <a href="home.html" class="hover:text-black transition-colors"><i class="fa-solid fa-bag-shopping text-sm"></i></a>
+                    <a href="cart.html" class="hover:text-black transition-colors relative">
+                        <i class="fa-regular fa-heart text-sm"></i>
+                        <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    </a>
+                    
+                    <div class="profile-dropdown hidden lg:block">
+                        <button class="hover:text-black py-1 focus:outline-none"><i class="fa-regular fa-user text-sm"></i></button>
+                        <div class="dropdown-content">
+                            <div id="admin-section" style="display: none;">
+                                <a href="admin/admin.html"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
+                                <a href="admin/orders-admin.html"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
+                                <hr class="my-1 border-gray-50">
+                            </div>
+                            <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                            <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
+                            <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
+                            <hr class="my-1 border-gray-50">
+                            <a href="javascript:void(0)" onclick="handleAuthAction()" class="text-orange-600 font-bold"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div id="mobile-menu" class="hidden lg:hidden bg-white overflow-hidden">
-            <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
-                <div id="mobile-admin-section" style="display: none;">
-                    <a href="admin/admin.html" class="nav-link-min px-2 text-orange-500 font-bold"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
-                    <a href="admin/orders-admin.html" class="nav-link-min px-2 text-blue-600 font-bold"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
-                    <hr class="border-gray-50 my-2">
+            <div id="mobile-menu" class="lg:hidden bg-white">
+                <div class="flex flex-col py-6 space-y-4 px-2">
+                    <div id="mobile-admin-section" style="display: none;">
+                        <a href="admin/admin.html" class="nav-link-min text-orange-500 font-bold block py-2"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
+                        <a href="admin/orders-admin.html" class="nav-link-min text-blue-600 font-bold block py-2"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
+                        <hr class="border-gray-100 my-2">
+                    </div>
+                    <a href="index.html" class="nav-link-min">Home</a>
+                    <a href="collection.html" class="nav-link-min">Collection</a>
+                    <a href="orderStatus.html" class="nav-link-min">Order Status</a>
+                    <hr class="border-gray-100">
+                    <a href="profile.html" class="nav-link-min"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                    <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min text-red-500 font-bold"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT</a>
                 </div>
-
-                <a href="index.html" class="nav-link-min px-2">Home</a>
-                <a href="collection.html" class="nav-link-min px-2">Collection</a>
-                <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
-                <hr class="border-gray-50">
-                <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
-                
-                <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link nav-link-min px-2 text-red-500 font-bold">
-                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT
-                </a>
             </div>
         </div>
-    </div>
-</nav>
-
-    <section id="home">
+    </nav>
+<section id="home">
         <div class="hero-content">
             <h5>NEW COLLECTION</h5>
             <h1>Modern Furniture <span>For Every Space</span></h1>
@@ -395,31 +263,31 @@
 
     <section id="brand" class="container py-5">
         <div class="row m-0 justify-content-center align-items-center">
-            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/1.jpg" alt="brand">
-            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/2.jpg" alt="brand">
-            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/3.jpg" alt="brand">
-            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/4.jpg" alt="brand">
-            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale hover:grayscale-0 transition opacity-50 hover:opacity-100" src="image/brand/5.jpg" alt="brand">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale opacity-50 hover:opacity-100 transition duration-300" src="image/brand/1.jpg" alt="brand">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale opacity-50 hover:opacity-100 transition duration-300" src="image/brand/2.jpg" alt="brand">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale opacity-50 hover:opacity-100 transition duration-300" src="image/brand/3.jpg" alt="brand">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale opacity-50 hover:opacity-100 transition duration-300" src="image/brand/4.jpg" alt="brand">
+            <img class="img-fluid col-lg-2 col-md-4 col-4 p-4 grayscale opacity-50 hover:opacity-100 transition duration-300" src="image/brand/5.jpg" alt="brand">
         </div>
     </section>
 
     <section id="new" class="w-100">
         <div class="row p-0 m-0 text-white">
-            <div class="one col-lg-4 p-0 position-relative overflow-hidden group">
+            <div class="col-lg-4 p-0 position-relative overflow-hidden group">
                 <img class="img-fluid w-100 transition duration-700 group-hover:scale-110" src="image/new/sofa.jpg" alt="sofas">
                 <div class="details position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-start px-5" style="top:0; left:0; background: rgba(0,0,0,0.4);">
                     <h2 class="font-weight-bold uppercase tracking-widest text-2xl">Sofas & Seating</h2>
                     <button class="btn btn-light btn-sm mt-3 rounded-0 px-4 font-bold" onclick="window.location.href='home.html?keyword=sofa'">EXPLORE</button>
                 </div>
             </div>
-            <div class="one col-lg-4 p-0 position-relative overflow-hidden group">
+            <div class="col-lg-4 p-0 position-relative overflow-hidden group">
                 <img class="img-fluid w-100 transition duration-700 group-hover:scale-110" src="image/new/dining.jpg" alt="dining">
                 <div class="details position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-start px-5" style="top:0; left:0; background: rgba(0,0,0,0.4);">
                     <h2 class="font-weight-bold uppercase tracking-widest text-2xl">Dining Sets</h2>
                     <button class="btn btn-light btn-sm mt-3 rounded-0 px-4 font-bold" onclick="window.location.href='home.html?keyword=dining'">EXPLORE</button>
                 </div>
             </div>
-            <div class="one col-lg-4 p-0 position-relative overflow-hidden group">
+            <div class="col-lg-4 p-0 position-relative overflow-hidden group">
                 <img class="img-fluid w-100 transition duration-700 group-hover:scale-110" src="image/new/livingroom.jpg" alt="livingroom">
                 <div class="details position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-start px-5" style="top:0; left:0; background: rgba(0,0,0,0.4);">
                     <h2 class="font-weight-bold uppercase tracking-widest text-2xl">Storage Units</h2>
@@ -435,36 +303,27 @@
             <hr class="ml-0" style="width: 50px; height: 3px; background: #fb923c; border: none; margin-top: 15px;">
             <p class="text-muted mt-3">Handpicked designs combining quality and comfort.</p>
         </div>
-
         <div class="row">
             <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
-                <div class="product-img-wrapper mb-3">
-                    <img src="image/featured/chair.jpg" alt="product">
-                </div>
+                <div class="product-img-wrapper mb-3"><img src="image/featured/chair.jpg" alt="product"></div>
                 <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Chair</h6>
                 <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Sarai Accent Chair</h5>
                 <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
             </div>
             <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
-                <div class="product-img-wrapper mb-3">
-                    <img src="image/featured/sofa.jpg" alt="product">
-                </div>
+                <div class="product-img-wrapper mb-3"><img src="image/featured/sofa.jpg" alt="product"></div>
                 <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Sofa</h6>
                 <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Modern Velvet Sofa</h5>
                 <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
             </div>
             <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
-                <div class="product-img-wrapper mb-3">
-                    <img src="image/featured/table.jpg" alt="product">
-                </div>
+                <div class="product-img-wrapper mb-3"><img src="image/featured/table.jpg" alt="product"></div>
                 <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Table</h6>
                 <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Oak Coffee Table</h5>
                 <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
             </div>
             <div class="product text-left col-lg-3 col-md-6 col-12 mb-5">
-                <div class="product-img-wrapper mb-3">
-                    <img src="image/featured/lamp.jpg" alt="product">
-                </div>
+                <div class="product-img-wrapper mb-3"><img src="image/featured/lamp.jpg" alt="product"></div>
                 <h6 class="text-orange-500 mb-1 small font-bold text-uppercase tracking-widest">Lighting</h6>
                 <h5 class="p-name font-weight-bold mb-3" style="font-size: 1.1rem;">Minimalist Floor Lamp</h5>
                 <button class="btn btn-dark rounded-0 px-4 py-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Add to Cart</button>
@@ -499,9 +358,7 @@
             <div class="row">
                 <div class="col-lg-3 col-md-6 col-12 mb-4">
                     <img src="image/logo4.png" style="width:120px;" alt="Luminex Furniture">
-                    <p class="mt-3 text-muted" style="font-size: 0.8rem;">
-                        Luminex Furniture delivers modern, durable, and elegant furniture crafted for everyday living.
-                    </p>
+                    <p class="mt-3 text-muted" style="font-size: 0.8rem;">Luminex Furniture delivers modern, durable, and elegant furniture crafted for everyday living.</p>
                 </div>
                 <div class="col-lg-3 col-md-6 col-12 mb-4">
                     <h5 class="footer-heading">Categories</h5>
@@ -515,9 +372,7 @@
                 </div>
                 <div class="col-lg-3 col-md-6 col-12 mb-4">
                     <h5 class="footer-heading">Contact</h5>
-                    <p class="text-muted mb-1" style="font-size: 0.8rem;">
-                        27/90 Liap Khlong 4, Soi 6<br> Pathum Thani, Thailand
-                    </p>
+                    <p class="text-muted mb-1" style="font-size: 0.8rem;">27/90 Liap Khlong 4, Soi 6<br> Pathum Thani, Thailand</p>
                     <p class="text-muted mb-1" style="font-size: 0.8rem;">+66 622 761 072</p>
                     <p class="text-muted" style="font-size: 0.8rem;">luminexofficial.th@gmail.com</p>
                 </div>
@@ -530,82 +385,36 @@
                 </div>
             </div>
             <div class="footer-bottom border-top border-secondary mt-4 pt-3 pb-4 text-center">
-                <p class="mb-0 text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">
-                    © 2026 LUMINEX FURNITURE. ALL RIGHTS RESERVED.
-                </p>
+                <p class="mb-0 text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">© 2026 LUMINEX FURNITURE. ALL RIGHTS RESERVED.</p>
             </div>
         </div>
     </footer>
-
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
     <script>
-       // --- 1. ADMIN & AUTH LOGIC ---
-    document.addEventListener('DOMContentLoaded', () => {
-        const isAdmin = localStorage.getItem('isAdmin');
-        
-        // Desktop elements
-        const adminLink = document.getElementById('admin-link');
-        const ordersLink = document.getElementById('admin-orders-link');
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
 
-        // Mobile elements
-        const mobileAdminLink = document.getElementById('mobile-admin-link');
-        const mobileOrdersLink = document.getElementById('mobile-admin-orders-link');
-        const mobileSeparator = document.getElementById('mobile-admin-separator');
-
-        // If the logged in user is an admin, show all admin links
-        if (isAdmin === 'true') {
-            // Desktop Links
-            if (adminLink) {
-                adminLink.style.display = 'block';
-                adminLink.style.color = '#fb923c'; 
-                adminLink.style.fontWeight = 'bold';
-            }
-            if (ordersLink) {
-                ordersLink.style.display = 'block';
-                ordersLink.style.color = '#3b82f6';
-                ordersLink.style.fontWeight = 'bold';
+            if (menuToggle && mobileMenu) {
+                menuToggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Hamburger clicked'); // Helpful for debugging
+                    mobileMenu.classList.toggle('active');
+                });
             }
 
-            // Mobile Links
-            if (mobileAdminLink) {
-                mobileAdminLink.style.display = 'block';
+            // Admin display check
+            const isAdmin = localStorage.getItem('isAdmin');
+            if (isAdmin === 'true') {
+                document.getElementById('admin-section').style.display = 'block';
+                document.getElementById('mobile-admin-section').style.display = 'block';
             }
-            if (mobileOrdersLink) {
-                mobileOrdersLink.style.display = 'block';
-            }
-            if (mobileSeparator) {
-                mobileSeparator.style.display = 'block';
-            }
-        }
-    // Sign Out logic remains the same (clears everything)
-    window.handleAuthAction = function() {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('isAdmin');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('token');
+        });
 
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-            firebase.auth().signOut().then(() => { 
-                window.location.href = 'login.html'; 
-            }).catch(() => {
-                window.location.href = 'login.html';
-            });
-        } else {
+        window.handleAuthAction = function() {
+            localStorage.clear();
             window.location.href = 'login.html';
-        }
-    };
-});
-
-
-    // Existing Hamburger Menu Logic...
-    const menuToggle = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-    menuToggle.addEventListener('click', () => {
-        mobileMenu.classList.toggle('active');
-    });
+        };
     </script>
-    <script src="js/auth-logic.js"></script>
 </body>
 </html>
