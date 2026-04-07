@@ -226,75 +226,15 @@ body {
         <button onclick="adjustZoom(-0.2)" class="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full backdrop-blur-md">➖ Zoom Out</button>
     </div>
 </div>
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script src="js/auth-logic.js"></script>
+
+<script src="js/home.js"></script>
+
 <script>
-
-    
-    // --- 1. ADMIN & AUTH LOGIC ---
-    document.addEventListener('DOMContentLoaded', () => {
-        const isAdmin = localStorage.getItem('isAdmin');
-        
-        // Desktop elements
-        const adminLink = document.getElementById('admin-link');
-        const ordersLink = document.getElementById('admin-orders-link');
-
-        // Mobile elements
-        const mobileAdminLink = document.getElementById('mobile-admin-link');
-        const mobileOrdersLink = document.getElementById('mobile-admin-orders-link');
-        const mobileSeparator = document.getElementById('mobile-admin-separator');
-
-        // If the logged in user is an admin, show all admin links
-        if (isAdmin === 'true') {
-            // Desktop Links
-            if (adminLink) {
-                adminLink.style.display = 'block';
-                adminLink.style.color = '#fb923c'; 
-                adminLink.style.fontWeight = 'bold';
-            }
-            if (ordersLink) {
-                ordersLink.style.display = 'block';
-                ordersLink.style.color = '#3b82f6';
-                ordersLink.style.fontWeight = 'bold';
-            }
-
-            // Mobile Links
-            if (mobileAdminLink) {
-                mobileAdminLink.style.display = 'block';
-            }
-            if (mobileOrdersLink) {
-                mobileOrdersLink.style.display = 'block';
-            }
-            if (mobileSeparator) {
-                mobileSeparator.style.display = 'block';
-            }
-        }
-        
-
-
-
-
-        // Global Sign Out logic
-        window.handleAuthAction = function() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('isAdmin');
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('token');
-
-            if (typeof firebase !== 'undefined' && firebase.auth) {
-                firebase.auth().signOut().then(() => { 
-                    window.location.href = 'login.html'; 
-                }).catch(() => {
-                    window.location.href = 'login.html';
-                });
-            } else {
-                window.location.href = 'login.html';
-            }
-        };
-    });
-
-    // --- 2. MOBILE MENU TOGGLE ---
+    // Keep only the UI-specific toggles here
     const menuToggle = document.getElementById('menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
 
@@ -302,21 +242,6 @@ body {
         menuToggle.addEventListener('click', () => {
             mobileMenu.classList.toggle('active');
         });
-    }
-
-    // --- 3. SEARCH BAR TOGGLE ---
-    function toggleSearch() {
-        const searchBar = document.getElementById('search-bar');
-        if (searchBar) {
-            searchBar.classList.toggle('hidden');
-            if (!searchBar.classList.contains('hidden')) {
-                const searchBox = document.getElementById('searchBox');
-                if (searchBox) searchBox.focus();
-                
-                // Close mobile menu if open when search starts
-                if (mobileMenu) mobileMenu.classList.remove('active');
-            }
-        }
     }
 </script>
 <script src="js/home.js"></script>
