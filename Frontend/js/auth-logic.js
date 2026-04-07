@@ -2,6 +2,7 @@
  * LUMINEX FURNITURE - GLOBAL AUTH & UI LOGIC
  */
 
+// --- 1. CONFIGURATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyCDJ042NuwnbGCxaTN7ZIQcaPN3ius8Bmo",
     authDomain: "luminex-7ba90.firebaseapp.com",
@@ -12,28 +13,85 @@ const firebaseConfig = {
     measurementId: "G-TB90F73ZGX"
 };
 
+window.API_BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://localhost:5000/api" 
+    : "https://luminexhomeofficial.vercel.app/api";
+
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+const auth = firebase.auth();
 
-// --- ACCESS CONTROL ---
-(function checkPageAccess() {
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+// --- 2. ACCESS CONTROL ---
+function checkPageAccess(user) {
     const path = window.location.pathname;
-    const protectedPages = ["orderHistory.html", "profile.html", "admin.html", "orders-admin.html"];
+    const protectedPages = ["orderHistory.html", "profile.html", "admin.html", "orders-admin.html", "orderStatus.html"];
     const isProtected = protectedPages.some(page => path.includes(page));
 
-    if (isProtected && !isLoggedIn) {
-        alert("Please log in to access this page.");
+    // Only redirect if Firebase has finished loading (user is null) AND no login found in storage
+    if (isProtected && !user && localStorage.getItem("isLoggedIn") !== "true") {
         window.location.href = "login.html";
     }
-})();
+}
 
+// --- 3. AUTH STATE OBSERVER ---
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("userToken", user.uid);
+        
+        // ADD YOUR EMAIL HERE:
+        const adminEmails = ["luminexhomeofficial@gmail.com", "saikyalsintun.mdy@gmail.com"];
+        const isAdmin = adminEmails.includes(user.email);
+        
+        localStorage.setItem("isAdmin", isAdmin ? "true" : "false");
+    } else {
+        localStorage.setItem("isLoggedIn", "false");
+        localStorage.setItem("isAdmin", "false");
+        localStorage.removeItem("userEmail");
+    }
+
+    checkPageAccess(user);
+    updateAuthUI(user);
+});
+
+// --- 4. UI SYNCHRONIZATION ---
+function updateAuthUI(user) {
+    const loggedIn = user || localStorage.getItem("isLoggedIn") === "true";
+    const email = user ? user.email : localStorage.getItem("userEmail");
+    
+    // Check if the current email is in the admin list
+    const adminEmails = ["luminexhomeofficial@gmail.com", "saikyalsintun.mdy@gmail.com"];
+    const isAdmin = adminEmails.includes(email);
+
+    // Update Sign In/Out Buttons
+    document.querySelectorAll('.auth-toggle-link').forEach(link => {
+        if (loggedIn) {
+            link.innerHTML = `<i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT`;
+        } else {
+            link.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-2"></i> LOGIN`;
+        }
+    });
+
+    // --- ADMIN SECTION VISIBILITY ---
+    const adminSection = document.getElementById('admin-section');
+    const mobileAdminSection = document.getElementById('mobile-admin-section');
+
+    if (isAdmin && loggedIn) {
+        if (adminSection) adminSection.style.setProperty('display', 'block', 'important');
+        if (mobileAdminSection) mobileAdminSection.style.setProperty('display', 'block', 'important');
+        console.log("Admin UI unlocked for: " + email);
+    } else {
+        if (adminSection) adminSection.style.display = 'none';
+        if (mobileAdminSection) mobileAdminSection.style.display = 'none';
+    }
+}
+// --- 5. LOGOUT ACTION ---
 window.handleAuthAction = function() {
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    if (isLoggedIn) {
+    if (localStorage.getItem("isLoggedIn") === "true") {
         if (confirm("Are you sure you want to sign out?")) {
-            firebase.auth().signOut().then(() => {
+            auth.signOut().then(() => {
                 localStorage.clear();
                 window.location.href = "index.html";
             });
@@ -43,76 +101,24 @@ window.handleAuthAction = function() {
     }
 };
 
-// --- UI SYNCHRONIZATION ---
+// --- 6. INITIALIZE UI ON LOAD ---
 document.addEventListener('DOMContentLoaded', () => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    // Run UI update immediately using LocalStorage so Admin doesn't "disappear" while waiting for Firebase
+    updateAuthUI(null);
 
-    // Update Sign In/Out Links
-    document.querySelectorAll('.auth-toggle-link').forEach(link => {
-        link.innerHTML = isLoggedIn 
-            ? `<i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT` 
-            : `<i class="fa-solid fa-arrow-right-to-bracket mr-2"></i> LOGIN`;
-    });
-
-    // Admin Display
-    const adminSection = document.getElementById('admin-section');
-    const mobileAdminSection = document.getElementById('mobile-admin-section');
-
-    if (isAdmin) {
-        if (adminSection) adminSection.style.display = 'block';
-        if (mobileAdminSection) {
-            mobileAdminSection.style.display = 'flex';
-            mobileAdminSection.style.flexDirection = 'column';
-        }
-
-        [adminSection, mobileAdminSection].forEach(section => {
-            if (!section) return;
-            const links = section.querySelectorAll('a');
-            links.forEach(link => {
-                link.style.display = 'block';
-                link.style.width = '100%';
-                link.style.paddingTop = '8px';
-                link.style.paddingBottom = '8px';
-            });
-            if (links[0]) { links[0].style.color = '#fb923c'; links[0].style.fontWeight = '700'; }
-            if (links[1]) { links[1].style.color = '#3b82f6'; links[1].style.fontWeight = '700'; }
-        });
-    }
-
-    // --- MOBILE MENU TOGGLE FIX ---
+    // Mobile Menu Toggle
     const menuBtn = document.getElementById('menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
-
     if (menuBtn && mobileMenu) {
         menuBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation(); 
             mobileMenu.classList.toggle('active');
-            
             const icon = menuBtn.querySelector('i');
             if (icon) {
-                if (mobileMenu.classList.contains('active')) {
-                    icon.classList.replace('fa-bars', 'fa-xmark');
-                } else {
-                    icon.classList.replace('fa-xmark', 'fa-bars');
-                }
+                mobileMenu.classList.contains('active') 
+                    ? icon.classList.replace('fa-bars', 'fa-xmark') 
+                    : icon.classList.replace('fa-xmark', 'fa-bars');
             }
         });
     }
-
-    // Close on outside click
-    document.addEventListener('click', (event) => {
-        if (mobileMenu && mobileMenu.classList.contains('active')) {
-            if (!menuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
-                mobileMenu.classList.remove('active');
-                const icon = menuBtn.querySelector('i');
-                if(icon) icon.classList.replace('fa-xmark', 'fa-bars');
-            }
-        }
-    });
-});
-
-firebase.auth().onAuthStateChanged((user) => {
-    localStorage.setItem("isLoggedIn", user ? "true" : "false");
 });

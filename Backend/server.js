@@ -11,6 +11,7 @@ const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 
+
 // 2. Initialize Environment Variables
 dotenv.config();
 
@@ -48,9 +49,10 @@ const app = express();
 // 6. Middleware
 app.use(cors({
   origin: "*", 
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // MUST include PATCH and DELETE
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
+  // ADD 'Cache-Control' and 'Pragma' to this list:
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Cache-Control", "Pragma"]
 }));
 
 app.use(express.json());

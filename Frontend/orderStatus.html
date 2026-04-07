@@ -11,6 +11,26 @@
         .animate-pulse-slow { animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Skeleton Shimmer Effect */
+        .skeleton {
+            background: #f3f4f6;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+     
     </style>
 </head>
 <body class="bg-gray-50 font-sans antialiased">
@@ -24,245 +44,298 @@
                 <i class="fa-solid fa-rotate mr-1"></i> Refresh Status
             </button>
         </div>
-
+ 
         <div id="statusContent">
-            <div class="flex flex-col items-center justify-center py-20 text-gray-400">
-                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-4"></i>
-                <p class="text-xs font-bold uppercase tracking-tighter italic">Syncing with Server...</p>
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-8">
+                <div class="flex flex-col items-center mb-10">
+                    <div class="skeleton h-4 w-24 mb-4"></div>
+                    <div class="skeleton h-8 w-48 mb-6"></div>
+                    <div class="skeleton h-4 w-32"></div>
+                </div>
+                <div class="flex justify-between mb-12 px-4">
+                    <div class="skeleton h-10 w-10 rounded-full"></div>
+                    <div class="skeleton h-10 w-10 rounded-full"></div>
+                    <div class="skeleton h-10 w-10 rounded-full"></div>
+                    <div class="skeleton h-10 w-10 rounded-full"></div>
+                </div>
+                <div class="skeleton h-20 w-full mb-8"></div>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        <div class="skeleton h-14 w-14 rounded-xl"></div>
+                        <div class="flex-grow space-y-2">
+                            <div class="skeleton h-3 w-3/4"></div>
+                            <div class="skeleton h-2 w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-10 text-center">
+                    <p class="text-[10px] font-bold uppercase tracking-tighter italic text-gray-300 animate-pulse">Syncing with Server...</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-/**
- * 1. SECURITY & ACCESS GUARD
- * Shows a lock screen instead of redirecting if not logged in.
- */
-function checkAccess() {
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    if (!isLoggedIn) {
-        renderLoginRequired("You must log in to see your order status.");
-        return false;
-    }
-    return true;
-}
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="js/auth-logic.js"></script>
 
-function renderLoginRequired(message) {
-    const container = document.getElementById('statusContent');
-    container.innerHTML = `
-        <div class="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100 fade-in">
-            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-lock text-gray-300 text-2xl"></i>
-            </div>
-            <h2 class="text-sm font-black uppercase tracking-widest mb-2">Access Restricted</h2>
-            <p class="text-gray-500 mb-8 text-[10px] uppercase tracking-wider">${message}</p>
-            <a href="signup.html" class="inline-block bg-black text-white px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:bg-orange-600 transition-all shadow-lg active:scale-95">
-                Sign In to Continue
-            </a>
-        </div>`;
-}
+<script>
+    const API_URL = `${window.API_BASE}/orders`;
+    const urlParams = new URLSearchParams(window.location.search);
+    let orderIdFromUrl = urlParams.get('id');
 
-// --- 2. CONFIGURATION & URL RESOLUTION ---
-const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-    ? "http://localhost:5000" 
-    : "https://luminexhomeofficial.vercel.app";
-
-const API_URL = `${API_BASE_URL}/api/orders`;
-
-const urlParams = new URLSearchParams(window.location.search);
-let orderId = urlParams.get('id') || localStorage.getItem('lastOrderId');
-
-if (orderId) localStorage.setItem('lastOrderId', orderId);
-
-/**
- * 3. FETCH STATUS FROM DATABASE
- */
-async function fetchOrderStatus() {
-    // Perform Security Check first
-    if (!checkAccess()) return;
-
-    if (!orderId) {
-        renderNoOrderFound();
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_URL}/${orderId}?t=${Date.now()}`);
-        if (!response.ok) throw new Error("Order not found");
-        const order = await response.json();
-        renderUI(order);
-    } catch (error) {
-        console.error("Fetch Error:", error);
-        renderError(error.message);
-    }
-}
-
-/**
- * 4. UI RENDERING LOGIC
- */
-function renderUI(order) {
-    const container = document.getElementById('statusContent');
-    if (!container) return;
-
-    const status = order.status || 'Pending';
-    const steps = [
-        { key: 'Pending', label: 'Confirmed', icon: 'fa-clipboard-check' },
-        { key: 'Approved', label: 'Processing', icon: 'fa-gears' },
-        { key: 'Order Made', label: 'Produced', icon: 'fa-shirt' },
-        { key: 'Transporting', label: 'On Way', icon: 'fa-truck-fast' },
-        { key: 'Received', label: 'Delivered', icon: 'fa-house-chimney-check' }
-    ];
-
-    const visualStatus = (status === 'Direct Contact') ? 'Approved' : status;
-    const currentIndex = steps.findIndex(s => s.key === visualStatus);
-    const isCancelled = status === 'Cancelled';
-    const isReceived = status === 'Received';
-
-    container.innerHTML = `
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 fade-in">
-            <div class="bg-black p-8 text-white text-center">
-                <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500 mb-2 font-mono">Live Tracking</p>
-                <h1 class="text-2xl font-black uppercase tracking-tight italic">
-                    ${isCancelled ? 'Order Cancelled' : (isReceived ? 'Package Delivered' : status)}
-                </h1>
-                <p class="text-[9px] text-gray-400 mt-4 font-mono uppercase tracking-widest border border-gray-800 inline-block px-3 py-1 rounded">
-                    Reference: ${order._id}
-                </p>
-            </div>
-
-            <div class="p-8 md:p-12">
-                ${!isCancelled ? `
-                    <div class="relative flex justify-between items-start mb-16">
-                        <div class="absolute top-5 left-0 w-full h-[2px] bg-gray-100 z-0"></div>
-                        <div class="absolute top-5 left-0 h-[2px] bg-black z-0 transition-all duration-1000" 
-                             style="width: ${(currentIndex / (steps.length - 1)) * 100}%"></div>
-                        
-                        ${steps.map((step, index) => {
-                            const isActive = index <= currentIndex;
-                            const isCurrent = index === currentIndex;
-                            return `
-                            <div class="relative z-10 flex flex-col items-center">
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 
-                                    ${isActive ? 'bg-black text-white shadow-xl' : 'bg-gray-100 text-gray-300'} 
-                                    ${isCurrent && !isReceived ? 'scale-125 ring-4 ring-gray-50' : ''}">
-                                    <i class="fa-solid ${step.icon} text-xs"></i>
-                                </div>
-                                <p class="mt-4 text-[8px] font-black uppercase tracking-tighter ${isActive ? 'text-black' : 'text-gray-300'}">
-                                    ${step.label}
-                                </p>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                ` : ''}
-
-                <div class="bg-gray-50 rounded-2xl p-6 mb-10 text-center border border-dashed border-gray-200">
-                    <p class="text-xs text-gray-600 font-bold uppercase tracking-tight italic">
-                        ${getStatusMessage(status)}
-                    </p>
-                </div>
-
-                <div class="space-y-4 mb-8">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b pb-2">Your Items</p>
-                    ${order.items.map(item => `
-                        <div class="flex items-center gap-4 py-3 border-b border-gray-50 last:border-0">
-                            <img src="${item.image}" class="w-14 h-14 object-contain rounded-xl bg-gray-50 shadow-sm">
-                            <div class="flex-grow">
-                                <h4 class="text-[11px] font-black uppercase text-black leading-tight">${item.product_description}</h4>
-                                <p class="text-[9px] text-gray-400 font-bold mt-1 uppercase italic">${item.size} — ${item.color}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[11px] font-black tracking-tighter">QTY: ${item.quantity}</p>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-
-                ${status === 'Transporting' ? `
-                    <button id="confirmBtn" onclick="confirmOrderDelivered('${order._id}')" 
-                        class="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-orange-600 transition-all active:scale-95 shadow-lg group">
-                        <i class="fa-solid fa-box-open mr-2"></i> I Have Received My Order
-                    </button>
-                ` : ''}
-
-                ${isReceived ? `
-                    <div class="text-center py-4">
-                        <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
-                            <i class="fa-solid fa-circle-check mr-1"></i> Delivery Confirmed
-                        </p>
-                    </div>
-                ` : ''}
-            </div>
-        </div>`;
-}
-
-/**
- * 5. HELPER FUNCTIONS
- */
-async function confirmOrderDelivered(id) {
-    const btn = document.getElementById('confirmBtn');
-    if (!confirm("Are you confirming that your package has been delivered?")) return;
-
-    try {
-        btn.disabled = true;
-        btn.innerText = "UPDATING...";
-        const response = await fetch(`${API_URL}/${id}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: 'Received' })
-        });
-        if (response.ok) {
+    // Attach to the auth observer from auth-logic.js
+    firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
             fetchOrderStatus();
         } else {
-            throw new Error("Could not update status");
+            if (!orderIdFromUrl || orderIdFromUrl === "null") {
+                window.location.href = "login.html";
+            } else {
+                fetchOrderStatus(); 
+            }
         }
-    } catch (err) {
-        alert("Error: " + err.message);
-        btn.disabled = false;
-        btn.innerText = "I Have Received My Order";
+    });
+
+    async function fetchOrderStatus() {
+        let fetchEndpoint = "";
+        let token = null;
+        const user = firebase.auth().currentUser;
+
+        try {
+            if (user) {
+                token = await user.getIdToken();
+            }
+
+            if (orderIdFromUrl && orderIdFromUrl !== "null") {
+                fetchEndpoint = `${API_URL}/${orderIdFromUrl}`;
+            } else if (user) {
+                fetchEndpoint = `${API_URL}/latest/${user.uid}`;
+            } else {
+                return renderNoOrderFound();
+            }
+            
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+            const response = await fetch(`${fetchEndpoint}?t=${Date.now()}`, { headers });
+            
+            if (!response.ok) {
+                if (response.status === 404) return renderNoOrderFound();
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+
+            const order = await response.json();
+            
+            if (order && order._id) {
+                renderUI(order);
+            } else {
+                renderNoOrderFound();
+            }
+
+        } catch (error) {
+            console.error("Order Fetch Error:", error);
+            renderError(error.message);
+        }
     }
-}
 
-function getStatusMessage(status) {
-    const messages = {
-        'Pending': 'Your order has been logged. We are reviewing your wishlist.',
-        'Approved': 'Order approved. We are currently preparing your items.',
-        'Direct Contact': 'Our support team will contact you shortly to finalize details.',
-        'Order Made': 'Production is complete! Your items are moving to shipping.',
-        'Transporting': 'Your order is on the way! Please confirm once it arrives.',
-        'Received': 'Thank you! Your delivery has been confirmed.',
-        'Cancelled': 'This order has been cancelled. Please contact support.'
+    function renderUI(order) {
+        const container = document.getElementById('statusContent');
+        if (!container) return;
+
+        const status = order.status || 'Pending';
+        const steps = [
+            { key: 'Pending', label: 'Confirmed', icon: 'fa-clipboard-check' },
+            { key: 'Approved', label: 'Processing', icon: 'fa-gears' },
+            { key: 'Order Made', label: 'Produced', icon: 'fa-shirt' },
+            { key: 'Transporting', label: 'On Way', icon: 'fa-truck-fast' },
+            { key: 'Received', label: 'Delivered', icon: 'fa-house-chimney-check' }
+        ];
+
+        const visualStatus = (status === 'Direct Contact') ? 'Approved' : status;
+        const currentIndex = steps.findIndex(s => s.key === visualStatus);
+        const isCancelled = status === 'Cancelled';
+
+        container.innerHTML = `
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in">
+                <div class="bg-black p-8 text-white text-center">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500 mb-2">Live Status</p>
+                    <h1 class="text-2xl font-black uppercase italic">${isCancelled ? 'Cancelled' : status}</h1>
+                    <p class="text-[9px] text-gray-400 mt-4 font-mono border border-gray-800 inline-block px-3 py-1 rounded">Ref: ${order._id}</p>
+                </div>
+
+                <div class="p-8 md:p-12">
+                    ${!isCancelled && currentIndex !== -1 ? `
+                        <div class="relative flex justify-between items-start mb-16">
+                            <div class="absolute top-5 left-0 w-full h-[2px] bg-gray-100"></div>
+                            <div class="absolute top-5 left-0 h-[2px] bg-black transition-all duration-1000" style="width: ${(currentIndex / (steps.length - 1)) * 100}%"></div>
+                            ${steps.map((step, index) => `
+                                <div class="relative z-10 flex flex-col items-center">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center ${index <= currentIndex ? 'bg-black text-white' : 'bg-gray-100 text-gray-300'}">
+                                        <i class="fa-solid ${step.icon} text-xs"></i>
+                                    </div>
+                                    <p class="mt-4 text-[8px] font-black uppercase ${index <= currentIndex ? 'text-black' : 'text-gray-300'}">${step.label}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    <div class="bg-gray-50 rounded-2xl p-6 mb-10 text-center border border-dashed">
+                        <p class="text-xs text-gray-600 font-bold uppercase italic">${getStatusMessage(status)}</p>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <p class="text-[10px] font-black uppercase text-gray-400 border-b pb-2">Items</p>
+                        ${order.items.map(item => `
+                            <div class="flex items-center gap-4 py-3 border-b border-gray-50 last:border-0">
+                                <img src="${item.image}" class="w-14 h-14 object-contain rounded-xl bg-gray-50" onerror="this.src='https://placehold.co/100'">
+                                <div class="flex-grow">
+                                    <h4 class="text-[11px] font-black uppercase">${item.product_description}</h4>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase">${item.size || 'Std'} — ${item.color || 'Def'}</p>
+                                </div>
+                                <p class="text-[11px] font-black">x${item.quantity}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    ${status === 'Transporting' ? `
+                        <button id="confirmBtn" onclick="updateToReceived('${order._id}')" class="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-600 transition-colors">
+                            Confirm Delivery
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    // FIXED: Using window scope and correct Firebase user method
+    window.updateToReceived = async function(id) {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            alert("You must be logged in to confirm delivery.");
+            return;
+        }
+
+        if (!confirm("Confirm you have received this order?")) return;
+
+        // Disable button to prevent double-clicks
+        const btn = document.getElementById('confirmBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Updating...';
+        }
+
+        try {
+            const token = await user.getIdToken(true);
+            const res = await fetch(`${API_URL}/${id}/status`, {
+                method: 'PATCH',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: 'Received' })
+            });
+
+            if (res.ok) {
+                fetchOrderStatus(); // Refresh UI
+            } else {
+                const errorData = await res.json();
+                alert("Update failed: " + (errorData.message || "Unknown error"));
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Confirm Delivery';
+                }
+            }
+        } catch (err) { 
+            console.error(err);
+            alert("Network error. Please check your connection."); 
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = 'Confirm Delivery';
+            }
+        }
     };
-    return messages[status] || 'Synchronizing with logistics...';
-}
 
-function renderNoOrderFound() {
-    document.getElementById('statusContent').innerHTML = `
-        <div class="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100">
-            <i class="fa-solid fa-magnifying-glass text-gray-200 text-4xl mb-4"></i>
-            <h2 class="text-lg font-bold uppercase">No Active Order</h2>
-            <p class="text-gray-500 mt-2 text-xs">We couldn't find a recent order for this session.</p>
-            <a href="index.html" class="mt-6 inline-block bg-black text-white px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest">Shop Collection</a>
-        </div>`;
-}
+    function getStatusMessage(s) {
+        const m = {
+            'Pending': 'Verifying order details...',
+            'Approved': 'Order confirmed. Moving to production.',
+            'Direct Contact': 'Customer support will contact you.',
+            'Order Made': 'Items produced and ready for shipping.',
+            'Transporting': 'Order is currently being delivered!',
+            'Received': 'Delivered successfully. Thank you!',
+            'Cancelled': 'This order was cancelled.'
+        };
+        return m[s] || 'Processing...';
+    }
 
-function renderError(msg) {
-    document.getElementById('statusContent').innerHTML = `
-        <div class="bg-white rounded-3xl p-12 text-center shadow-sm border border-red-50">
-            <i class="fa-solid fa-circle-exclamation text-red-400 text-4xl mb-4"></i>
-            <h2 class="text-lg font-bold uppercase text-red-600">Connection Error</h2>
-            <p class="text-gray-500 mt-2 text-xs">${msg}</p>
-        </div>`;
-}
+    function renderNoOrderFound() {
+        const container = document.getElementById('statusContent');
+        if (container) {
+            container.innerHTML = `
+                <div class="p-20 text-center bg-white rounded-3xl border border-dashed border-gray-200">
+                    <h2 class="font-black uppercase italic text-gray-400">No Active Order Found</h2>
+                    <p class="text-gray-400 text-[10px] mt-2 uppercase tracking-widest">Start a new order in your cart to see live status.</p>
+                </div>`;
+        }
+    }
 
-// Start
-fetchOrderStatus();
+    function renderError(msg) {
+        const container = document.getElementById('statusContent');
+        if (container) {
+            container.innerHTML = `<div class="p-10 text-center text-red-500 font-bold uppercase text-[10px]">Sync Error: ${msg}</div>`;
+        }
+    }
+</script>
 
-// Refresh loop
-setInterval(() => {
-    if (localStorage.getItem("isLoggedIn") === "true") fetchOrderStatus();
-}, 15000);
+<div class="fixed bottom-[110px] md:bottom-[90px] right-6 z-[10001] flex flex-col items-end gap-3 max-w-[280px]">
+    <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xl relative">
+        <p class="text-[11px] text-gray-600 font-medium leading-tight">
+            ✨ <span class="text-orange-600 font-bold">Pro Tip:</span> Direct orders via Line get processed faster!
+        </p>
+        <div class="absolute -bottom-2 right-6 w-4 h-4 bg-white border-r border-b border-gray-100 rotate-45"></div>
+    </div>
+    
+    <a href="https://line.me/ti/p/FaELFfYJp6" target="_blank" class="bg-[#1a1a1a] text-white p-3 rounded-full shadow-lg hover:bg-orange-500 transition-all group">
+        <i class="fa-solid fa-headset text-lg animate-pulse group-hover:animate-none"></i>
+    </a>
+</div>
 
-window.confirmOrderDelivered = confirmOrderDelivered;
-    </script>
+<div class="max-w-2xl mx-auto px-4 py-12 mb-10"> 
+    </div>
+
+<div class="h-[160px] md:h-[100px] w-full block"></div>
+
+<div class="fixed bottom-0 left-0 w-full z-[10000] bg-white border-t border-gray-100 shadow-[0_-5px_20px_rgba(0,0,0,0.03)]">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="bg-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-orange-100">
+                <i class="fa-solid fa-bolt-lightning text-sm"></i>
+            </div>
+            <div>
+                <h4 class="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em] mb-0.5">Faster Service Available</h4>
+                <p class="text-[11px] text-gray-500 leading-tight">
+                    Direct orders via social channels receive <span class="text-black font-bold">priority scheduling</span> and real-time support.
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 w-full md:w-auto">
+            <a href="https://line.me/ti/p/FaELFfYJp6" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center bg-[#06C755] text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition">
+                <i class="fa-brands fa-line mr-2 text-sm"></i> Line
+            </a>
+            <a href="https://web.facebook.com/profile.php?id=61573633021131" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center bg-[#1877F2] text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition">
+                <i class="fa-brands fa-facebook-f mr-2 text-sm"></i> Facebook
+            </a>
+            <button onclick="this.closest('.fixed').remove()" class="ml-2 p-2 text-gray-300 hover:text-gray-500 transition">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Use very specific classes so it doesn't leak to other pages */
+    .z-\[10001\] { z-index: 10001 !important; }
+    .z-\[10000\] { z-index: 10000 !important; }
+</style>
 </body>
 </html>

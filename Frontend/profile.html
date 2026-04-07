@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>My Account | Luminex Furniture</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
         :root {
@@ -17,241 +16,366 @@
         }
 
         body {
-            padding-top: 100px;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            /* font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; */
             background-color: #fcfcfc;
             color: var(--text-dark);
         }
 
-        /* Navbar */
-        .navbar { border-bottom: 1px solid var(--border-color); }
-        .nav-link { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        /* Forced Admin Colors */
+        .admin-link-orange { 
+            color: #fb923c !important; 
+            font-weight: 800 !important;
+        }
+        .admin-link-blue { 
+            color: #2563eb !important; 
+            font-weight: 800 !important;
+        }
 
-        /* Sidebar Menu */
+        /* Navigation Styles */
+        .nav-link-min {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        .nav-link-min:hover { color: #000; }
+
+        /* Profile Dropdown with Hover Delay */
+        .profile-dropdown { 
+            position: relative; 
+            display: inline-block; 
+        }
+
+        .dropdown-content {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute; 
+            right: 0; 
+            top: 100%;
+            background-color: white; 
+            min-width: 220px; 
+            z-index: 1000;
+            border-radius: 8px; 
+            padding: 10px 0;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition-delay: 0.5s; 
+        }
+
+        .profile-dropdown:hover .dropdown-content { 
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0s; 
+        }
+
+        .dropdown-content a {
+            color: #4b5563; 
+            padding: 12px 20px; 
+            text-decoration: none !important;
+            display: block; 
+            font-size: 0.75rem; 
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .dropdown-content a:hover { 
+            background-color: #fff7ed; 
+            color: #fb923c;
+        }
+
+        /* Mobile Menu Transitions */
+        #mobile-menu {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.show-menu {
+            display: block !important;
+            max-height: 100vh;
+            opacity: 1;
+        }
+
+        /* Profile Card Styling */
         .account-menu .list-group-item {
             border: none;
-            font-size: 13px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
             padding: 15px 20px;
             background: transparent;
             transition: 0.3s;
+            display: block;
+            text-decoration: none;
         }
-
         .account-menu .list-group-item.active {
             color: var(--text-dark) !important;
             font-weight: 700;
-            background: transparent;
             border-left: 3px solid #000;
         }
 
-        /* Profile Card */
         .info-card {
             background: #fff;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             padding: 40px;
         }
-
-        .info-group { margin-bottom: 30px; }
-        
         .info-label {
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             color: var(--text-muted);
             margin-bottom: 5px;
             font-weight: 700;
         }
-
         .info-value {
-            font-size: 16px;
+            font-size: 15px;
             color: var(--text-dark);
             font-weight: 500;
         }
 
-        .btn-edit {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 0;
-            padding: 8px 20px;
+        /* Skeleton Shimmer Effect */
+        .skeleton {
+            background: #e5e7eb;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .container {
+            max-width: 1140px;
         }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 fixed-top shadow-sm">
-        <div class="container">
-            <a href="index.html"><img src="img/logo2.png" alt="Luminex" height="35"></a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ml-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="account.html"><i class="fal fa-user"></i> Me</a></li>
-                </ul>
+<nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 py-4 md:py-6">
+        <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
+            
+            <div class="lg:hidden flex items-center">
+                <button id="menu-toggle" class="text-gray-600 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <div class="hidden lg:flex gap-8 items-center">
+                <a href="index.html" class="nav-link-min">Home</a>
+                <a href="collection.html" class="nav-link-min">Collection</a>
+                <a href="orderStatus.html" class="nav-link-min">Order Status</a>
+            </div>
+
+            <div class="flex justify-center items-center pointer-events-auto">
+                <a href="index.html">
+                    <img src="image/logo2.png" alt="Luminex Furniture" class="h-7 md:h-9 w-auto object-contain">
+                </a>
+            </div>
+
+            <div class="flex items-center justify-end gap-4 md:gap-6 text-gray-500">
+                <button onclick="toggleSearch()" class="hover:text-black transition-colors">
+                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                </button>
+                
+                <a href="cart.html" id="wishlist-icon" class="relative hover:text-black">
+                    <i class="fa-regular fa-heart text-sm"></i>
+                    <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                </a>
+
+                <div class="profile-dropdown hidden lg:block">
+                    <button class="hover:text-black py-1 focus:outline-none">
+                        <i class="fa-regular fa-user text-sm"></i>
+                    </button>
+                    <div class="dropdown-content shadow-xl border border-gray-100">
+                        <div id="admin-section" style="display: none;">
+                            <a href="admin/admin.html" class="admin-link-orange">
+                                <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
+                            </a>
+                            <a href="admin/orders-admin.html" class="admin-link-blue">
+                                <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
+                            </a>
+                            <hr class="my-1 border-gray-50">
+                        </div>
+                        
+                        <a href="account.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                        <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
+                        <hr class="my-1 border-gray-50">
+                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link text-orange-600 font-bold">
+                            <i class="fa-solid fa-right-to-bracket mr-2"></i> LOGIN
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
 
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-lg-3">
-                <h4 class="font-weight-bold mb-4">MY ACCOUNT</h4>
-                <div class="list-group account-menu">
-                    <a href="account.html" class="list-group-item list-group-item-action active">Profile Information</a>
-                    <a href="orderStatus.html" class="list-group-item list-group-item-action">Order History</a>
-                    <hr>
-                    <a href="javascript:void(0)" class="list-group-item list-group-item-action text-danger" onclick="handleLogout()">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+        <div id="mobile-menu" class="hidden lg:hidden bg-white">
+            <div class="flex flex-col py-4 border-t border-gray-100 mt-4">
+                <div id="mobile-admin-section" style="display: none;" class="flex flex-col mb-2">
+                    <a href="admin/admin.html" class="nav-link-min admin-link-orange block py-3 border-b border-gray-50">
+                        <i class="fa-solid fa-gauge-high mr-3"></i> ADMIN DASHBOARD
                     </a>
                 </div>
-            </div>
-
-            <div class="col-lg-9">
-                <div class="info-card">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="font-weight-bold mb-0 text-uppercase">Personal Details</h5>
-                        <button class="btn btn-outline-dark btn-edit" data-toggle="modal" data-target="#editProfileModal">
-                            Edit Profile
-                        </button>
-                    </div>
-                    <hr class="mb-5">
-
-                    <div class="row">
-                        <div class="col-md-6 info-group">
-                            <div class="info-label">Full Name</div>
-                            <div class="info-value" id="display-name">Loading...</div>
-                        </div>
-                        <div class="col-md-6 info-group">
-                            <div class="info-label">Email Address</div>
-                            <div class="info-value" id="display-email">Loading...</div>
-                        </div>
-                        <div class="col-md-6 info-group">
-                            <div class="info-label">Phone Number</div>
-                            <div class="info-value" id="display-phone">Not Provided</div>
-                        </div>
-                        <div class="col-md-6 info-group">
-                            <div class="info-label">Member Since</div>
-                            <div class="info-value" id="display-joined">-- --</div>
-                        </div>
+                <div class="flex flex-col space-y-1">
+                    <a href="index.html" class="nav-link-min block py-3 border-b border-gray-50">Home</a>
+                    <a href="collection.html" class="nav-link-min block py-3 border-b border-gray-50">Collection</a>
+                    <a href="orderStatus.html" class="nav-link-min block py-3 border-b border-gray-50">Order Status</a>
+                    <a href="account.html" class="nav-link-min block py-3 border-b border-gray-50">My Profile</a>
+                    <div class="pt-4">
+                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link nav-link-min font-bold block py-3 px-4 rounded-lg bg-gray-50 text-center">
+                            <i class="fa-solid fa-right-to-bracket mr-2"></i> LOGIN
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="editProfileModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 0;">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title font-weight-bold text-uppercase" style="font-size: 14px;">Update Information</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+    <div id="search-bar" class="hidden bg-white border-t border-gray-100 px-8 py-10">
+        <div class="max-w-3xl mx-auto flex items-center border-b border-black">
+            <input id="searchBox" type="text" placeholder="WHAT ARE YOU LOOKING FOR?" 
+                   class="w-full py-2 text-sm tracking-widest bg-transparent focus:outline-none placeholder-gray-300">
+            <button onclick="toggleSearch()" class="text-xs font-bold">CLOSE</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container mx-auto px-4 mt-12 mb-20">
+    <div class="flex flex-wrap -mx-4">
+        <div class="w-full lg:w-1/4 px-4 mb-8">
+            <h4 class="font-bold text-lg mb-6 text-uppercase tracking-wider">My Account</h4>
+            <div class="account-menu">
+                <a href="account.html" class="list-group-item active">Profile Information</a>
+                <a href="orderHistory.html" class="list-group-item">Order History</a>
+                <hr class="my-4 border-gray-100">
+                <a href="javascript:void(0)" class="list-group-item text-red-500" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+                </a>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-3/4 px-4">
+            <div class="info-card shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <h5 class="font-bold text-sm uppercase tracking-widest">Personal Details</h5>
+                    <button class="text-[11px] font-bold uppercase border border-black px-4 py-2 hover:bg-black hover:text-white transition" data-toggle="modal" data-target="#editProfileModal">
+                        Update Info
+                    </button>
                 </div>
-                <div class="modal-body p-4">
-                    <form id="editProfileForm">
-                        <div class="form-group">
-                            <label class="small font-weight-bold">First Name</label>
-                            <input type="text" class="form-control" id="input-firstname" style="border-radius:0;">
-                        </div>
-                        <div class="form-group">
-                            <label class="small font-weight-bold">Last Name</label>
-                            <input type="text" class="form-control" id="input-lastname" style="border-radius:0;">
-                        </div>
-                        <div class="form-group">
-                            <label class="small font-weight-bold">Phone Number</label>
-                            <input type="text" class="form-control" id="input-phone" style="border-radius:0;">
-                        </div>
-                        <button type="submit" class="btn btn-dark btn-block mt-4" style="border-radius:0;">SAVE CHANGES</button>
-                    </form>
+                <hr class="mb-8 border-gray-50">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="info-group">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value skeleton h-6 w-3/4" id="display-name"></div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Email Address</div>
+                        <div class="info-value skeleton h-6 w-1/2" id="display-email"></div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Phone Number</div>
+                        <div class="info-value" id="display-phone">Not Provided</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Line ID</div>
+                        <div class="info-value" id="display-line">Not Provided</div>
+                    </div>
+                    <div class="info-group col-span-1 md:col-span-2">
+                        <div class="info-label">Delivery Address</div>
+                        <div class="info-value" id="display-address">Not Provided</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 
-    <script type="module">
-        const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-            ? "http://localhost:5000" 
-            : "https://luminexhomeofficial.vercel.app";
+<script type="module">
+    const API_BASE_URL = "https://luminexhomeofficial.vercel.app";
 
-        // 1. FETCH DATA FROM MONGODB
-        async function fetchUserProfile() {
-            const token = localStorage.getItem('token');
-            const email = localStorage.getItem('userEmail');
+    // 1. Navigation & Toggle Logic
+    window.toggleSearch = () => document.getElementById('search-bar').classList.toggle('hidden');
+    
+    document.getElementById('menu-toggle').onclick = () => {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('show-menu');
+    };
 
-            // If no token, they aren't logged in
-            if (!token) {
-                window.location.href = "login.html";
-                return;
-            }
+    // 2. Fetch User Profile from Order Model
+    async function fetchUserProfile() {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+        const email = localStorage.getItem('userEmail');
 
-            try {
-                // Fetch user data based on email saved in login.js
-                const response = await fetch(`${API_BASE_URL}/api/users/profile?email=${email}`);
-                if (response.ok) {
-                    const user = await response.json();
-                    
-                    // Update Page
-                    document.getElementById('display-email').innerText = user.email;
-                    document.getElementById('display-name').innerText = `${user.firstName || ''} ${user.lastName || ''}`.trim() || "Luminex Member";
-                    document.getElementById('display-phone').innerText = user.phone || "Not Provided";
-                    
-                    if(user.createdAt) {
-                        const date = new Date(user.createdAt);
-                        document.getElementById('display-joined').innerText = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                    }
-
-                    // Pre-fill Modal
-                    document.getElementById('input-firstname').value = user.firstName || "";
-                    document.getElementById('input-lastname').value = user.lastName || "";
-                    document.getElementById('input-phone').value = user.phone || "";
-                }
-            } catch (err) {
-                console.error("Error fetching profile:", err);
-            }
+        if (!token) {
+            window.location.href = "login.html";
+            return;
         }
 
-        // 2. SAVE CHANGES TO MONGODB
-        document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = localStorage.getItem('userEmail');
-            
-            const updatedData = {
-                email: email,
-                firstName: document.getElementById('input-firstname').value,
-                lastName: document.getElementById('input-lastname').value,
-                phone: document.getElementById('input-phone').value
-            };
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedData)
-                });
-
-                if (response.ok) {
-                    alert("Profile updated!");
-                    location.reload();
-                }
-            } catch (err) {
-                alert("Update failed.");
-            }
+        // Toggle Navbar Auth Labels
+        document.querySelectorAll('.auth-toggle-link').forEach(el => {
+            el.innerHTML = '<i class="fa-solid fa-right-from-bracket mr-2"></i> LOGOUT';
         });
 
-        // 3. LOGOUT
-        window.handleLogout = function() {
-            localStorage.clear();
-            window.location.href = "login.html";
-        };
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/orders?userId=${userId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
-        document.addEventListener('DOMContentLoaded', fetchUserProfile);
-    </script>
+            if (response.ok) {
+                const orders = await response.json();
+                
+                // Clear skeleton loaders
+                const nameEl = document.getElementById('display-name');
+                const emailEl = document.getElementById('display-email');
+                nameEl.classList.remove('skeleton');
+                emailEl.classList.remove('skeleton');
+
+                if (orders.length > 0) {
+                    const customer = orders[0].customer;
+                    nameEl.innerText = customer.name;
+                    emailEl.innerText = customer.email || email;
+                    document.getElementById('display-phone').innerText = customer.phone;
+                    document.getElementById('display-line').innerText = customer.lineId;
+                    document.getElementById('display-address').innerText = customer.address;
+                } else {
+                    nameEl.innerText = "Luminex Member";
+                    emailEl.innerText = email;
+                }
+            }
+        } catch (err) {
+            console.error("Fetch error:", err);
+        }
+    }
+
+    window.handleAuthAction = function() {
+        if (localStorage.getItem('token')) handleLogout();
+        else window.location.href = "login.html";
+    };
+
+    window.handleLogout = function() {
+        localStorage.clear();
+        window.location.href = "index.html";
+    };
+
+    document.addEventListener('DOMContentLoaded', fetchUserProfile);
+</script>
 </body>
 </html>

@@ -1,65 +1,75 @@
-// --- orders-admin.js ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// 1. CONFIGURATION
+// --- 1. CONFIGURATION ---
+const firebaseConfig = {
+    apiKey: "AIzaSyCDJ042NuwnbGCxaTN7ZIQcaPN3ius8Bmo",
+    authDomain: "luminex-7ba90.firebaseapp.com",
+    projectId: "luminex-7ba90",
+    storageBucket: "luminex-7ba90.firebasestorage.app",
+    messagingSenderId: "977344382421",
+    appId: "1:977344382421:web:6fa2461522856b4563295c"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
     ? "http://localhost:5000" 
-    : "https://luminexhomeofficial.vercel.app"; // Your actual Vercel backend
+    : "https://luminexhomeofficial.vercel.app";
 
-// Using a standard constant instead of 'export' to avoid Module errors in regular scripts
 const API_BASE = `${API_BASE_URL}/api`;
-
 let allOrders = []; 
 
+// --- 2. AUTH OBSERVER (Fixed the TypeError) ---
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        fetchOrders();
+    } else {
+        console.warn("No admin session found.");
+    }
+});
+
 /**
- * 2. FETCH ALL ORDERS FROM DATABASE
+ * 3. FETCH ALL ORDERS
  */
 async function fetchOrders() {
     const container = document.getElementById('ordersContainer');
-    
     try {
-        // Cache busting with Date.now() ensures you always get the freshest data
-        const response = await fetch(`${API_BASE}/orders?t=${Date.now()}`);
-        
-        if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+        const user = auth.currentUser; 
+        if (!user) return;
+        const token = await user.getIdToken();
+
+        const response = await fetch(`${API_BASE}/orders?t=${Date.now()}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
         
         allOrders = await response.json();
         renderOrders(allOrders);
-        console.log("Orders synced successfully.");
-        
     } catch (error) {
         console.error("Fetch Error:", error);
-        if (container) {
-            container.innerHTML = `
-                <div class="text-red-500 text-center py-20 bg-red-50 rounded-3xl border border-red-100">
-                    <i class="fa-solid fa-triangle-exclamation mb-4 text-2xl"></i>
-                    <p class="font-black uppercase text-[10px] tracking-widest">Database Sync Error</p>
-                    <p class="text-[10px] mt-2">${error.message}</p>
-                    <button onclick="fetchOrders()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded-full text-[9px] font-bold uppercase">Retry Connection</button>
-                </div>`;
-        }
     }
 }
 
 /**
- * 3. RENDER ORDERS TO THE HTML GRID
+ * 4. RENDER UI (Price Removed + Delete Button Added)
  */
 function renderOrders(ordersToDisplay) {
     const container = document.getElementById('ordersContainer');
     if (!container) return;
 
     if (!Array.isArray(ordersToDisplay) || ordersToDisplay.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100 text-gray-400 font-bold uppercase text-[10px] tracking-widest">
-                No orders found in this category.
-            </div>`;
+        container.innerHTML = `<div class="text-center py-20 text-gray-400 font-bold uppercase text-[10px]">No orders found.</div>`;
         return;
     }
 
     const statusColors = {
         'Pending': 'bg-blue-100 text-blue-700',
         'Approved': 'bg-emerald-100 text-emerald-700',
-        'Direct Contact': 'bg-purple-100 text-purple-700',
-        'Order Made': 'bg-orange-100 text-orange-700',
         'Transporting': 'bg-black text-white',
         'Received': 'bg-gray-100 text-gray-400', 
         'Cancelled': 'bg-red-100 text-red-700'
@@ -67,148 +77,192 @@ function renderOrders(ordersToDisplay) {
 
     container.innerHTML = ordersToDisplay.map(order => {
         const colorClass = statusColors[order.status] || 'bg-gray-100 text-gray-700';
-        const isCompleted = order.status === 'Received';
-        const isCancelled = order.status === 'Cancelled';
+        const isRemovable = order.status === 'Received' || order.status === 'Cancelled';
         
-        // Clean Line ID for the link (removes @ if present)
-        const lineLink = order.customer?.lineId ? order.customer.lineId.replace('@', '') : '';
+        // Line ID Handling
+        const lineId = order.customer?.lineId || order.customer?.line || '';
+        const lineLink = lineId.replace('@', '');
+
+        // FIX: Prioritize 'deliveryInstructions' as defined in your cart.js
+        const instructions = order.deliveryInstructions || 
+                             order.customer?.deliveryInstructions || 
+                             order.customer?.notes || 
+                             order.notes || 
+                             'No special instructions';
 
         return `
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8 transition-all ${isCompleted ? 'opacity-60 grayscale-[0.5]' : 'hover:border-black hover:shadow-md'}">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8 p-6 order-card">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-black text-white">
+            <div class="flex justify-between items-start mb-6">
                 <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Customer Profile</p>
-                        <span class="text-[7px] px-2 py-0.5 rounded border border-blue-500 text-blue-500 font-black uppercase tracking-tighter">Verified Order</span>
-                    </div>
-                    <h3 class="text-lg font-bold uppercase tracking-tight italic">${order.customer?.name || 'Anonymous'}</h3>
+                    <h3 class="font-black uppercase italic text-xl leading-none text-black">${order.customer?.name || 'Guest User'}</h3>
+                    <p class="text-[9px] font-mono text-gray-400 mt-1 tracking-widest uppercase italic">Order ID: ${order._id}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 ${colorClass} rounded-full text-[9px] font-black uppercase tracking-widest border border-black/5">
+                        ${order.status || 'Pending'}
+                    </span>
+                    ${isRemovable ? `
+                        <button onclick="deleteOrder('${order._id}')" class="text-red-400 hover:text-red-600 p-1 transition-colors" title="Delete from History">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>` : ''}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <div class="space-y-4 bg-gray-50/50 p-5 rounded-xl border border-gray-100">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mb-3">Checkout Information</p>
                     
-                    <div class="flex flex-wrap gap-4 mt-3">
-                        <p class="text-[10px] text-gray-400 font-bold"><i class="fa-solid fa-phone mr-1 text-blue-500"></i>${order.customer?.phone || 'N/A'}</p>
-                        
-                        ${order.customer?.lineId ? `
-                        <a href="https://line.me/ti/p/~${lineLink}" target="_blank" class="text-[10px] text-emerald-400 font-bold hover:underline">
-                            <i class="fa-brands fa-line mr-1"></i>${order.customer.lineId}
-                        </a>` : ''}
-                        
-                        <p class="text-[10px] text-gray-400 font-bold"><i class="fa-solid fa-envelope mr-1"></i>${order.customer?.email || 'N/A'}</p>
-                    </div>
-                </div>
-
-                <div class="md:text-right flex flex-col justify-between items-end">
-                    <div class="w-full">
-                        <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Delivery Address</p>
-                        <p class="text-xs text-gray-200 mt-1 leading-relaxed">${order.customer?.address || 'Address missing'}</p>
-                        
-                        ${order.customer?.deliveryInstructions ? `
-                        <div class="mt-2 bg-yellow-400/10 border border-yellow-400/20 p-2 rounded-lg inline-block text-left">
-                            <p class="text-[8px] text-yellow-400 font-black uppercase tracking-widest">Note for Driver:</p>
-                            <p class="text-[10px] text-yellow-200 italic">"${order.customer.deliveryInstructions}"</p>
-                        </div>` : ''}
-                    </div>
-                    <div class="mt-4">
-                        <span class="px-3 py-1 ${colorClass} rounded-full text-[9px] font-black uppercase tracking-widest">
-                            ${order.status || 'Pending'}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-6">
-                <div class="space-y-4">
-                    ${order.items.map(item => `
-                        <div class="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
-                            <img src="${item.image}" class="w-14 h-14 object-cover rounded-lg bg-gray-50 border border-gray-100" onerror="this.src='../image/logo.png'">
-                            <div class="flex-grow">
-                                <h4 class="text-[11px] font-black uppercase text-black leading-tight">${item.product_description || 'Product'}</h4>
-                                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Size: <span class="text-black">${item.size || 'N/A'}</span> | Color: <span class="text-black">${item.color || 'N/A'}</span></p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xs font-black italic tracking-tighter text-blue-600">x${item.quantity}</p>
-                            </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[8px] font-black uppercase tracking-widest text-gray-400">Phone Number</label>
+                            <p class="text-[11px] font-bold text-black">${order.customer?.phone || 'N/A'}</p>
                         </div>
-                    `).join('')}
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[8px] font-black uppercase tracking-widest text-gray-400">Line Account ID</label>
+                            ${lineId ? `<a href="https://line.me/ti/p/~${lineLink}" target="_blank" class="text-[11px] font-bold text-emerald-600 hover:underline uppercase italic">
+                                <i class="fa-brands fa-line mr-1"></i>${lineId}
+                            </a>` : '<p class="text-[11px] font-bold text-gray-300">N/A</p>'}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[8px] font-black uppercase tracking-widest text-gray-400">Email Address</label>
+                        <p class="text-[11px] font-bold text-black lowercase">${order.customer?.email || 'Not provided'}</p>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[8px] font-black uppercase tracking-widest text-gray-400">Full Shipping Address</label>
+                        <p class="text-[10px] font-bold leading-relaxed uppercase text-gray-700">${order.customer?.address || 'No address provided'}</p>
+                    </div>
+
+                    <div class="pt-3 border-t border-gray-200">
+                        <label class="text-[8px] font-black uppercase tracking-widest text-orange-500 italic">Delivery Instructions</label>
+                        <p class="text-[10px] font-black text-black uppercase mt-1">
+                            ${instructions}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">Ordered Items</p>
+                    ${order.items.map(item => {
+                        const itemImg = item.image || item.product_image || '../image/logo.png';
+                        const productDesc = item.product_description || item.description || item.name || 'Product Details Missing';
+                        
+                        return `
+                        <div class="flex items-start gap-4 border-b border-gray-100 pb-4 last:border-0">
+                            <img src="${itemImg}" class="w-16 h-16 object-contain rounded-lg bg-white border border-gray-100 shadow-sm" 
+                                 onerror="this.src='../image/logo.png'">
+                            <div class="flex-grow">
+                                <h4 class="text-[11px] font-black uppercase leading-tight text-black tracking-tight">${productDesc}</h4>
+                                <div class="flex gap-3 mt-2">
+                                    <p class="text-[9px] font-black text-gray-400 uppercase">Qty: <span class="text-blue-600">${item.quantity}</span></p>
+                                    ${item.size ? `<p class="text-[9px] font-black text-gray-400 uppercase">Size: <span class="text-black">${item.size}</span></p>` : ''}
+                                    ${item.color ? `<p class="text-[9px] font-black text-gray-400 uppercase">Color: <span class="text-black">${item.color}</span></p>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('')}
                 </div>
             </div>
 
-            <div class="bg-gray-50 px-6 py-4 flex flex-wrap justify-between items-center gap-4 border-t border-gray-100">
-                <div class="flex flex-col">
-                    <span class="text-[8px] text-gray-400 font-mono uppercase tracking-widest">Internal Order Ref</span>
-                    <span class="text-[9px] text-gray-400 font-mono">${order._id}</span>
-                </div>
-
+            <div class="mt-8 pt-4 border-t border-gray-100 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    ${!isCompleted && !isCancelled ? `
-                        <p class="text-[9px] font-black uppercase text-gray-400 tracking-tighter">Status Control:</p>
-                        <select 
-                            onchange="updateStatus('${order._id}', this.value)" 
-                            class="bg-white border border-gray-200 text-[10px] font-bold uppercase px-3 py-2 rounded-lg cursor-pointer hover:border-black transition-all"
-                        >
-                            <option value="" disabled selected>Update Step...</option>
-                            <option value="Pending">1. New Order</option>
-                            <option value="Approved">2. Payment Approved</option>
-                            <option value="Direct Contact">3. Contacting via Line</option>
-                            <option value="Order Made">4. Production/Stock Ready</option>
-                            <option value="Transporting">5. In Transit</option>
-                            <option value="Received">6. Delivered</option>
-                            <option value="Cancelled">X. Void Order</option>
-                        </select>
-                    ` : `
-                        <p class="text-[10px] font-black uppercase ${isCancelled ? 'text-red-500' : 'text-emerald-600'} tracking-widest italic">
-                            <i class="fa-solid ${isCancelled ? 'fa-ban' : 'fa-circle-check'} mr-1"></i> 
-                            ${isCancelled ? 'Order Cancelled' : 'Order Completed'}
-                        </p>
-                    `}
+                    <p class="text-[9px] font-black uppercase text-gray-400 tracking-widest">Update Order Step:</p>
+                    <select onchange="updateStatus('${order._id}', this.value)" 
+                            class="bg-black text-white border-none text-[10px] font-bold uppercase px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-600 transition-all outline-none">
+                        <option value="" disabled selected>Select Action...</option>
+                        <option value="Approved">Approve Payment</option>
+                        <option value="Order Made">In Production</option>
+                        <option value="Transporting">Ship Order</option>
+                        <option value="Received">Mark Delivered</option>
+                        <option value="Cancelled">Void Order</option>
+                    </select>
                 </div>
             </div>
         </div>`;
     }).join('');
 }
 /**
- * 4. FILTER & UPDATE LOGIC
+ * 5. DELETE ORDER FUNCTION
  */
-function filterByStatus(status) {
-    if (!status) {
-        renderOrders(allOrders);
-    } else {
-        const filtered = allOrders.filter(o => o.status === status);
-        renderOrders(filtered);
-    }
-}
-//change
-async function updateStatus(orderId, newStatus) {
-    if (!newStatus) return;
+async function deleteOrder(orderId) {
+    if (!confirm("Are you sure you want to delete this order from history? This cannot be undone.")) return;
 
     try {
-        const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
-            method: 'PATCH', // Matches the backend router.patch
-            headers: { 
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify({ status: newStatus })
+        const token = await auth.currentUser.getIdToken();
+        const response = await fetch(`${API_BASE}/orders/${orderId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
 
         if (response.ok) {
-            console.log("Update successful");
-            fetchOrders(); // Refresh the UI
+            console.log("Order deleted successfully.");
+            fetchOrders(); // Refresh list
         } else {
-            const errorData = await response.json();
-            alert("Error: " + errorData.message);
+            alert("Failed to delete order. Check if your backend supports DELETE /api/orders/:id");
         }
-    } catch (error) {
-        console.error("Network Error:", error);
-        alert("Failed to connect. Is the backend server running?");
+    } catch (err) {
+        console.error("Delete Error:", err);
     }
 }
 
-// Global exposure
+async function updateStatus(orderId, newStatus) {
+    try {
+        const token = await auth.currentUser.getIdToken();
+        const res = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (res.ok) fetchOrders();
+    } catch (err) { console.error(err); }
+}
+/**
+ * 6. CLEAR ALL HISTORY (Delete Received & Cancelled Orders)
+ */
+async function clearAllHistory() {
+    // 1. Filter for orders that are safe to delete
+    const historyOrders = allOrders.filter(o => o.status === 'Received' || o.status === 'Cancelled');
+
+    if (historyOrders.length === 0) {
+        alert("No completed or cancelled orders found to clear.");
+        return;
+    }
+
+    const confirmClear = confirm(`Are you sure you want to PERMANENTLY delete ${historyOrders.length} archived orders? This cannot be undone.`);
+    
+    if (confirmClear) {
+        try {
+            const token = await auth.currentUser.getIdToken();
+            
+            // We loop through the history orders and delete them
+            // In a production environment, you'd ideally have a single "Delete All" endpoint on your backend
+            const deletePromises = historyOrders.map(order => 
+                fetch(`${API_BASE}/orders/${order._id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            );
+
+            await Promise.all(deletePromises);
+            
+            alert("History cleared successfully.");
+            fetchOrders(); // Refresh the UI
+            
+        } catch (err) {
+            console.error("Clear History Error:", err);
+            alert("An error occurred while clearing history.");
+        }
+    }
+}
+
+// Expose to window so the floating button can find it
+window.clearAllHistory = clearAllHistory;
+window.deleteOrder = deleteOrder;
 window.updateStatus = updateStatus;
-window.filterByStatus = filterByStatus;
 window.fetchOrders = fetchOrders;
-
-// Start
-fetchOrders();
-
-// Refresh every 30s
-setInterval(fetchOrders, 30000);

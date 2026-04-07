@@ -147,10 +147,19 @@ async function loadCart() {
     }
 }
 
+
 // --- 5. SUBMIT ORDER ---
 async function submitOrder() {
     const btn = document.getElementById("submitOrderBtn");
     
+    // 1. Auth Check
+    if (!currentUser) {
+        alert("Please log in to place an order.");
+        window.location.href = "signup.html";
+        return;
+    }
+
+    // 2. Collect Customer Data
     const customerData = {
         name: document.getElementById('custName')?.value.trim(),
         phone: document.getElementById('custPhone')?.value.trim(),
@@ -160,8 +169,9 @@ async function submitOrder() {
         deliveryInstructions: document.getElementById('orderNotes')?.value.trim() || "None"
     };
 
+    // Validation Guard
     if (!customerData.name || !customerData.phone || !customerData.lineId || !customerData.address) {
-        alert("Please fill in all required fields (Name, Phone, Line ID, Address).");
+        alert("Please fill in all required fields.");
         return;
     }
 
@@ -171,9 +181,13 @@ async function submitOrder() {
 
         const token = await currentUser.getIdToken();
 
+        // Step A: Sync User Profile (Optional but good for UX)
         await fetch(`${API_BASE}/user_data/sync`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            headers: { 
+                "Content-Type": "application/json", 
+                "Authorization": `Bearer ${token}` 
+            },
             body: JSON.stringify({
                 phone: customerData.phone,
                 fullName: customerData.name,
@@ -185,38 +199,66 @@ async function submitOrder() {
 
         btn.innerText = "PLACING ORDER...";
 
+        // Step B: Get Cart Items
         const cartRes = await fetch(`${API_BASE}/cart`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { "Authorization": `Bearer ${token}` }
         });
+        
+        if (!cartRes.ok) throw new Error("Could not retrieve cart items.");
         const cartItems = await cartRes.json();
 
-        const formattedItems = cartItems.map(item => ({
-            productId: item.product._id,
-            product_description: item.product.product_description,
-            image: item.product.image,
-            color: item.color,
-            size: item.size,
-            quantity: item.quantity
-        }));
+        if (!cartItems || cartItems.length === 0) {
+            throw new Error("Your cart is empty.");
+        }
 
+        // Calculate Total Amount (Required by our new Schema)
+        let totalAmount = 0;
+
+        const formattedItems = cartItems.map(item => {
+            const price = item.product?.price || 0;
+            totalAmount += price * (item.quantity || 1);
+
+            return {
+                productId: item.product?._id || item.productId, 
+                product_description: item.product?.product_description || item.product_description || "Product",
+                image: item.product?.image || item.image || "",
+                color: item.color || "Default",
+                size: item.size || "Standard",
+                quantity: item.quantity || 1
+            };
+        });
+
+        // Step C: Create the Order Record
+        // UPDATED: Now points to /api/orders (the unified route)
         const orderRes = await fetch(`${API_BASE}/orders`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            headers: { 
+                "Content-Type": "application/json", 
+                "Authorization": `Bearer ${token}` 
+            },
             body: JSON.stringify({
                 customer: customerData,
                 items: formattedItems,
+                totalAmount: totalAmount, // Added this
                 status: "Pending"
             })
         });
 
         const result = await orderRes.json();
+        
         if (orderRes.ok) {
-            window.location.href = `orderStatus.html?id=${result.order._id}`;
+            // SUCCESS
+            localStorage.removeItem('cart_total'); 
+            
+            // CLEAN REDIRECT
+            // orderStatus.html will now fetch /api/orders/latest/:userId
+            window.location.href = "orderStatus.html";
         } else {
-            throw new Error(result.message);
+            throw new Error(result.message || "Failed to save order.");
         }
 
     } catch (error) {
+        console.error("Order Error:", error);
         alert("Order Error: " + error.message);
     } finally {
         btn.disabled = false;
@@ -224,6 +266,14 @@ async function submitOrder() {
     }
 }
 
+// Initialization
+document.addEventListener('DOMContentLoaded', () => {
+    const submitBtn = document.getElementById("submitOrderBtn");
+    if (submitBtn) {
+        submitBtn.addEventListener('click', submitOrder);
+    }
+});
+ 
 // --- 6. DELETE ITEM ---
 window.deleteItem = async (id) => {
     if (!id || id === "undefined" || id === "null") {
@@ -250,5 +300,8 @@ window.deleteItem = async (id) => {
         console.error("Network Error:", error);
     }
 };
+
+
+
 
 window.submitOrder = submitOrder;
