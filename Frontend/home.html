@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,107 +8,123 @@
     <title>Luminex CO. Ltd.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <link rel="stylesheet" href="home.css">
-    <style>
-        /* --- NAVIGATION TEXT STYLE FIXES --- */
-        .nav-link-min {
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            transition: color 0.3s;
-            color: #4b5563;
-            text-decoration: none !important;
-        }
-        .nav-link-min:hover { color: #000; }
-
-        /* --- DROPDOWN MENU STYLES --- */
-        .profile-dropdown {
-            position: relative;
-            display: inline-block;
-            padding-bottom: 15px; 
-            margin-bottom: -15px;
-        }
-
-        .dropdown-content {
-            opacity: 0;
-            visibility: hidden;
-            position: absolute;
-            right: 0;
-            top: 100%; 
-            background-color: white;
-            min-width: 200px;
-            box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
-            z-index: 1000;
-            border-radius: 8px;
-            padding: 10px 0;
-            border: 1px solid #f3f4f6;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            transition-delay: 0.1s;
-        }
-
-        .profile-dropdown:hover .dropdown-content {
-            opacity: 1;
-            visibility: visible;
-            transition-delay: 0s;
-        }
-
-        .dropdown-content a {
-            color: #4b5563;
-            padding: 12px 20px;
-            text-decoration: none !important;
-            display: block;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.2s;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #fff7ed;
-            color: #fb923c;
-            padding-left: 25px;
-        }
-
-        /* Ensure the Nav is always on the very top layer */
-/* --- UPDATED MOBILE MENU LOGIC --- */
-#mobile-menu {
-    display: none; /* Start hidden */
-    overflow: hidden;
-    background-color: white;
-    width: 100%;
-}
-
-/* When auth-logic.js adds the 'active' class */
-#mobile-menu.active {
-    display: block !important;
-}
-
-/* Optional: Add a smooth fade-in */
-#mobile-menu.active {
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-    </style>
 </head>
+<style>
+/* --- NAVIGATION TEXT STYLE FIXES --- */
+.nav-link-min {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    color: #4b5563;
+    text-decoration: none !important;
+}
+.nav-link-min:hover { 
+    color: #000; 
+}
+
+/* --- DROPDOWN MENU STYLES --- */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 15px; 
+    margin-bottom: -15px;
+}
+
+.dropdown-content {
+    /* Change display:none to this combo for transitions to work */
+    opacity: 0;
+    visibility: hidden;
+    
+    position: absolute;
+    right: 0;
+    top: 100%; 
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
+    z-index: 1000;
+    border-radius: 8px;
+    padding: 10px 0;
+    border: 1px solid #f3f4f6;
+
+    /* This adds the magic delay and smoothness */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition-delay: 0.1s; /* Keeps it open for 0.1s after mouse leaves */
+}
+
+.profile-dropdown:hover .dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s; /* Appears instantly on hover */
+}
+
+.dropdown-content a {
+    color: #4b5563;
+    padding: 12px 20px;
+    text-decoration: none !important;
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: #fff7ed;
+    color: #fb923c;
+    padding-left: 25px;
+}
+
+/* --- MOBILE MENU ANIMATION --- */
+#mobile-menu {
+    transition: all 0.3s ease-in-out;
+    max-height: 0;
+    overflow: hidden;
+}
+#mobile-menu.active {
+    max-height: 500px;
+}
+
+/* --- EXISTING STYLES --- */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.fly-item {
+    position: fixed;
+    z-index: 99999;
+    pointer-events: none;
+    object-fit: contain;
+    transition: all 0.8s cubic-bezier(0.42, 0, 0.58, 1);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.6); color: #f97316; }
+    100% { transform: scale(1); }
+}
+
+.animate-beat {
+    display: inline-block;
+    animation: heartBeat 0.4s ease-in-out;
+}
+</style>
 
 <body class="bg-gray-50">
 
 <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
     <div class="container mx-auto px-4 md:px-8 py-4 md:py-6">
         <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
-            
+             
             <div class="lg:hidden flex items-center">
-                <button id="menu-toggle" class="text-gray-600 focus:outline-none p-2">
+                <button id="menu-toggle" class="text-gray-600 focus:outline-none">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
             </div>
@@ -118,16 +136,16 @@
             </div>
 
             <div class="flex justify-center items-center">
-                <a href="index.html" class="flex items-center">
-                    <img src="image/logo2.png" alt="Luminex Furniture" class="h-7 md:h-9 w-auto object-contain transition-transform duration-300 hover:scale-105">
+                <a href="index.html" class="text-xl md:text-2xl font-black tracking-tighter uppercase leading-none text-black hover:text-gray-700 transition-colors">
+                    Luminex
                 </a>
             </div>
 
             <div class="flex items-center justify-end gap-4 md:gap-6 text-gray-500">
-                <a href="home.html" class="hover:text-black transition-colors">
-                    <i class="fa-solid fa-bag-shopping text-sm"></i>
-                </a>
-
+                <button onclick="toggleSearch()" class="hover:text-black transition-colors">
+                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                </button>
+                
                 <a href="cart.html" id="wishlist-icon" class="hover:text-black transition-colors relative">
                     <i class="fa-regular fa-heart text-sm"></i>
                     <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
@@ -137,56 +155,172 @@
                     <button class="hover:text-black transition-colors focus:outline-none py-1">
                         <i class="fa-regular fa-user text-sm"></i>
                     </button>
-                    <div class="dropdown-content">
-                        <div id="admin-section" style="display: none;">
-                            <a href="admin/admin.html"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
-                            <a href="admin/orders-admin.html"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
-                            <hr class="my-1 border-gray-50">
-                        </div>
+                    <div class="dropdown-content shadow-xl border border-gray-100">
+                        <a href="admin/admin.html" id="admin-link" style="display: none;">
+    <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
+</a>
+
+<a href="admin/orders-admin.html" id="admin-orders-link" style="display: none;">
+    <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
+</a>
                         <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
                         <a href="orderStatus.html"><i class="fa-solid fa-truck-fast mr-2"></i> Order Status</a>
                         <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
                         <a href="collection.html" class="font-bold text-orange-500"><i class="fa-solid fa-layer-group mr-2"></i> Collection</a>
                         <hr class="my-1 border-gray-50">
-                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link text-orange-600 font-bold">
-                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT
+                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="text-orange-600 font-bold">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="mobile-menu" class="lg:hidden bg-white">
-            <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
-                <div id="mobile-admin-section" style="display: none;" class="flex flex-col space-y-4">
-                    <a href="admin/admin.html" class="nav-link-min px-2 text-orange-500 font-bold"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
-                    <a href="admin/orders-admin.html" class="nav-link-min px-2 text-blue-600 font-bold"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
-                    <hr class="border-gray-50 my-2">
-                </div>
+       <div id="mobile-menu" class="lg:hidden bg-white">
+    <div class="flex flex-col py-4 space-y-4 border-t border-gray-50 mt-4">
+        
+        <a href="admin/admin.html" id="mobile-admin-link" class="nav-link-min px-2 text-orange-500 font-bold" style="display: none;">
+            <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
+        </a>
+        <a href="admin/orders-admin.html" id="mobile-admin-orders-link" class="nav-link-min px-2 text-blue-600 font-bold" style="display: none;">
+            <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
+        </a>
 
-                <a href="index.html" class="nav-link-min px-2">Home</a>
-                <a href="collection.html" class="nav-link-min px-2">Collection</a>
-                <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
-                <hr class="border-gray-50">
-                <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
-                <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link nav-link-min px-2 text-red-500 font-bold">
-                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> SIGN OUT
-                </a>
-            </div>
+        <hr id="mobile-admin-separator" class="border-gray-50" style="display: none;">
+        
+        <a href="index.html" class="nav-link-min px-2">Home</a>
+        <a href="collection.html" class="nav-link-min px-2">Collection</a>
+        <a href="orderStatus.html" class="nav-link-min px-2">Order Status</a>
+        <hr class="border-gray-50">
+        <a href="profile.html" class="nav-link-min px-2"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+        <a href="javascript:void(0)" onclick="handleAuthAction()" class="nav-link-min px-2 text-red-500 font-bold">
+            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sign Out
+        </a>
+    </div>
+</div>
+
+
+
+    </div>
+
+    <div id="search-bar" class="hidden bg-white border-t border-gray-100 px-8 py-10 animate-fade-in">
+        <div class="max-w-3xl mx-auto flex items-center border-b border-black">
+            <input id="searchBox" oninput="doSearch()" type="text" placeholder="WHAT ARE YOU LOOKING FOR?" 
+                   class="w-full py-2 text-sm tracking-widest bg-transparent focus:outline-none placeholder-gray-300">
+            <button onclick="toggleSearch()" class="text-xs font-bold">CLOSE</button>
         </div>
     </div>
 </nav>
 
-<div class="container mx-auto px-4 md:px-8 mt-8">
+<br/>
+<div class="container mx-auto px-4 md:px-8">
     <div id="filterContainer" class="flex flex-wrap gap-3 mb-8"></div>
     <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
 </div>
+    
+<div id="zoomModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4">
+    <button onclick="closeZoom()" class="absolute top-5 right-5 text-white text-4xl hover:text-gray-300 transition">&times;</button>
+    <img id="zoomedImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl transform transition-transform duration-300">
+    <div class="absolute bottom-10 flex gap-4">
+        <button onclick="adjustZoom(0.2)" class="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full backdrop-blur-md">➕ Zoom In</button>
+        <button onclick="adjustZoom(-0.2)" class="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full backdrop-blur-md">➖ Zoom Out</button>
+    </div>
+</div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
 
-<script src="js/auth-logic.js"></script>
+    
+    // --- 1. ADMIN & AUTH LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const isAdmin = localStorage.getItem('isAdmin');
+        
+        // Desktop elements
+        const adminLink = document.getElementById('admin-link');
+        const ordersLink = document.getElementById('admin-orders-link');
+
+        // Mobile elements
+        const mobileAdminLink = document.getElementById('mobile-admin-link');
+        const mobileOrdersLink = document.getElementById('mobile-admin-orders-link');
+        const mobileSeparator = document.getElementById('mobile-admin-separator');
+
+        // If the logged in user is an admin, show all admin links
+        if (isAdmin === 'true') {
+            // Desktop Links
+            if (adminLink) {
+                adminLink.style.display = 'block';
+                adminLink.style.color = '#fb923c'; 
+                adminLink.style.fontWeight = 'bold';
+            }
+            if (ordersLink) {
+                ordersLink.style.display = 'block';
+                ordersLink.style.color = '#3b82f6';
+                ordersLink.style.fontWeight = 'bold';
+            }
+
+            // Mobile Links
+            if (mobileAdminLink) {
+                mobileAdminLink.style.display = 'block';
+            }
+            if (mobileOrdersLink) {
+                mobileOrdersLink.style.display = 'block';
+            }
+            if (mobileSeparator) {
+                mobileSeparator.style.display = 'block';
+            }
+        }
+        
+
+
+
+
+        // Global Sign Out logic
+        window.handleAuthAction = function() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('isAdmin');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('token');
+
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().signOut().then(() => { 
+                    window.location.href = 'login.html'; 
+                }).catch(() => {
+                    window.location.href = 'login.html';
+                });
+            } else {
+                window.location.href = 'login.html';
+            }
+        };
+    });
+
+    // --- 2. MOBILE MENU TOGGLE ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+        });
+    }
+
+    // --- 3. SEARCH BAR TOGGLE ---
+    function toggleSearch() {
+        const searchBar = document.getElementById('search-bar');
+        if (searchBar) {
+            searchBar.classList.toggle('hidden');
+            if (!searchBar.classList.contains('hidden')) {
+                const searchBox = document.getElementById('searchBox');
+                if (searchBox) searchBox.focus();
+                
+                // Close mobile menu if open when search starts
+                if (mobileMenu) mobileMenu.classList.remove('active');
+            }
+        }
+    }
+</script>
 <script src="js/home.js"></script>
-
+<script src="js/auth-logic.js"></script>
 </body>
 </html>
+
