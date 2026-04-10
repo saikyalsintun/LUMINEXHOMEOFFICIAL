@@ -16,22 +16,13 @@
         }
 
         body {
-            /* font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; */
             background-color: #fcfcfc;
             color: var(--text-dark);
         }
 
-        /* Forced Admin Colors */
-        .admin-link-orange { 
-            color: #fb923c !important; 
-            font-weight: 800 !important;
-        }
-        .admin-link-blue { 
-            color: #2563eb !important; 
-            font-weight: 800 !important;
-        }
+        .admin-link-orange { color: #fb923c !important; font-weight: 800 !important; }
+        .admin-link-blue { color: #2563eb !important; font-weight: 800 !important; }
 
-        /* Navigation Styles */
         .nav-link-min {
             font-size: 11px;
             font-weight: 700;
@@ -42,12 +33,7 @@
         }
         .nav-link-min:hover { color: #000; }
 
-        /* Profile Dropdown with Hover Delay */
-        .profile-dropdown { 
-            position: relative; 
-            display: inline-block; 
-        }
-
+        .profile-dropdown { position: relative; display: inline-block; }
         .dropdown-content {
             opacity: 0;
             visibility: hidden;
@@ -73,40 +59,20 @@
         .dropdown-content a {
             color: #4b5563; 
             padding: 12px 20px; 
-            text-decoration: none !important;
             display: block; 
             font-size: 0.75rem; 
             text-transform: uppercase;
             transition: background 0.2s;
         }
 
-        .dropdown-content a:hover { 
-            background-color: #fff7ed; 
-            color: #fb923c;
-        }
+        .dropdown-content a:hover { background-color: #fff7ed; color: #fb923c; }
 
-        /* Mobile Menu Transitions */
-        #mobile-menu {
-            transition: all 0.3s ease-in-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-        }
-        #mobile-menu.show-menu {
-            display: block !important;
-            max-height: 100vh;
-            opacity: 1;
-        }
-
-        /* Profile Card Styling */
         .account-menu .list-group-item {
-            border: none;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
             padding: 15px 20px;
-            background: transparent;
             transition: 0.3s;
             display: block;
             text-decoration: none;
@@ -131,13 +97,8 @@
             margin-bottom: 5px;
             font-weight: 700;
         }
-        .info-value {
-            font-size: 15px;
-            color: var(--text-dark);
-            font-weight: 500;
-        }
+        .info-value { font-size: 15px; color: var(--text-dark); font-weight: 500; }
 
-        /* Skeleton Shimmer Effect */
         .skeleton {
             background: #e5e7eb;
             border-radius: 4px;
@@ -152,22 +113,15 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
             animation: shimmer 1.5s infinite;
         }
-        @keyframes shimmer {
-            100% { transform: translateX(100%); }
-        }
-
-        .container {
-            max-width: 1140px;
-        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
     </style>
 </head>
 
 <body>
 
-<nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
+<nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4 md:py-6">
         <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
-            
             <div class="lg:hidden flex items-center">
                 <button id="menu-toggle" class="text-gray-600 focus:outline-none">
                     <i class="fa-solid fa-bars text-xl"></i>
@@ -180,38 +134,25 @@
                 <a href="orderStatus.html" class="nav-link-min">Order Status</a>
             </div>
 
-            <div class="flex justify-center items-center pointer-events-auto">
+            <div class="flex justify-center items-center">
                 <a href="index.html">
-                    <img src="image/logo2.png" alt="Luminex Furniture" class="h-7 md:h-9 w-auto object-contain">
+                    <img src="image/logo2.png" alt="Luminex" class="h-7 md:h-9">
                 </a>
             </div>
 
             <div class="flex items-center justify-end gap-4 md:gap-6 text-gray-500">
-                <button onclick="toggleSearch()" class="hover:text-black transition-colors">
-                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
-                </button>
-                
-                <a href="cart.html" id="wishlist-icon" class="relative hover:text-black">
-                    <i class="fa-regular fa-heart text-sm"></i>
-                    <span id="wishlist-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
-                </a>
+                <button onclick="toggleSearch()" class="hover:text-black"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
+                <a href="cart.html" class="relative hover:text-black"><i class="fa-regular fa-heart text-sm"></i></a>
 
                 <div class="profile-dropdown hidden lg:block">
-                    <button class="hover:text-black py-1 focus:outline-none">
-                        <i class="fa-regular fa-user text-sm"></i>
-                    </button>
+                    <button class="hover:text-black py-1"><i class="fa-regular fa-user text-sm"></i></button>
                     <div class="dropdown-content shadow-xl border border-gray-100">
                         <div id="admin-section" style="display: none;">
-                            <a href="admin/admin.html" class="admin-link-orange">
-                                <i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard
-                            </a>
-                            <a href="admin/orders-admin.html" class="admin-link-blue">
-                                <i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders
-                            </a>
+                            <a href="admin/admin.html" class="admin-link-orange"><i class="fa-solid fa-gauge-high mr-2"></i> Admin Dashboard</a>
+                            <a href="admin/orders-admin.html" class="admin-link-blue"><i class="fa-solid fa-clipboard-list mr-2"></i> Check Orders</a>
                             <hr class="my-1 border-gray-50">
                         </div>
-                        
-                        <a href="account.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
+                        <a href="profile.html"><i class="fa-regular fa-circle-user mr-2"></i> My Profile</a>
                         <a href="orderHistory.html"><i class="fa-solid fa-receipt mr-2"></i> Order History</a>
                         <hr class="my-1 border-gray-50">
                         <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link text-orange-600 font-bold">
@@ -221,47 +162,18 @@
                 </div>
             </div>
         </div>
-
-        <div id="mobile-menu" class="hidden lg:hidden bg-white">
-            <div class="flex flex-col py-4 border-t border-gray-100 mt-4">
-                <div id="mobile-admin-section" style="display: none;" class="flex flex-col mb-2">
-                    <a href="admin/admin.html" class="nav-link-min admin-link-orange block py-3 border-b border-gray-50">
-                        <i class="fa-solid fa-gauge-high mr-3"></i> ADMIN DASHBOARD
-                    </a>
-                </div>
-                <div class="flex flex-col space-y-1">
-                    <a href="index.html" class="nav-link-min block py-3 border-b border-gray-50">Home</a>
-                    <a href="collection.html" class="nav-link-min block py-3 border-b border-gray-50">Collection</a>
-                    <a href="orderStatus.html" class="nav-link-min block py-3 border-b border-gray-50">Order Status</a>
-                    <a href="account.html" class="nav-link-min block py-3 border-b border-gray-50">My Profile</a>
-                    <div class="pt-4">
-                        <a href="javascript:void(0)" onclick="handleAuthAction()" class="auth-toggle-link nav-link-min font-bold block py-3 px-4 rounded-lg bg-gray-50 text-center">
-                            <i class="fa-solid fa-right-to-bracket mr-2"></i> LOGIN
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="search-bar" class="hidden bg-white border-t border-gray-100 px-8 py-10">
-        <div class="max-w-3xl mx-auto flex items-center border-b border-black">
-            <input id="searchBox" type="text" placeholder="WHAT ARE YOU LOOKING FOR?" 
-                   class="w-full py-2 text-sm tracking-widest bg-transparent focus:outline-none placeholder-gray-300">
-            <button onclick="toggleSearch()" class="text-xs font-bold">CLOSE</button>
-        </div>
     </div>
 </nav>
 
 <div class="container mx-auto px-4 mt-12 mb-20">
     <div class="flex flex-wrap -mx-4">
         <div class="w-full lg:w-1/4 px-4 mb-8">
-            <h4 class="font-bold text-lg mb-6 text-uppercase tracking-wider">My Account</h4>
+            <h4 class="font-bold text-lg mb-6 tracking-wider">My Account</h4>
             <div class="account-menu">
-                <a href="account.html" class="list-group-item active">Profile Information</a>
+                <a href="profile.html" class="list-group-item active">Profile Information</a>
                 <a href="orderHistory.html" class="list-group-item">Order History</a>
                 <hr class="my-4 border-gray-100">
-                <a href="javascript:void(0)" class="list-group-item text-red-500" onclick="handleLogout()">
+                <a href="javascript:void(0)" class="list-group-item text-red-500" onclick="handleAuthAction()">
                     <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
                 </a>
             </div>
@@ -271,9 +183,7 @@
             <div class="info-card shadow-sm">
                 <div class="flex justify-between items-center mb-6">
                     <h5 class="font-bold text-sm uppercase tracking-widest">Personal Details</h5>
-                    <button class="text-[11px] font-bold uppercase border border-black px-4 py-2 hover:bg-black hover:text-white transition" data-toggle="modal" data-target="#editProfileModal">
-                        Update Info
-                    </button>
+                    <button class="text-[11px] font-bold uppercase border border-black px-4 py-2 hover:bg-black hover:text-white transition">Update Info</button>
                 </div>
                 <hr class="mb-8 border-gray-50">
 
@@ -288,15 +198,15 @@
                     </div>
                     <div class="info-group">
                         <div class="info-label">Phone Number</div>
-                        <div class="info-value" id="display-phone">Not Provided</div>
+                        <div id="display-phone" class="info-value">Loading...</div>
                     </div>
                     <div class="info-group">
                         <div class="info-label">Line ID</div>
-                        <div class="info-value" id="display-line">Not Provided</div>
+                        <div id="display-line" class="info-value">Loading...</div>
                     </div>
                     <div class="info-group col-span-1 md:col-span-2">
                         <div class="info-label">Delivery Address</div>
-                        <div class="info-value" id="display-address">Not Provided</div>
+                        <div id="display-address" class="info-value">Loading...</div>
                     </div>
                 </div>
             </div>
@@ -304,124 +214,71 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="js/auth.js"></script> <script>
+    // 1. DYNAMIC API URL SETUP
+    const API_URL = window.API_BASE || (
+        (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+            ? "http://localhost:5000/api" 
+            : "https://luminexhomeofficial.vercel.app/api"
+    );
 
-<script type="module">
-// 1. CONFIGURATION & STATE
-const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-    ? "http://localhost:5000" 
-    : "https://luminexhomeofficial.vercel.app";
-
-// Inside profile.html
-import { auth } from './js/auth.js'; // Adjust path as needed
-
-async function loadUserProfile(user) {
-    const nameEl = document.getElementById('display-name');
-    const emailEl = document.getElementById('display-email');
-
-    try {
-        // Use user.uid from Firebase instead of localStorage
-        const response = await fetch(`${window.API_BASE}/orders?userId=${user.uid}`);
-        
-        if (response.ok) {
-            const orders = await response.json();
-            
-            // Remove skeleton loaders
-            nameEl.classList.remove('skeleton');
-            emailEl.classList.remove('skeleton');
-
-            if (orders.length > 0) {
-                const customer = orders[0].customer;
-                nameEl.innerText = customer.name;
-                emailEl.innerText = customer.email || user.email;
-                document.getElementById('display-phone').innerText = customer.phone || "Not Provided";
-                document.getElementById('display-address').innerText = customer.address || "Not Provided";
-            } else {
-                // Default for new users with no orders
-                nameEl.innerText = user.displayName || "Luminex Member";
-                emailEl.innerText = user.email;
-            }
-        }
-    } catch (err) {
-        console.error("Profile Load Error:", err);
-    }
-}
-
-// Listen for the Firebase user specifically for this page
-firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-        loadUserProfile(user);
-    } else {
-        // Global auth logic will handle the redirect to login.html
-    }
-});
-    // 1. Navigation & Toggle Logic
-    window.toggleSearch = () => document.getElementById('search-bar').classList.toggle('hidden');
-    
-    document.getElementById('menu-toggle').onclick = () => {
-        const menu = document.getElementById('mobile-menu');
-        menu.classList.toggle('show-menu');
-    };
-
-    // 2. Fetch User Profile from Order Model
-    async function fetchUserProfile() {
-        const token = localStorage.getItem('token');
-        const userId = localStorage.getItem('userId');
-        const email = localStorage.getItem('userEmail');
-
-        if (!token) {
-            window.location.href = "login.html";
-            return;
-        }
-
-        // Toggle Navbar Auth Labels
-        document.querySelectorAll('.auth-toggle-link').forEach(el => {
-            el.innerHTML = '<i class="fa-solid fa-right-from-bracket mr-2"></i> LOGOUT';
-        });
+    // 2. FETCH DATA FUNCTION
+    async function loadUserProfile(user) {
+        const nameEl = document.getElementById('display-name');
+        const emailEl = document.getElementById('display-email');
+        const phoneEl = document.getElementById('display-phone');
+        const addressEl = document.getElementById('display-address');
+        const lineEl = document.getElementById('display-line');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/orders?userId=${userId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
+            // Fetch orders matching the Firebase UID
+            const response = await fetch(`${API_URL}/orders?userId=${user.uid}`);
+            
             if (response.ok) {
                 const orders = await response.json();
                 
-                // Clear skeleton loaders
-                const nameEl = document.getElementById('display-name');
-                const emailEl = document.getElementById('display-email');
+                // Remove loading states
                 nameEl.classList.remove('skeleton');
                 emailEl.classList.remove('skeleton');
 
-                if (orders.length > 0) {
-                    const customer = orders[0].customer;
-                    nameEl.innerText = customer.name;
-                    emailEl.innerText = customer.email || email;
-                    document.getElementById('display-phone').innerText = customer.phone;
-                    document.getElementById('display-line').innerText = customer.lineId;
-                    document.getElementById('display-address').innerText = customer.address;
+                if (orders && orders.length > 0) {
+                    const customer = orders[0].customer; // Take data from last order
+                    nameEl.innerText = customer.name || user.displayName || "Luminex Member";
+                    emailEl.innerText = customer.email || user.email;
+                    phoneEl.innerText = customer.phone || "Not Provided";
+                    lineEl.innerText = customer.lineId || "Not Provided";
+                    addressEl.innerText = customer.address || "Not Provided";
                 } else {
-                    nameEl.innerText = "Luminex Member";
-                    emailEl.innerText = email;
+                    // Logged in but no order history yet
+                    nameEl.innerText = user.displayName || "Luminex Member";
+                    emailEl.innerText = user.email;
+                    phoneEl.innerText = "No data from orders";
+                    addressEl.innerText = "No data from orders";
+                    lineEl.innerText = "Not Provided";
                 }
             }
         } catch (err) {
-            console.error("Fetch error:", err);
+            console.error("API Error:", err);
+            nameEl.innerText = "Error loading data";
         }
     }
 
-    window.handleAuthAction = function() {
-        if (localStorage.getItem('token')) handleLogout();
-        else window.location.href = "login.html";
-    };
+    // 3. OBSERVE AUTH STATE
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            console.log("Profile loading for UID:", user.uid);
+            loadUserProfile(user);
+        } else {
+            // Redirect to login if not authenticated
+            window.location.href = "login.html";
+        }
+    });
 
-    window.handleLogout = function() {
-        localStorage.clear();
-        window.location.href = "index.html";
-    };
-
-    document.addEventListener('DOMContentLoaded', fetchUserProfile);
+    // 4. UI LOGIC
+    window.toggleSearch = () => document.getElementById('search-bar')?.classList.toggle('hidden');
+    
 </script>
 </body>
 </html>
