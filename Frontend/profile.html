@@ -216,7 +216,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-<script src="js\auth-logic.js"></script>
+<script src="js/auth-logic.js"></script>
 
 <script>
     // 1. DYNAMIC API URL SETUP
@@ -235,35 +235,40 @@
         const lineEl = document.getElementById('display-line');
 
         try {
-            // Fetch orders matching the Firebase UID
-            const response = await fetch(`${API_URL}/orders?userId=${user.uid}`);
+            // Updated to the correct filtered history endpoint
+            const response = await fetch(`${API_URL}/orders/history/${user.uid}`);
             
+            // Always remove skeletons once the request returns
+            nameEl.classList.remove('skeleton');
+            emailEl.classList.remove('skeleton');
+
             if (response.ok) {
                 const orders = await response.json();
                 
-                // Remove loading states
-                nameEl.classList.remove('skeleton');
-                emailEl.classList.remove('skeleton');
-
                 if (orders && orders.length > 0) {
-                    const customer = orders[0].customer; // Take data from last order
+                    // orders[0] is the most recent order thanks to your backend sort
+                    const customer = orders[0].customer; 
                     nameEl.innerText = customer.name || user.displayName || "Luminex Member";
                     emailEl.innerText = customer.email || user.email;
                     phoneEl.innerText = customer.phone || "Not Provided";
                     lineEl.innerText = customer.lineId || "Not Provided";
                     addressEl.innerText = customer.address || "Not Provided";
                 } else {
-                    // Logged in but no order history yet
+                    // Logged in but no order history yet - use Firebase Auth defaults
                     nameEl.innerText = user.displayName || "Luminex Member";
                     emailEl.innerText = user.email;
                     phoneEl.innerText = "No data from orders";
                     addressEl.innerText = "No data from orders";
                     lineEl.innerText = "Not Provided";
                 }
+            } else {
+                throw new Error("Server error");
             }
         } catch (err) {
             console.error("API Error:", err);
-            nameEl.innerText = "Error loading data";
+            nameEl.innerText = user.displayName || "Luminex Member";
+            emailEl.innerText = user.email;
+            phoneEl.innerText = "Error loading details";
         }
     }
 
@@ -273,14 +278,11 @@
             console.log("Profile loading for UID:", user.uid);
             loadUserProfile(user);
         } else {
-            // Redirect to login if not authenticated
             window.location.href = "login.html";
         }
     });
 
-    // 4. UI LOGIC
     window.toggleSearch = () => document.getElementById('search-bar')?.classList.toggle('hidden');
-    
 </script>
 </body>
 </html>
