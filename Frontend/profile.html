@@ -308,8 +308,54 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 
 <script type="module">
-    const API_BASE_URL = "https://luminexhomeofficial.vercel.app";
+// 1. CONFIGURATION & STATE
+const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://localhost:5000" 
+    : "https://luminexhomeofficial.vercel.app";
 
+// Inside profile.html
+import { auth } from './js/auth.js'; // Adjust path as needed
+
+async function loadUserProfile(user) {
+    const nameEl = document.getElementById('display-name');
+    const emailEl = document.getElementById('display-email');
+
+    try {
+        // Use user.uid from Firebase instead of localStorage
+        const response = await fetch(`${window.API_BASE}/orders?userId=${user.uid}`);
+        
+        if (response.ok) {
+            const orders = await response.json();
+            
+            // Remove skeleton loaders
+            nameEl.classList.remove('skeleton');
+            emailEl.classList.remove('skeleton');
+
+            if (orders.length > 0) {
+                const customer = orders[0].customer;
+                nameEl.innerText = customer.name;
+                emailEl.innerText = customer.email || user.email;
+                document.getElementById('display-phone').innerText = customer.phone || "Not Provided";
+                document.getElementById('display-address').innerText = customer.address || "Not Provided";
+            } else {
+                // Default for new users with no orders
+                nameEl.innerText = user.displayName || "Luminex Member";
+                emailEl.innerText = user.email;
+            }
+        }
+    } catch (err) {
+        console.error("Profile Load Error:", err);
+    }
+}
+
+// Listen for the Firebase user specifically for this page
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        loadUserProfile(user);
+    } else {
+        // Global auth logic will handle the redirect to login.html
+    }
+});
     // 1. Navigation & Toggle Logic
     window.toggleSearch = () => document.getElementById('search-bar').classList.toggle('hidden');
     
