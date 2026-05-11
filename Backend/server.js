@@ -3,6 +3,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const cloudinary = require('cloudinary').v2;
+const mongoose = require('mongoose'); // Added mongoose for direct collection access
 
 // 1. Import Routes
 const cartRoutes = require("./routes/cart");
@@ -11,15 +12,27 @@ const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 
-
 // 2. Initialize Environment Variables
 dotenv.config();
 
 // 3. Database Connection
 connectDB();
 
+// --- NEW: MONGODB MODELS FOR CHAIR & DINING ---
+// This allows the server to talk to your specific collections in retailDB
+const productSchema = new mongoose.Schema({
+    id: String,
+    description_cn: String,
+    description_en: String,
+    filename: String
+});
+
+// We specify 'Chair' and 'Dining' as the 3rd argument to match your MongoDB screenshot exactly
+const Chair = mongoose.model('Chair', productSchema, 'Chair');
+const Dining = mongoose.model('Dining', productSchema, 'Dining');
+// ----------------------------------------------
+
 // 4. Cloudinary Configuration
-// These values must be added to your Vercel Environment Variables dashboard
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_NAME, 
   api_key: process.env.CLOUDINARY_API_KEY, 
@@ -27,10 +40,8 @@ cloudinary.config({
 });
 
 // 5. Firebase Admin Setup
-// We check if an app already exists to prevent re-initialization errors on Vercel
 if (!admin.apps.length) {
   try {
-    // On Vercel, you will paste the content of your JSON key into this environment variable
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
@@ -43,15 +54,11 @@ if (!admin.apps.length) {
 
 const app = express();
 
-//change
-
-//change v2
 // 6. Middleware
 app.use(cors({
   origin: "*", 
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   credentials: true,
-  // ADD 'Cache-Control' and 'Pragma' to this list:
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Cache-Control", "Pragma"]
 }));
 
@@ -63,17 +70,35 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 
+// --- NEW: FETCH ROUTES FOR CHAIRS & DINING ---
+app.get("/api/chairs", async (req, res) => {
+    try {
+        const data = await Chair.find();
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching chairs", error: error.message });
+    }
+});
+
+app.get("/api/dining", async (req, res) => {
+    try {
+        const data = await Dining.find();
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching dining items", error: error.message });
+    }
+});
+// ----------------------------------------------
+
 // 8. Health Check / Root Route
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Luminex API is live and running!" });
 });
 
 // 9. Vercel Serverless Export Logic
-// In production, Vercel handles the port. Locally, we use 5000.
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`🚀 Server running locally on port ${PORT}`));
 }
 
-// CRITICAL: Vercel needs the app exported to treat it as a Serverless Function
 module.exports = app;

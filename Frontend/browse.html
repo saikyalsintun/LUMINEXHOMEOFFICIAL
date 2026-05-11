@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Collections | Luminex Furniture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="image/logo4.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        /* --- Luminex Furniture Design System --- */
+        .nav-link-min {
+            font-size: 0.75rem; font-weight: 500; letter-spacing: 0.1em;
+            text-transform: uppercase; transition: color 0.3s; color: #4b5563; text-decoration: none !important;
+        }
+        .nav-link-min:hover { color: #000; }
+
+        /* Profile Dropdown */
+        .profile-dropdown { position: relative; display: inline-block; padding-bottom: 15px; margin-bottom: -15px; }
+        .dropdown-content {
+            opacity: 0; visibility: hidden; position: absolute; right: 0; top: 100%; 
+            background-color: white; min-width: 220px; box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+            z-index: 1000; border-radius: 8px; padding: 10px 0; border: 1px solid #f3f4f6; transition: all 0.3s ease;
+        }
+        .profile-dropdown:hover .dropdown-content { opacity: 1; visibility: visible; }
+
+        /* Category Tabs */
+        .tab-btn {
+            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
+            padding-bottom: 8px; transition: all 0.3s; border-bottom: 2px solid transparent;
+        }
+        .tab-btn.active { color: #fb923c; border-color: #fb923c; }
+        .tab-btn.inactive { color: #9ca3af; }
+
+        /* Product Cards */
+        .img-wrapper { 
+            width: 100%; aspect-ratio: 1 / 1; overflow: hidden; 
+            background-color: #f7f7f7; border-radius: 4px; margin-bottom: 12px; 
+        }
+        .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Shimmer Loading */
+        .skeleton-box { background-color: #f3f4f6; position: relative; overflow: hidden; }
+        .skeleton-box::after {
+            content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+        /* Floating Contact */
+        .floating-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; }
+        .main-button { background-color: #1a1a1a; color: white; padding: 12px 25px; border-radius: 50px; font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+    </style>
+</head>
+
+<body>
+<nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <div class="container mx-auto px-4 md:px-8 py-4 md:py-6">
+        <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
+            <div class="hidden lg:flex gap-8 items-center">
+                <a href="index.html" class="nav-link-min">Home</a>
+                <a href="collection.html" class="nav-link-min active text-orange-400">Collection</a>
+                <a href="orderStatus.html" class="nav-link-min">Order Status</a>
+            </div>
+            <div class="flex justify-center items-center">
+                <a href="index.html"><img src="image/logo2.png" alt="Luminex" class="h-7 md:h-9 w-auto"></a>
+            </div>
+            <div class="flex items-center justify-end gap-6 text-gray-500">
+                <a href="cart.html"><i class="fa-solid fa-bag-shopping text-sm"></i></a>
+                <div class="profile-dropdown">
+                    <button class="hover:text-black"><i class="fa-regular fa-user text-sm"></i></button>
+                    <div class="dropdown-content">
+                        <a href="profile.html">My Profile</a>
+                        <hr class="my-1 border-gray-50">
+                        <a href="javascript:void(0)" class="font-bold">LOGIN</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="container mt-5">
+    <h2 class="font-weight-bold text-uppercase mb-4" style="letter-spacing: 4px; font-size: 22px;">Collections</h2>
+    
+    <div class="flex gap-8 border-b border-gray-100 mb-8">
+        <button onclick="switchCategory('chairs')" id="btn-chairs" class="tab-btn active">Dining Chairs</button>
+        <button onclick="switchCategory('dining')" id="btn-dining" class="tab-btn inactive">Dining Tables</button>
+    </div>
+
+    <div class="max-w-md mx-auto mb-5">
+        <input type="text" id="search" class="w-full p-3 border rounded-full text-center outline-none focus:border-orange-400" placeholder="Search by ID or Material..." />
+    </div>
+</section>
+
+<section class="container mb-5">
+    <div class="row" id="gallery-container">
+        </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="js/auth-logic.js"></script>
+
+<script>
+    // 1. CONFIGURATION & STATE
+    const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+        ? "http://localhost:5000" 
+        : "https://luminexhomeofficial.vercel.app";
+
+    const IMAGE_FOLDER = "Chair Reduce";
+    const gallery = document.getElementById('gallery-container');
+    const searchInput = document.getElementById('search');
+
+    let allItems = [];
+    let currentCategory = 'chairs';
+
+    // Show shimmer skeletons while fetching
+    function renderSkeletons() {
+        gallery.innerHTML = Array(8).fill(0).map(() => `
+            <div class="col-6 col-md-4 col-lg-3 mb-5">
+                <div class="img-wrapper skeleton-box"></div>
+                <div class="skeleton-box h-4 w-1/2 mb-2"></div>
+                <div class="skeleton-box h-3 w-full"></div>
+            </div>
+        `).join('');
+    }
+
+    // Fetch from MongoDB
+    async function fetchData(category) {
+        renderSkeletons();
+        currentCategory = category;
+
+        // UI Tab Toggle
+        document.getElementById('btn-chairs').className = category === 'chairs' ? 'tab-btn active' : 'tab-btn inactive';
+        document.getElementById('btn-dining').className = category === 'dining' ? 'tab-btn active' : 'tab-btn inactive';
+
+        try {
+            // Note: Your backend routes should match these (/api/chairs and /api/dining)
+            const response = await fetch(`${API_BASE_URL}/api/${category}`);
+            if (!response.ok) throw new Error("Database offline");
+            
+            allItems = await response.json();
+            renderCards(allItems);
+        } catch (err) {
+            console.error(err);
+            gallery.innerHTML = `<div class="col-12 text-center py-20 text-muted">Unable to load ${category} from database.</div>`;
+        }
+    }
+
+    function renderCards(data) {
+        if (!data.length) {
+            gallery.innerHTML = `<div class="col-12 text-center py-20 text-muted">No items found.</div>`;
+            return;
+        }
+
+        gallery.innerHTML = data.map(item => {
+            const encodedFilename = encodeURIComponent(item.filename);
+            const imagePath = `${IMAGE_FOLDER}/${encodedFilename}`;
+
+            return `
+                <div class="col-6 col-md-4 col-lg-3 mb-5">
+                    <div class="product-card">
+                        <div class="img-wrapper">
+                            <img src="${imagePath}" alt="${item.id}" loading="lazy" 
+                                 onerror="this.src='https://placehold.co/400x400?text=Image+Missing'">
+                        </div>
+                        <div class="font-bold text-[13px] uppercase">ID: ${item.id}</div>
+                        <div class="text-[11px] text-gray-500 leading-tight">
+                            ${item.description_cn || ''}<br>${item.description_en || ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function switchCategory(cat) {
+        fetchData(cat);
+    }
+
+    // Search Filter Logic
+    searchInput.addEventListener('input', (e) => {
+        const kw = e.target.value.toLowerCase();
+        const filtered = allItems.filter(item => 
+            (item.id && item.id.toLowerCase().includes(kw)) ||
+            (item.description_cn && item.description_cn.toLowerCase().includes(kw)) ||
+            (item.description_en && item.description_en.toLowerCase().includes(kw))
+        );
+        renderCards(filtered);
+    });
+
+    // Initial Load
+    document.addEventListener('DOMContentLoaded', () => fetchData('chairs'));
+</script>
+
+</body>
+</html>
