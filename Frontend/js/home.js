@@ -3,11 +3,11 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     ? "http://localhost:5000" 
     : "https://luminexhomeofficial.vercel.app";
 
-// Your verified Cloudinary Base
+// Your verified Cloudinary Base URL
 const CLOUDINARY_BASE = "https://res.cloudinary.com/dq8rbpfis/image/upload";
 
-let allProducts = [];       
-let filteredProducts = [];  
+let allProducts = [];       // Master list (all collections combined)
+let filteredProducts = [];  // List after category/search filters applied
 let currentPage = 1;
 const itemsPerPage = 20;    
 const userSelections = {};
@@ -24,6 +24,7 @@ async function doSearch() {
     const grid = document.getElementById('grid');
     
     try {
+        // Parallel fetching from 3 MongoDB collections
         const [resStandard, resChairs, resDining] = await Promise.all([
             fetch(`${API_BASE_URL}/api/products?keyword=${term}`),
             fetch(`${API_BASE_URL}/api/chairs`),
@@ -34,12 +35,12 @@ async function doSearch() {
         const chairs = await resChairs.json();
         const dining = await resDining.json();
 
-        // Map Chairs
+        // Map Chairs - Targeting your Underscore folder
         const formattedChairs = chairs.map(item => ({
             _id: item._id,
             category: "Chair",
             product_description: `${item.id}: ${item.description_en || item.description_cn}`,
-            // FIX: We use encodeURIComponent to safely handle spaces and Chinese characters
+            // We use encodeURIComponent to handle the Chinese characters/symbols safely
             image: `${CLOUDINARY_BASE}/Chair_Reduce/${encodeURIComponent(item.filename)}`,
             productColor: "Default",
             productSize: "Standard",
@@ -47,12 +48,11 @@ async function doSearch() {
             productStatus: "Collection"
         }));
 
-        // Map Dining
+        // Map Dining - Targeting your Underscore folder
         const formattedDining = dining.map(item => ({
             _id: item._id,
             category: "Dining Table",
             product_description: `${item.id}: ${item.description_en || item.description_cn}`,
-            // FIX: We use encodeURIComponent here too
             image: `${CLOUDINARY_BASE}/Table_Reduce/${encodeURIComponent(item.filename)}`,
             productColor: "Default",
             productSize: "Standard",
@@ -60,8 +60,10 @@ async function doSearch() {
             productStatus: "Premium"
         }));
 
+        // Combine into one master array
         allProducts = [...standard, ...formattedChairs, ...formattedDining];
         
+        // Initial filtering based on search term
         filteredProducts = term 
             ? allProducts.filter(p => 
                 (p.product_description || "").toLowerCase().includes(term.toLowerCase()) ||
@@ -93,31 +95,45 @@ function updateDisplay() {
 function renderPaginationControls() {
     const container = document.getElementById('paginationControls');
     if (!container) return;
+
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    if (totalPages <= 1) { container.innerHTML = ''; return; }
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
     let html = '';
     for (let i = 1; i <= totalPages; i++) {
-        const activeClass = (i === currentPage) ? "bg-black text-white border-black" : "bg-white text-gray-400 border-gray-200 hover:border-black hover:text-black";
+        const activeClass = (i === currentPage) 
+            ? "bg-black text-white border-black" 
+            : "bg-white text-gray-400 border-gray-200 hover:border-black hover:text-black";
+        
         html += `<button onclick="goToPage(${i})" class="px-4 py-2 mx-1 text-[12px] font-bold border transition-all ${activeClass}">${i}</button>`;
     }
     container.innerHTML = `<div class="flex justify-center items-center mt-12 mb-20">${html}</div>`;
 }
 
-window.goToPage = function(page) { currentPage = page; updateDisplay(); };
+window.goToPage = function(page) {
+    currentPage = page;
+    updateDisplay();
+};
 
 // 5. PRODUCT RENDERING
 function renderProducts(products) {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
+
     if (!products || products.length === 0) {
         grid.innerHTML = `<p class="col-span-full text-center py-20 text-gray-400 font-light uppercase tracking-widest">No items found.</p>`;
         return;
     }
+
     products.forEach((p) => {
         const colors = Array.isArray(p.productColor) ? p.productColor : (p.productColor ? p.productColor.split(',') : []);
         const sizes = Array.isArray(p.productSize) ? p.productSize : (p.productSize ? p.productSize.split(',') : []);
         const remarkClass = p.remark === 'Pre-Order' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100';
         const marketingClass = (p.productStatus || '').toLowerCase().includes('hot') ? 'bg-orange-500 text-white border-orange-500' : 'bg-black text-white border-black';
+
         const colorBtns = colors.map(c => `<button onclick="selectVariant(this, 'color', '${p._id}')" class="border border-gray-200 px-3 py-1.5 text-[10px] uppercase font-medium hover:border-black transition-all bg-white mb-1">${c.trim()}</button>`).join('');
         const sizeBtns = sizes.map(s => `<button onclick="selectVariant(this, 'size', '${p._id}')" class="border border-gray-200 px-3 py-1.5 text-[10px] uppercase font-medium hover:border-black transition-all bg-white mb-1">${s.trim()}</button>`).join('');
 
@@ -152,13 +168,16 @@ function renderProducts(products) {
 function renderFilters(products) {
     const container = document.getElementById('filterContainer');
     if (!container) return;
+
     const counts = products.reduce((acc, p) => {
         const cat = p.category || 'Uncategorized';
         acc[cat] = (acc[cat] || 0) + 1;
         return acc;
     }, {});
+
     const categories = Object.keys(counts);
     container.innerHTML = `<button onclick="filterByCategory('All')" class="px-6 py-2 text-[10px] font-black uppercase bg-black text-white border border-black transition-all">ALL (${products.length})</button>`;
+
     categories.forEach(cat => {
         container.innerHTML += `<button onclick="filterByCategory('${cat}')" class="px-6 py-2 text-[10px] font-bold uppercase bg-white text-gray-400 border border-gray-100 hover:border-black hover:text-black transition-all">${cat} (${counts[cat]})</button>`;
     });
@@ -167,10 +186,14 @@ function renderFilters(products) {
 window.filterByCategory = function(category) {
     currentPage = 1;
     filteredProducts = category === 'All' ? allProducts : allProducts.filter(p => p.category === category);
+    
     document.querySelectorAll('#filterContainer button').forEach(btn => {
         const isMatch = btn.innerText.toUpperCase().includes(category.toUpperCase());
-        btn.className = isMatch ? "px-6 py-2 text-[10px] font-black uppercase bg-black text-white border border-black transition-all" : "px-6 py-2 text-[10px] font-bold uppercase bg-white text-gray-400 border border-gray-100 hover:border-black hover:text-black transition-all";
+        btn.className = isMatch 
+            ? "px-6 py-2 text-[10px] font-black uppercase bg-black text-white border border-black transition-all"
+            : "px-6 py-2 text-[10px] font-bold uppercase bg-white text-gray-400 border border-gray-100 hover:border-black hover:text-black transition-all";
     });
+
     updateDisplay();
 };
 
@@ -187,7 +210,10 @@ window.selectVariant = function(btn, type, productId) {
 
 async function handleAddToCart(productId) {
     const selection = userSelections[productId];
-    if (!selection || !selection.color || !selection.size) { alert("Please select both Color and Size."); return; }
+    if (!selection || !selection.color || !selection.size) {
+        alert("Please select both Color and Size.");
+        return;
+    }
     triggerFlyAnimation(productId);
     await addToCart(productId, selection.color, selection.size);
 }
@@ -209,12 +235,22 @@ function triggerFlyAnimation(productId) {
     const productImage = document.getElementById(`prod-${productId}`).querySelector('img');
     const wishlistIcon = document.getElementById('wishlist-icon');
     if (!productImage || !wishlistIcon) return;
+
     const flyingImg = productImage.cloneNode();
     const rect = productImage.getBoundingClientRect();
     const targetRect = wishlistIcon.getBoundingClientRect();
-    Object.assign(flyingImg.style, { position: 'fixed', zIndex: '100', top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, height: `${rect.height}px`, transition: 'all 0.8s ease-in-out', pointerEvents: 'none' });
+
+    Object.assign(flyingImg.style, {
+        position: 'fixed', zIndex: '100', top: `${rect.top}px`, left: `${rect.left}px`,
+        width: `${rect.width}px`, height: `${rect.height}px`, transition: 'all 0.8s ease-in-out', pointerEvents: 'none'
+    });
+
     document.body.appendChild(flyingImg);
-    setTimeout(() => { Object.assign(flyingImg.style, { top: `${targetRect.top}px`, left: `${targetRect.left}px`, width: '20px', height: '20px', opacity: '0', transform: 'rotate(360deg)' }); }, 10);
+    setTimeout(() => {
+        Object.assign(flyingImg.style, {
+            top: `${targetRect.top}px`, left: `${targetRect.left}px`, width: '20px', height: '20px', opacity: '0', transform: 'rotate(360deg)'
+        });
+    }, 10);
     setTimeout(() => { flyingImg.remove(); }, 800);
 }
 
@@ -237,4 +273,5 @@ window.toggleSearch = function() {
     if(!sb.classList.contains('hidden')) document.getElementById('searchBox').focus();
 };
 
+// INITIALIZE
 doSearch();
