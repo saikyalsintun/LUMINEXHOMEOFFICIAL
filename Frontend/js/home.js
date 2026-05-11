@@ -3,7 +3,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     ? "http://localhost:5000" 
     : "https://luminexhomeofficial.vercel.app";
 
-// Verified Cloudinary Base
+// Verified Cloudinary Base URL
 const CLOUDINARY_BASE = "https://res.cloudinary.com/dq8rbpfis/image/upload";
 
 let allProducts = [];       
@@ -34,12 +34,12 @@ async function doSearch() {
         const chairs = await resChairs.json();
         const dining = await resDining.json();
 
-        // Mapping Chairs - Handling spaces and Chinese characters
+        // Map Chairs - Encoding the entire filename for Cloudinary compatibility
         const formattedChairs = chairs.map(item => ({
             _id: item._id,
             category: "Chair",
             product_description: `${item.id}: ${item.description_en || item.description_cn}`,
-            // encodeURIComponent handles the spaces in the filename
+            // FIX: encodeURIComponent handles (), spaces, and Chinese characters
             image: `${CLOUDINARY_BASE}/Chair_Reduce/${encodeURIComponent(item.filename)}`,
             productColor: "Default",
             productSize: "Standard",
@@ -47,7 +47,7 @@ async function doSearch() {
             productStatus: "Collection"
         }));
 
-        // Mapping Dining - Handling spaces and Chinese characters
+        // Map Dining
         const formattedDining = dining.map(item => ({
             _id: item._id,
             category: "Dining Table",
@@ -114,6 +114,9 @@ function renderProducts(products) {
     products.forEach((p) => {
         const colors = Array.isArray(p.productColor) ? p.productColor : (p.productColor ? p.productColor.split(',') : []);
         const sizes = Array.isArray(p.productSize) ? p.productSize : (p.productSize ? p.productSize.split(',') : []);
+        const remarkClass = p.remark === 'Pre-Order' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100';
+        const marketingClass = (p.productStatus || '').toLowerCase().includes('hot') ? 'bg-orange-500 text-white border-orange-500' : 'bg-black text-white border-black';
+        
         const colorBtns = colors.map(c => `<button onclick="selectVariant(this, 'color', '${p._id}')" class="border border-gray-200 px-3 py-1.5 text-[10px] uppercase font-medium hover:border-black transition-all bg-white mb-1">${c.trim()}</button>`).join('');
         const sizeBtns = sizes.map(s => `<button onclick="selectVariant(this, 'size', '${p._id}')" class="border border-gray-200 px-3 py-1.5 text-[10px] uppercase font-medium hover:border-black transition-all bg-white mb-1">${s.trim()}</button>`).join('');
 
@@ -121,8 +124,8 @@ function renderProducts(products) {
             <div class="group relative flex flex-col bg-white border border-gray-100 p-4 transition-all duration-300 min-h-[480px] h-full hover:shadow-md" id="prod-${p._id}">
                 <div class="relative aspect-[3/2] w-full overflow-hidden bg-gray-50 mb-4 shrink-0">
                     <img src="${p.image}" class="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105" loading="lazy" onerror="this.src='https://placehold.co/600x400?text=LUMINEX'">
-                    <div class="absolute top-2 left-2">${p.productStatus ? `<span class="bg-black text-white text-[7px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-sm border shadow-sm">${p.productStatus}</span>` : ''}</div>
-                    <div class="absolute top-2 right-2"><span class="bg-emerald-50 text-emerald-600 border-emerald-100 text-[7px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-sm border shadow-sm">${p.remark || 'In Stock'}</span></div>
+                    <div class="absolute top-2 left-2">${p.productStatus ? `<span class="${marketingClass} text-[7px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-sm border shadow-sm">${p.productStatus}</span>` : ''}</div>
+                    <div class="absolute top-2 right-2"><span class="${remarkClass} text-[7px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-sm border shadow-sm">${p.remark || 'In Stock'}</span></div>
                     <button onclick="openZoom('${p.image}')" class="absolute bottom-2 right-2 bg-white/90 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm border border-gray-100 z-10">
                         <i class="fa-solid fa-magnifying-glass-plus text-[10px]"></i>
                     </button>
@@ -166,7 +169,7 @@ window.filterByCategory = function(category) {
     updateDisplay();
 };
 
-// 7. VARIANTS & CART (Placeholder for brevity)
+// 7. VARIANTS & CART
 window.selectVariant = function(btn, type, productId) {
     btn.parentElement.querySelectorAll('button').forEach(b => {
         b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
@@ -204,6 +207,12 @@ window.openZoom = function(src) {
 
 window.closeZoom = function() {
     document.getElementById('zoomModal').classList.add('hidden');
+};
+
+window.toggleSearch = function() {
+    const sb = document.getElementById('search-bar');
+    sb.classList.toggle('hidden');
+    if(!sb.classList.contains('hidden')) document.getElementById('searchBox').focus();
 };
 
 doSearch();
