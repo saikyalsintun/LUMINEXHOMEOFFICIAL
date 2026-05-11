@@ -3,7 +3,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const cloudinary = require('cloudinary').v2;
-const mongoose = require('mongoose'); // Added mongoose for direct collection access
+const mongoose = require('mongoose');
 
 // 1. Import Routes
 const cartRoutes = require("./routes/cart");
@@ -18,8 +18,8 @@ dotenv.config();
 // 3. Database Connection
 connectDB();
 
-// --- NEW: MONGODB MODELS FOR CHAIR & DINING ---
-// This allows the server to talk to your specific collections in retailDB
+// --- SAFE MONGODB MODELS FOR CHAIR & DINING ---
+// The 'mongoose.models.Name ||' check prevents "Cannot overwrite model once compiled" errors on Vercel
 const productSchema = new mongoose.Schema({
     id: String,
     description_cn: String,
@@ -27,9 +27,8 @@ const productSchema = new mongoose.Schema({
     filename: String
 });
 
-// We specify 'Chair' and 'Dining' as the 3rd argument to match your MongoDB screenshot exactly
-const Chair = mongoose.model('Chair', productSchema, 'Chair');
-const Dining = mongoose.model('Dining', productSchema, 'Dining');
+const Chair = mongoose.models.Chair || mongoose.model('Chair', productSchema, 'Chair');
+const Dining = mongoose.models.Dining || mongoose.model('Dining', productSchema, 'Dining');
 // ----------------------------------------------
 
 // 4. Cloudinary Configuration
@@ -70,7 +69,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 
-// --- NEW: FETCH ROUTES FOR CHAIRS & DINING ---
+// --- FETCH ROUTES FOR CHAIRS & DINING ---
 app.get("/api/chairs", async (req, res) => {
     try {
         const data = await Chair.find();
@@ -101,4 +100,5 @@ if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => console.log(`🚀 Server running locally on port ${PORT}`));
 }
 
+// CRITICAL: Export for Vercel
 module.exports = app;
