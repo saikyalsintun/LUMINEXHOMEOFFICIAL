@@ -1,34 +1,31 @@
-
 const express = require("express");
 const router = express.Router();
 const verifyToken = require("../middleware/verifyToken");
 const Cart = require("../models/Cart");
-const Product = require("../models/Product");
 
 /**
- * 1. GET CART (Optimized with Populate)
+ * 1. GET CART
  */
 router.get("/", verifyToken, async (req, res) => {
     try {
         const userId = req.user.uid;
 
-        // .populate handles the 'join' between Cart and Product collections for you
+        // Populate now works dynamically across Product, Chair, and Table!
         const cart = await Cart.findOne({ userId }).populate('items.productId');
 
         if (!cart || cart.items.length === 0) {
             return res.json([]);
         }
 
-        // We format the data so the frontend can read it easily
         const detailedItems = cart.items
-            .filter(item => item.productId) // Security: skip items if the product was deleted from DB
+            .filter(item => item.productId) 
             .map(item => ({
                 itemId: item._id,
-                // Spread the product details so things like 'image' and 'itemNo' are easy to access
                 product: item.productId, 
                 color: item.color,
                 size: item.size,
-                quantity: item.quantity
+                quantity: item.quantity,
+                modelType: item.onModel // Useful for frontend logic
             }));
 
         res.json(detailedItems);
@@ -39,29 +36,31 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 /**
- * 2. ADD TO CART
- * Saves the specific variation to the database.
+ * 2. ADD TO CART (Modified for Dynamic Collections)
  */
 router.post("/add", verifyToken, async (req, res) => {
     try {
         const userId = req.user.uid;
-        const { productId, color, size } = req.body;
+        const { productId, color, size, category } = req.body; 
 
-        // Validation: Ensure variations were sent
         if (!color || !size) {
-            return res.status(400).json({ message: "Color and Size are required selections." });
+            return res.status(400).json({ message: "Color and Size are required." });
         }
+
+        // Determine which collection the item belongs to
+        // We look at the category sent from home.js mapping
+        let modelType = 'Product'; // Default
+        if (category === "Chair") modelType = 'Chair';
+        if (category === "Table" || category === "Dining Table") modelType = 'Table';
 
         let cart = await Cart.findOne({ userId });
 
         if (!cart) {
-            // Create a brand new cart if one doesn't exist
             cart = new Cart({
                 userId,
-                items: [{ productId, color, size, quantity: 1 }]
+                items: [{ productId, color, size, quantity: 1, onModel: modelType }]
             });
         } else {
-            // Check if THIS EXACT combination already exists in the cart
             const existingItem = cart.items.find(
                 i => i.productId.toString() === productId && 
                      i.color === color && 
@@ -69,31 +68,28 @@ router.post("/add", verifyToken, async (req, res) => {
             );
 
             if (existingItem) {
-                existingItem.quantity += 1; // Just bump the number
+                existingItem.quantity += 1;
             } else {
-                // Add as a new unique line item
-                cart.items.push({ productId, color, size, quantity: 1 });
+                cart.items.push({ productId, color, size, quantity: 1, onModel: modelType });
             }
         }
 
         await cart.save();
-        res.json({ message: "Added to cart successfully" });
+        res.json({ message: "Added to wishlist successfully" });
 
     } catch (err) {
         console.error("Add to cart error:", err.message);
-        res.status(500).json({ message: "Add to cart failed" });
+        res.status(500).json({ message: "Add to wishlist failed" });
     }
 });
 
 /**
  * 3. UPDATE QUANTITY
- * Increases or decreases quantity of a specific cart item ID.
  */
 router.put("/:itemId", verifyToken, async (req, res) => {
     try {
-        const { action } = req.body; // Expects "inc" or "dec"
+        const { action } = req.body;
         const cart = await Cart.findOne({ userId: req.user.uid });
-        
         if (!cart) return res.status(404).json({ message: "Cart not found" });
 
         const item = cart.items.id(req.params.itemId);
@@ -111,33 +107,25 @@ router.put("/:itemId", verifyToken, async (req, res) => {
 
 /**
  * 4. DELETE ITEM
- * Removes a specific variation from the cart.
  */
-// In routes/cart.js
 router.delete("/:itemId", verifyToken, async (req, res) => {
     try {
         const userId = req.user.uid;
         const { itemId } = req.params;
 
-        console.log(`Removing item ${itemId} from cart for user ${userId}`);
-
-        // We find the cart belonging to the user AND remove the specific item from the array
         const updatedCart = await Cart.findOneAndUpdate(
             { userId: userId },
-            { $pull: { items: { _id: itemId } } }, // This is the magic line
-            { new: true } // Returns the updated cart
+            { $pull: { items: { _id: itemId } } },
+            { new: true }
         );
 
-        if (!updatedCart) {
-            return res.status(404).json({ message: "Cart not found" });
-        }
+        if (!updatedCart) return res.status(404).json({ message: "Cart not found" });
 
         res.status(200).json({ 
             message: "Item removed successfully", 
             cartCount: updatedCart.items.length 
         });
     } catch (error) {
-        console.error("Backend Delete Error:", error);
         res.status(500).json({ error: error.message });
     }
 });

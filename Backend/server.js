@@ -18,17 +18,19 @@ dotenv.config();
 // 3. Database Connection
 connectDB();
 
-// --- SAFE MONGODB MODELS FOR CHAIR & DINING ---
-// The 'mongoose.models.Name ||' check prevents "Cannot overwrite model once compiled" errors on Vercel
+// --- UPDATED MONGODB MODELS FOR CHAIR & TABLE ---
+// Using 'description' to match your new JSON structure
 const productSchema = new mongoose.Schema({
     id: String,
-    description_cn: String,
-    description_en: String,
-    filename: String
+    description: String, 
+    filename: String,
+    p_status: String,
+    p_type: String
 });
 
+// The third argument ('Chair', 'Table') ensures Mongoose connects to the exact collection name
 const Chair = mongoose.models.Chair || mongoose.model('Chair', productSchema, 'Chair');
-const Dining = mongoose.models.Dining || mongoose.model('Dining', productSchema, 'Dining');
+const Table = mongoose.models.Table || mongoose.model('Table', productSchema, 'Table');
 // ----------------------------------------------
 
 // 4. Cloudinary Configuration
@@ -69,7 +71,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 
-// --- FETCH ROUTES FOR CHAIRS & DINING ---
+// --- UPDATED FETCH ROUTES FOR CHAIRS & TABLES ---
 app.get("/api/chairs", async (req, res) => {
     try {
         const data = await Chair.find();
@@ -79,12 +81,12 @@ app.get("/api/chairs", async (req, res) => {
     }
 });
 
-app.get("/api/dining", async (req, res) => {
+app.get("/api/table", async (req, res) => {
     try {
-        const data = await Dining.find();
+        const data = await Table.find();
         res.status(200).json(data);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching dining items", error: error.message });
+        res.status(500).json({ message: "Error fetching tables", error: error.message });
     }
 });
 // ----------------------------------------------

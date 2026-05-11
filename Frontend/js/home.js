@@ -3,9 +3,6 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     ? "http://localhost:5000" 
     : "https://luminexhomeofficial.vercel.app";
 
-// Verified Cloudinary Base URL
-const CLOUDINARY_BASE = "https://res.cloudinary.com/dq8rbpfis/image/upload";
-
 let allProducts = [];       
 let filteredProducts = [];  
 let currentPage = 1;
@@ -18,48 +15,35 @@ firebase.auth().onAuthStateChanged(user => {
     currentUser = user || null;
 });
 
-// 3. CORE DATA FETCHING & AGGREGATION
+// 3. CORE DATA FETCHING (Unified Collection)
 async function doSearch() {
     const term = document.getElementById('searchBox').value;
     const grid = document.getElementById('grid');
     
     try {
-        const [resStandard, resChairs, resDining] = await Promise.all([
-            fetch(`${API_BASE_URL}/api/products?keyword=${term}`),
-            fetch(`${API_BASE_URL}/api/chairs`),
-            fetch(`${API_BASE_URL}/api/dining`)
-        ]);
+        // Fetch only from the main products collection now
+        const response = await fetch(`${API_BASE_URL}/api/products?keyword=${term}`);
+        const products = await response.json();
 
-        const standard = await resStandard.json();
-        const chairs = await resChairs.json();
-        const dining = await resDining.json();
+        allProducts = products.map(item => {
+            // Logic to trim "result" from the end of the description
+            // This looks for "result" at the end of the string, case-insensitive
+            let cleanDescription = (item.product_description || "")
+                .replace(/\s*result\s*$/i, "") 
+                .trim();
 
-        // Map Chairs - Encoding the entire filename for Cloudinary compatibility
-        const formattedChairs = chairs.map(item => ({
-            _id: item._id,
-            category: "Chair",
-            product_description: `${item.id}: ${item.description_en || item.description_cn}`,
-            // FIX: encodeURIComponent handles (), spaces, and Chinese characters
-            image: `${CLOUDINARY_BASE}/Chair_Reduce/${encodeURIComponent(item.filename)}`,
-            productColor: "Default",
-            productSize: "Standard",
-            remark: item.remark || "In Stock",
-            productStatus: "Collection"
-        }));
-
-        // Map Dining
-        const formattedDining = dining.map(item => ({
-            _id: item._id,
-            category: "Dining Table",
-            product_description: `${item.id}: ${item.description_en || item.description_cn}`,
-            image: `${CLOUDINARY_BASE}/Table_Reduce/${encodeURIComponent(item.filename)}`,
-            productColor: "Default",
-            productSize: "Standard",
-            remark: item.remark || "In Stock",
-            productStatus: "Premium"
-        }));
-
-        allProducts = [...standard, ...formattedChairs, ...formattedDining];
+            return {
+                _id: item._id,
+                category: item.category || "Collection",
+                // If it's a Chair/Table, we show "ID: Description", otherwise just Description
+                product_description: item.itemNo ? `${item.itemNo}: ${cleanDescription}` : cleanDescription,
+                image: item.image, 
+                productColor: item.productColor || "Standard",
+                productSize: item.productSize || "Standard",
+                remark: item.remark || "In Stock",
+                productStatus: item.productStatus || "Collection"
+            };
+        });
         
         filteredProducts = term 
             ? allProducts.filter(p => 
@@ -114,7 +98,8 @@ function renderProducts(products) {
     products.forEach((p) => {
         const colors = Array.isArray(p.productColor) ? p.productColor : (p.productColor ? p.productColor.split(',') : []);
         const sizes = Array.isArray(p.productSize) ? p.productSize : (p.productSize ? p.productSize.split(',') : []);
-        const remarkClass = p.remark === 'Pre-Order' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100';
+        
+        const remarkClass = (p.remark || '').toLowerCase().includes('pre') ? 'bg-red-50 text-red-600 border-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100';
         const marketingClass = (p.productStatus || '').toLowerCase().includes('hot') ? 'bg-orange-500 text-white border-orange-500' : 'bg-black text-white border-black';
         
         const colorBtns = colors.map(c => `<button onclick="selectVariant(this, 'color', '${p._id}')" class="border border-gray-200 px-3 py-1.5 text-[10px] uppercase font-medium hover:border-black transition-all bg-white mb-1">${c.trim()}</button>`).join('');
@@ -182,7 +167,12 @@ window.selectVariant = function(btn, type, productId) {
 
 async function handleAddToCart(productId) {
     const selection = userSelections[productId];
-    if (!selection || !selection.color || !selection.size) { alert("Please select both Color and Size."); return; }
+    if (!selection || !selection.color || !selection.size) { 
+        alert("Please select both Color and Size."); 
+        return; 
+    }
+    
+    // Send data to cart
     await addToCart(productId, selection.color, selection.size);
 }
 
@@ -190,11 +180,12 @@ async function addToCart(productId, color, size) {
     if (!currentUser) { alert("Please login first"); window.location.href = "login.html"; return; }
     const token = await currentUser.getIdToken(true);
     try {
-        await fetch(`${API_BASE_URL}/api/cart/add`, {
+        const response = await fetch(`${API_BASE_URL}/api/cart/add`, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify({ productId, color, size })
         });
+        if(response.ok) alert("Added to Wishlist!");
     } catch (err) { console.error("Cart Error:", err); }
 }
 
