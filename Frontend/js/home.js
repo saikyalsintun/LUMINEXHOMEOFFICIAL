@@ -3,14 +3,13 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     ? "http://localhost:5000" 
     : "https://luminexhomeofficial.vercel.app";
 
-// NOTE: Replace 'YOUR_CLOUD_NAME_HERE' with your actual Cloudinary Cloud Name
-// Note: This URL assumes you uploaded your folders as 'Chair_Reduce' and 'Table_Reduce'
+// Your verified Cloudinary Cloud Name
 const CLOUDINARY_BASE = "https://res.cloudinary.com/dq8rbpfis/image/upload";
 
-let allProducts = [];       
-let filteredProducts = [];  
+let allProducts = [];       // Master list (all collections combined)
+let filteredProducts = [];  // List after category/search filters applied
 let currentPage = 1;
-const itemsPerPage = 20;    
+const itemsPerPage = 20;    // Limits items per page to prevent crashing
 const userSelections = {};
 let currentScale = 1;
 
@@ -26,6 +25,7 @@ async function doSearch() {
     const grid = document.getElementById('grid');
     
     try {
+        // Parallel fetching from 3 MongoDB collections
         const [resStandard, resChairs, resDining] = await Promise.all([
             fetch(`${API_BASE_URL}/api/products?keyword=${term}`),
             fetch(`${API_BASE_URL}/api/chairs`),
@@ -36,12 +36,12 @@ async function doSearch() {
         const chairs = await resChairs.json();
         const dining = await resDining.json();
 
-        // Map Chair Data to Cloudinary
+        // Map Chair data to Cloudinary path
         const formattedChairs = chairs.map(item => ({
             _id: item._id,
             category: "Chair",
             product_description: `${item.id}: ${item.description_en || item.description_cn}`,
-            // Cloudinary folder: Chair_Reduce (Spaces in folder names are usually underscores in URLs)
+            // IMPORTANT: Removed encodeURIComponent for Cloudinary/Chinese character support
             image: `${CLOUDINARY_BASE}/Chair_Reduce/${item.filename}`,
             productColor: "Default",
             productSize: "Standard",
@@ -49,12 +49,11 @@ async function doSearch() {
             productStatus: "Collection"
         }));
 
-        // Map Dining Data to Cloudinary
+        // Map Dining data to Cloudinary path
         const formattedDining = dining.map(item => ({
             _id: item._id,
             category: "Dining Table",
             product_description: `${item.id}: ${item.description_en || item.description_cn}`,
-            // Cloudinary folder: Table_Reduce
             image: `${CLOUDINARY_BASE}/Table_Reduce/${item.filename}`,
             productColor: "Default",
             productSize: "Standard",
@@ -62,8 +61,10 @@ async function doSearch() {
             productStatus: "Premium"
         }));
 
+        // Combine into one master array
         allProducts = [...standard, ...formattedChairs, ...formattedDining];
         
+        // Initial filtering based on search term
         filteredProducts = term 
             ? allProducts.filter(p => 
                 (p.product_description || "").toLowerCase().includes(term.toLowerCase()) ||
@@ -71,7 +72,7 @@ async function doSearch() {
               )
             : allProducts;
 
-        currentPage = 1; 
+        currentPage = 1; // Reset to page 1
         renderFilters(allProducts);
         updateDisplay();
 
@@ -89,6 +90,8 @@ function updateDisplay() {
 
     renderProducts(paginatedItems);
     renderPaginationControls();
+    
+    // Auto-scroll to top of grid for better UX
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -187,6 +190,7 @@ window.filterByCategory = function(category) {
     currentPage = 1;
     filteredProducts = category === 'All' ? allProducts : allProducts.filter(p => p.category === category);
     
+    // Update Filter Buttons UI
     document.querySelectorAll('#filterContainer button').forEach(btn => {
         const isMatch = btn.innerText.toUpperCase().includes(category.toUpperCase());
         btn.className = isMatch 
@@ -273,4 +277,5 @@ window.toggleSearch = function() {
     if(!sb.classList.contains('hidden')) document.getElementById('searchBox').focus();
 };
 
+// INITIALIZE
 doSearch();
