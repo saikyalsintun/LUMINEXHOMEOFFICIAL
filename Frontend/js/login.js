@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app); // Exporting for use in other files
 
-const ADMIN_EMAIL = "saikyalsintun.mdy@gmail.com"; 
+const ADMIN_EMAIL = "luminexofficial.th@gmail.com"; 
 
 window.login = async () => {
     const emailInput = document.getElementById('loginEmail').value.trim();
