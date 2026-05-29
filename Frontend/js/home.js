@@ -75,14 +75,51 @@ function updateDisplay() {
 function renderPaginationControls() {
     const container = document.getElementById('paginationControls');
     if (!container) return;
+    
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    if (totalPages <= 1) { container.innerHTML = ''; return; }
-    let html = '';
-    for (let i = 1; i <= totalPages; i++) {
-        const activeClass = (i === currentPage) ? "bg-black text-white border-black" : "bg-white text-gray-400 border-gray-200 hover:border-black hover:text-black";
-        html += `<button onclick="goToPage(${i})" class="px-4 py-2 mx-1 text-[12px] font-bold border transition-all ${activeClass}">${i}</button>`;
+    if (totalPages <= 1) { 
+        container.innerHTML = ''; 
+        return; 
     }
-    container.innerHTML = `<div class="flex justify-center items-center mt-12 mb-20">${html}</div>`;
+
+    let html = '';
+    
+    // 1. PREVIOUS BUTTON
+    const prevDisabled = (currentPage === 1) ? 'disabled' : '';
+    html += `<button onclick="goToPage(${currentPage - 1})" ${prevDisabled} class="pagination-btn px-3 py-2 text-[12px] font-bold border transition-all disabled:opacity-40"><i class="fa-solid fa-chevron-left"></i></button>`;
+
+    // Determine the range of page numbers to show dynamically around current page
+    const maxVisibleButtons = 2; // Number of buttons to show on either side of active page
+    
+    for (let i = 1; i <= totalPages; i++) {
+        // Always show first page, last page, and a small buffer window around the active page
+        if (
+            i === 1 || 
+            i === totalPages || 
+            (i >= currentPage - maxVisibleButtons && i <= currentPage + maxVisibleButtons)
+        ) {
+            const activeClass = (i === currentPage) 
+                ? "bg-black text-white border-black" 
+                : "bg-white text-gray-500 border-gray-200 hover:border-black hover:text-black";
+                
+            html += `<button onclick="goToPage(${i})" class="pagination-btn px-4 py-2 mx-1 text-[12px] font-bold border transition-all ${activeClass}">${i}</button>`;
+        } 
+        // Render an Ellipsis indicator if skipping pages between page 1 and the visible window
+        else if (i === 2 && currentPage > maxVisibleButtons + 2) {
+            html += `<span class="px-2 text-gray-400 text-xs">...</span>`;
+        } 
+        // Render an Ellipsis indicator if skipping pages between the visible window and the last page
+        else if (i === totalPages - 1 && currentPage < totalPages - maxVisibleButtons - 1) {
+            html += `<span class="px-2 text-gray-400 text-xs">...</span>`;
+        }
+    }
+
+    // 2. NEXT BUTTON
+    const nextDisabled = (currentPage === totalPages) ? 'disabled' : '';
+    html += `<button onclick="goToPage(${currentPage + 1})" ${nextDisabled} class="pagination-btn px-3 py-2 text-[12px] font-bold border transition-all disabled:opacity-40"><i class="fa-solid fa-chevron-right"></i></button>`;
+
+    // Output directly into container wrapper cleanly without adding redundant sub-flex grids
+    container.innerHTML = html;
 }
 
 window.goToPage = function(page) { currentPage = page; updateDisplay(); };

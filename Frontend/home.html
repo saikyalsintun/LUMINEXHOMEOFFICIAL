@@ -6,7 +6,6 @@
     <title>Shop | Luminex CO. Ltd.</title>
     <link rel="icon" type="image/png" href="image/logo4.png">
     
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -36,51 +35,49 @@
         }
         
         .profile-dropdown { 
-    position: relative; 
-    display: inline-block; 
-}
+            position: relative; 
+            display: inline-block; 
+        }
 
-.dropdown-content {
-    /* Changed from display: none to allow for transitions */
-    opacity: 0;
-    visibility: hidden;
-    
-    position: absolute; 
-    right: 0; 
-    top: 100%;
-    background-color: white; 
-    min-width: 220px; 
-    z-index: 1000;
-    border-radius: 8px; 
-    padding: 10px 0;
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1); /* Optional: adds depth */
+        .dropdown-content {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute; 
+            right: 0; 
+            top: 100%;
+            background-color: white; 
+            min-width: 220px; 
+            z-index: 1000;
+            border-radius: 8px; 
+            padding: 10px 0;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1); 
 
-    /* The Secret Sauce: */
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    transition-delay: 0.5s; /* This keeps it open for 0.5s after mouse-out */
-}
+            /* Transition delay keeps it open for 0.5s after mouse-out */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition-delay: 0.5s; 
+        }
 
-.profile-dropdown:hover .dropdown-content { 
-    opacity: 1;
-    visibility: visible;
-    /* Reset delay on hover so it appears instantly when you touch it */
-    transition-delay: 0s; 
-}
+        .profile-dropdown:hover .dropdown-content { 
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0s; 
+        }
 
-.dropdown-content a {
-    color: #4b5563; 
-    padding: 12px 20px; 
-    text-decoration: none !important;
-    display: block; 
-    font-size: 0.75rem; 
-    text-transform: uppercase;
-    transition: background 0.2s;
-}
+        .dropdown-content a {
+            color: #4b5563; 
+            padding: 12px 20px; 
+            text-decoration: none !important;
+            display: block; 
+            font-size: 0.75rem; 
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
 
-.dropdown-content a:hover { 
-    background-color: #fff7ed; 
-    color: #fb923c;
-}
+        .dropdown-content a:hover { 
+            background-color: #fff7ed; 
+            color: #fb923c;
+        }
+
         /* Skeleton Shimmer Effect */
         .skeleton {
             background: #e5e7eb;
@@ -112,7 +109,7 @@
 <body class="bg-gray-50">
 
 <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
-    <div class="container mx-auto py-4 md:py-6">
+    <div class="container mx-auto py-4 md:py-6 px-4">
         <div class="flex items-center justify-between lg:grid lg:grid-cols-3">
             
             <div class="lg:hidden flex items-center">
@@ -128,10 +125,10 @@
             </div>
 
             <div class="flex justify-center items-center pointer-events-auto">
-                    <a href="index.html">
-                        <img src="image/logo2.png" alt="Luminex Furniture" class="h-7 md:h-9 w-auto object-contain">
-                    </a>
-                </div>
+                <a href="index.html">
+                    <img src="image/logo2.png" alt="Luminex Furniture" class="h-7 md:h-9 w-auto object-contain">
+                </a>
+            </div>
 
             <div class="flex items-center justify-end gap-4 md:gap-6 text-gray-500">
                 <button onclick="toggleSearch()" class="hover:text-black transition-colors">
@@ -169,7 +166,7 @@
             </div>
         </div>
 
-       <div id="mobile-menu" class="hidden lg:hidden bg-white">
+        <div id="mobile-menu" class="hidden lg:hidden bg-white">
             <div class="flex flex-col py-4 border-t border-gray-100 mt-4 px-4">
                 <div id="mobile-admin-section" style="display: none;" class="flex flex-col mb-2">
                     <a href="admin/admin.html" class="nav-link-min admin-link-orange block py-3 border-b border-gray-50">
@@ -208,7 +205,7 @@
 
 <br/>
 
-<div class="container mx-auto">
+<div class="container mx-auto px-4">
     <div id="filterContainer" class="flex flex-wrap gap-3 mb-8"></div>
     
     <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -228,14 +225,8 @@
             <div class="h-3 bg-gray-200 rounded w-1/2"></div>
         </div>
     </div>
-</div>
-<div class="container mx-auto">
-    <div id="filterContainer" class="flex flex-wrap gap-3 mb-8"></div>
-    
-    <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        </div>
 
-    <div id="paginationControls"></div> 
+    <div id="paginationControls" class="flex flex-wrap justify-center items-center gap-2 mt-12 mb-8 w-full px-2"></div> 
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
